@@ -1,0 +1,19 @@
+{
+  "animal_0": {
+    
+    "water_needed_per_day": 2,
+    "max_temperature_can_live": 20,
+    "water_intakes": [1.9, 1.8, 2.1],
+    "lake": "NO_LAKE"
+  
+  },
+
+  "animal_1": {
+    
+    "water_needed_per_day": 1.5,
+    "max_temperature_can_live": 25,
+    "water_intakes": [1.3, 1.6, 1.5],
+    "lake": "NO_LAKE"
+  
+  }
+}
