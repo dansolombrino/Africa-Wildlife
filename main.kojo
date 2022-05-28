@@ -1,6 +1,9 @@
 import scala.util.Random
 import scala.collection.mutable.ListBuffer
 import scala.language.postfixOps
+import scala.collection.mutable.Map
+
+val DAYS_IN_YEAR = 3
 
 val MAX_TEMP_LOWERBOUND = 20
 val MAX_TEMP_UPPERBOUND = 40
@@ -29,6 +32,8 @@ trait Animal {
 
     val maxTemp: Double
 
+    var lifePoints = List.fill(DAYS_IN_YEAR)(100)
+
     def stillAlive(currentTemp: Double)
 
 }
@@ -36,7 +41,7 @@ trait Animal {
 class Lion(val maxTemp : Double, val id : Int) extends Animal {
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Lion, maxTemp: " + maxTemp + "\n"
+        return "\n\t\tID: " + id + " --> Lion, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + "\n"
     }
 
     def stillAlive(currentTemp: Double) {
@@ -47,7 +52,7 @@ class Lion(val maxTemp : Double, val id : Int) extends Animal {
 class Elephant(val maxTemp : Double, val id : Int) extends Animal {
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Elephant, maxTemp: " + maxTemp + "\n"
+        return "\n\t\tID: " + id + " --> Elephant, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + "\n"
     }
 
     def stillAlive(currentTemp: Double) {
@@ -58,7 +63,7 @@ class Elephant(val maxTemp : Double, val id : Int) extends Animal {
 class Zebra(val maxTemp : Double, val id : Int) extends Animal {
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Zebra, maxTemp: " + maxTemp + "\n"
+        return "\n\t\tID: " + id + " --> Zebra, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + "\n"
     }
 
     def stillAlive(currentTemp: Double) {
@@ -127,11 +132,11 @@ val WATER_SOURCES_TYPES = List("Lake", "River")
 
 trait WaterSource {
     val maxLevel : Double
-    val currentLevel : Double
+    var currentLevel = List.fill(DAYS_IN_YEAR)(maxLevel)
     val id : Int
 }
 
-class Lake(val maxLevel : Double, val currentLevel : Double, val radius : Double, val id : Int) extends WaterSource {
+class Lake(val maxLevel : Double, val radius : Double, val id : Int) extends WaterSource {
 
 
     override def toString() : String = {
@@ -139,7 +144,7 @@ class Lake(val maxLevel : Double, val currentLevel : Double, val radius : Double
     }
 }
 
-class River(val maxLevel : Double, val currentLevel : Double, val area : Double, val shape : String, val id : Int) extends WaterSource {
+class River(val maxLevel : Double, val area : Double, val shape : String, val id : Int) extends WaterSource {
 
 
     override def toString() : String = {
@@ -156,31 +161,27 @@ class WaterSources(val numOfWaterSources : Int) {
         for (i <- 1 to numOfWaterSources) {
             
             val waterSourceType = WATER_SOURCES_TYPES(Random.between(0, WATER_SOURCES_TYPES.length))
-            println("waterSourceType: " + waterSourceType)
+            //println("waterSourceType: " + waterSourceType)
             
             val maxLevel = Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND)
-            println("maxLevel: " + maxLevel)
-            
-            val currentLevel = Random.between(1, maxLevel)
-            println("currentLevel: " + currentLevel)
-            println("   ")
+            //println("maxLevel: " + maxLevel)
             
             val radiusOrArea = Random.between(0, 1)
 
             waterSourceType match {
         
                 case "Lake" => {
-                    waterSources += new Lake(maxLevel, currentLevel, radiusOrArea, i)
+                    waterSources += new Lake(maxLevel, radiusOrArea, i)
                     //println(waterSources)
                 }
 
                 case "River" => {
-                    waterSources += new River(maxLevel, currentLevel, radiusOrArea, "L", i)
+                    waterSources += new River(maxLevel, radiusOrArea, "L", i)
                     //println(waterSources)
                 }
 
                 case default => {
-                    waterSources += new Lake(maxLevel, currentLevel, radiusOrArea, i)
+                    waterSources += new Lake(maxLevel, radiusOrArea, i)
                     //println(waterSources)
                 }
 
@@ -206,10 +207,11 @@ class WaterSources(val numOfWaterSources : Int) {
 
 class Africa(val numOfAnimals : Int, val numOfWaterSources : Int) {
 
-
     var animals = new Animals(numOfAnimals)
 
     var waterSources = new WaterSources(numOfWaterSources)
+
+    var animalsWaterSourcesMap = new HashMap[Animal, WaterSource]
 
     override def toString() : String = {
         return "*** Africa ***\n\n" + "\t number of animals: " + numOfAnimals + "\n\t animals: " + animals.toString() + "\t number of water sources: " + numOfWaterSources + "\n\t water sources: " + waterSources.toString() + "\n\n**************"
@@ -217,9 +219,12 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int) {
 }
 
 val numOfAnimals = Random.between(MIN_NUM_OF_ANIMALS, MAX_NUM_OF_ANIMALS)
+
 //val numOfWaterSources = Random.between(MIN_NUM_OF_WATER_SOURCES, MAX_NUM_OF_WATER_SOURCES)
 val numOfWaterSources = 1 // keep it this way, for testing purposes
+
 var africa = new Africa(numOfAnimals, numOfWaterSources)
+
 println(africa)
 
 
