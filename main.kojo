@@ -1,5 +1,6 @@
 import scala.util.Random
 import scala.collection.mutable.ListBuffer
+import scala.language.postfixOps
 
 val MAX_TEMP_LOWERBOUND = 20
 val MAX_TEMP_UPPERBOUND = 40
@@ -10,115 +11,101 @@ val MIN_WATER_UPPERBOUND = 3.5
 val MIN_NUMBER_OF_ANIMALS = 1
 val MAX_NUMBER_OF_ANIMALS = 4
 
-abstract class Animal(maxTemp: Double, minWater: Double){
-    
- 
+val ANIMAL_SPECIES = List("Lion", "Elephant", "Zebra")
+
+object LionParams {
+  val maxTemp = 40
 }
 
-class Lion(maxTemp: Double, minWater: Double, id: Int) extends Animal(maxTemp, minWater) {
-    
+object ElephantParams {
+  val maxTemp = 45
+}
+
+object ZebraParams {
+  val maxTemp = 45
+}
+
+trait Animal {
+
+    val maxTemp: Double
+
+    def stillAlive(currentTemp: Double)
+
+}
+
+class Lion(val maxTemp : Double, val id : Int) extends Animal {
+
     override def toString() : String = {
-      
-        return "ID: " + id + " --> Lion" + ", maxTemp: " + maxTemp + ", minWater: " + minWater
+        return "ID: " + id + " --> Lion, maxTemp: " + maxTemp
     }
-    
+
+    def stillAlive(currentTemp: Double) {
+        println("stillAlive Lion" + currentTemp)
+    }
 }
 
-class Elephant(maxTemp: Double, minWater: Double, id: Int) extends Animal(maxTemp, minWater) {
-    
+class Elephant(val maxTemp : Double, val id : Int) extends Animal {
+
     override def toString() : String = {
-      
-        return "ID: " + id + " --> Elephant" + ", maxTemp: " + maxTemp + ", minWater: " + minWater
+        return "ID: " + id + " --> Elephant, maxTemp: " + maxTemp
     }
-    
+
+    def stillAlive(currentTemp: Double) {
+        println("stillAlive Elephant" + currentTemp)
+    }
 }
 
-class Zebra(maxTemp: Double, minWater: Double, id: Int) extends Animal(maxTemp, minWater) {
-    
+class Zebra(val maxTemp : Double, val id : Int) extends Animal {
+
     override def toString() : String = {
-      
-        return "ID: " + id + " --> Zebra" + ", maxTemp: " + maxTemp + ", minWater: " + minWater
+        return "ID: " + id + " --> Zebra, maxTemp: " + maxTemp
     }
-    
+
+    def stillAlive(currentTemp: Double) {
+        println("stillAlive Zebra" + currentTemp)
+    }
 }
 
-class Bull(maxTemp: Double, minWater: Double, id: Int) extends Animal(maxTemp, minWater) {
-    
-    override def toString() : String = {
-      
-        return "ID: " + id + " --> Lion" + ", maxTemp: " + maxTemp + ", minWater: " + minWater
-    }
-    
-}
 
-val animalSpecies = List("Lion", "Elephant", "Zebra", "Bull")
+
+
+def populate(numberOfAnimals : Int): ListBuffer[Animal] = {
+    
+    var animals: ListBuffer[Animal] = ListBuffer()
+    
+    for (i <- 1 to numberOfAnimals) {
+        
+        val animalSpecie = ANIMAL_SPECIES(Random.between(0, ANIMAL_SPECIES.length))
+    
+        animalSpecie match {
+    
+            case "Lion" => {
+                animals += new Lion(LionParams.maxTemp, i)
+            }
+    
+            case "Elephant" => {
+                animals += new Elephant(ElephantParams.maxTemp, i)
+            }
+    
+            case "Zebra" => {
+                animals += new Zebra(ZebraParams.maxTemp, i)
+            }
+    
+            case default => {
+                animals += new Zebra(ZebraParams.maxTemp, i)
+            }
+        }
+    }
+
+    return animals
+}
 
 val numberOfAnimals = Random.between(MIN_NUMBER_OF_ANIMALS, MAX_NUMBER_OF_ANIMALS)
 println("numberOfAnimals: " + numberOfAnimals)
 
-var animals: ListBuffer[Animal] = ListBuffer()
+var animals: ListBuffer[Animal] = populate(numberOfAnimals)
 
-for (i <- 1 to numberOfAnimals) {
-
-    val animalSpecie = animalSpecies(Random.between(0, animalSpecies.length))
-
-    animalSpecie match {
-        
-        case "Lion" => {
-
-            println("match Lion") 
-
-            animals += new Lion(i, 40, 2)
-        }
-        case "Elephant" => {
-            
-            println("match Elephant") 
-
-            animals += new Elephant(i, 40, 2)
-        }
-        case "Zebra" => {
-            
-            println("match Zebra") 
-            
-            animals += new Zebra(i, 40, 2)
-        }
-        case "Bull" => {
-            
-            println("match Bull") 
-
-            animals += new Bull(i, 40, 2)
-        }
-        case default => {
-            println("don't know what " + default + " is...")
-        }
-    }
-   
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+println(animals)
 
 
 
