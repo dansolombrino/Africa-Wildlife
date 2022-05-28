@@ -4,3 +4,6 @@
 *.app
 
 .DS_Store
+
+/project/*
+/target/*
