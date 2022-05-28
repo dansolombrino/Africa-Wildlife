@@ -11,9 +11,6 @@ val MIN_WATER_UPPERBOUND = 3.5
 val MIN_NUM_OF_ANIMALS = 1
 val MAX_NUM_OF_ANIMALS = 4
 
-val MIN_NUM_OF_WATER_SOURCES = 1
-val MAX_NUM_OF_WATER_SOURCES = 2
-
 val ANIMAL_SPECIES = List("Lion", "Elephant", "Zebra")
 
 object LionParams {
@@ -69,15 +66,11 @@ class Zebra(val maxTemp : Double, val id : Int) extends Animal {
     }
 }
 
-class WaterSource(val maxLevel : Double, val currentLevel : Double, val id : Int) {
-    
-}
-
-class Africa(val numOfAnimals : Int, val numOfWaterSources : Int) {
+class Animals(val numOfAnimals : Int) {
     
     var animals: ListBuffer[Animal] = ListBuffer()
 
-    def populate_animals(): ListBuffer[Animal] = {
+    def populateAnimals(): ListBuffer[Animal] = {
         
         for (i <- 1 to numOfAnimals) {
             
@@ -106,16 +99,126 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int) {
         return animals
     }
 
-    populate_animals()
+    populateAnimals()
 
     override def toString() : String = {
-        return "*** Africa ***\n\n" + "\t number of animals: " + numOfAnimals + 
-            "\n\t animals: " + animals.toString() + "\n\n**************"
+        var out = ""
+
+        animals.foreach(
+            a => {
+                out += a.toString()
+            }
+        )
+
+        return out
+ 
+    }
+}
+
+val MIN_NUM_OF_WATER_SOURCES = 2
+val MAX_NUM_OF_WATER_SOURCES = 4
+
+val MAX_WATER_SOURCE_LEVEL = 10
+
+val MAX_LEVEL_LOWERBOUND = 2
+val MAX_LEVEL_UPPERBOUND = 4
+
+val WATER_SOURCES_TYPES = List("Lake", "River")
+
+trait WaterSource {
+    val maxLevel : Double
+    val currentLevel : Double
+    val id : Int
+}
+
+class Lake(val maxLevel : Double, val currentLevel : Double, val radius : Double, val id : Int) extends WaterSource {
+
+
+    override def toString() : String = {
+        return "\n\t\tID: " + id + " --> Lake, currentLevel: " + currentLevel + ", maxLevel: " + maxLevel + "\n"
+    }
+}
+
+class River(val maxLevel : Double, val currentLevel : Double, val area : Double, val shape : String, val id : Int) extends WaterSource {
+
+
+    override def toString() : String = {
+        return "\n\t\tID: " + id + " --> River, currentLevel: " + currentLevel + ", maxLevel: " + maxLevel + "\n"
+    }
+}
+
+class WaterSources(val numOfWaterSources : Int) {
+    
+    var waterSources : ListBuffer[WaterSource] = ListBuffer()
+
+    def populateWaterSources() {
+    
+        for (i <- 1 to numOfWaterSources) {
+            
+            val waterSourceType = WATER_SOURCES_TYPES(Random.between(0, WATER_SOURCES_TYPES.length))
+            println("waterSourceType: " + waterSourceType)
+            
+            val maxLevel = Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND)
+            println("maxLevel: " + maxLevel)
+            
+            val currentLevel = Random.between(1, maxLevel)
+            println("currentLevel: " + currentLevel)
+            println("   ")
+            
+            val radiusOrArea = Random.between(0, 1)
+
+            waterSourceType match {
+        
+                case "Lake" => {
+                    waterSources += new Lake(maxLevel, currentLevel, radiusOrArea, i)
+                    //println(waterSources)
+                }
+
+                case "River" => {
+                    waterSources += new River(maxLevel, currentLevel, radiusOrArea, "L", i)
+                    //println(waterSources)
+                }
+
+                case default => {
+                    waterSources += new Lake(maxLevel, currentLevel, radiusOrArea, i)
+                    //println(waterSources)
+                }
+
+            }
+        }
+    }
+
+    populateWaterSources()
+    
+    override def toString() : String = {
+        var out = ""
+    
+        waterSources.foreach(
+            ws => {
+                out += ws.toString()
+            }
+        )
+    
+        return out
+
+    }
+}
+
+class Africa(val numOfAnimals : Int, val numOfWaterSources : Int) {
+
+
+    var animals = new Animals(numOfAnimals)
+
+    var waterSources = new WaterSources(numOfWaterSources)
+
+    override def toString() : String = {
+        return "*** Africa ***\n\n" + "\t number of animals: " + numOfAnimals + "\n\t animals: " + animals.toString() + "\t number of water sources: " + numOfWaterSources + "\n\t water sources: " + waterSources.toString() + "\n\n**************"
     }
 }
 
 val numOfAnimals = Random.between(MIN_NUM_OF_ANIMALS, MAX_NUM_OF_ANIMALS)
-val numOfWaterSources = Random.between(MIN_NUM_OF_WATER_SOURCES, MAX_NUM_OF_WATER_SOURCES)
+//val numOfWaterSources = Random.between(MIN_NUM_OF_WATER_SOURCES, MAX_NUM_OF_WATER_SOURCES)
+val numOfWaterSources = 1 // keep it this way, for testing purposes
 var africa = new Africa(numOfAnimals, numOfWaterSources)
 println(africa)
 
