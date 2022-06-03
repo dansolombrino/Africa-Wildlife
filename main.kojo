@@ -32,16 +32,21 @@ trait Animal {
 
     val maxTemp: Double
 
-    var lifePoints = List.fill(DAYS_IN_YEAR)(100)
+    var lifePoints = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(100)
+    var drankWater = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(0.0)
 
     def stillAlive(currentTemp: Double)
+
+    def drinkWater(day: Int, water: Double) {
+        drankWater(day) += water
+    }
 
 }
 
 class Lion(val maxTemp : Double, val id : Int) extends Animal {
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Lion, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + "\n"
+        return "\n\t\tID: " + id + " --> Lion, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + "\n"
     }
 
     def stillAlive(currentTemp: Double) {
@@ -52,7 +57,7 @@ class Lion(val maxTemp : Double, val id : Int) extends Animal {
 class Elephant(val maxTemp : Double, val id : Int) extends Animal {
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Elephant, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + "\n"
+        return "\n\t\tID: " + id + " --> Elephant, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + "\n"
     }
 
     def stillAlive(currentTemp: Double) {
@@ -63,7 +68,7 @@ class Elephant(val maxTemp : Double, val id : Int) extends Animal {
 class Zebra(val maxTemp : Double, val id : Int) extends Animal {
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Zebra, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + "\n"
+        return "\n\t\tID: " + id + " --> Zebra, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + "\n"
     }
 
     def stillAlive(currentTemp: Double) {
@@ -118,9 +123,13 @@ class Animals(val numOfAnimals : Int) {
         return out
  
     }
+
+    def getAnimal(i: Int) : Animal = {
+        return animals(i)
+    }
 }
 
-val MIN_NUM_OF_WATER_SOURCES = 2
+val MIN_NUM_OF_WATER_SOURCES = 3
 val MAX_NUM_OF_WATER_SOURCES = 4
 
 val MAX_WATER_SOURCE_LEVEL = 10
@@ -132,8 +141,12 @@ val WATER_SOURCES_TYPES = List("Lake", "River")
 
 trait WaterSource {
     val maxLevel : Double
-    var currentLevel = List.fill(DAYS_IN_YEAR)(maxLevel)
+    var currentLevel = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(maxLevel)
     val id : Int
+
+    def removeWater(day: Int, water: Double) {
+        currentLevel(day) -= water
+    }
 }
 
 class Lake(val maxLevel : Double, val radius : Double, val id : Int) extends WaterSource {
@@ -203,6 +216,10 @@ class WaterSources(val numOfWaterSources : Int) {
         return out
 
     }
+
+    def getRandomWaterSource() : WaterSource = {
+        return waterSources(Random.between(0, numOfWaterSources))
+    }
 }
 
 class Africa(val numOfAnimals : Int, val numOfWaterSources : Int) {
@@ -211,10 +228,34 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int) {
 
     var waterSources = new WaterSources(numOfWaterSources)
 
-    var animalsWaterSourcesMap = new HashMap[Animal, WaterSource]
+    var animalsWaterSourcesMap = new scala.collection.mutable.HashMap[Int, scala.collection.mutable.HashMap[Animal, WaterSource]]
 
     override def toString() : String = {
         return "*** Africa ***\n\n" + "\t number of animals: " + numOfAnimals + "\n\t animals: " + animals.toString() + "\t number of water sources: " + numOfWaterSources + "\n\t water sources: " + waterSources.toString() + "\n\n**************"
+    }
+
+    def populateAnimalsWaterSourcesMap() {
+        for (i <- 1 to DAYS_IN_YEAR) {
+
+            animalsWaterSourcesMap(i) = new scala.collection.mutable.HashMap[Animal, WaterSource]
+            
+            animals.animals.foreach(
+                a => {
+                    animalsWaterSourcesMap(i) += ((a, waterSources.getRandomWaterSource()))
+                }
+            )
+           
+        }
+    }
+
+    populateAnimalsWaterSourcesMap()
+
+    def waterSimulation() {
+        println("Water simulation!")
+    }
+
+    def simulation() {
+        waterSimulation()
     }
 }
 
@@ -226,6 +267,41 @@ val numOfWaterSources = 1 // keep it this way, for testing purposes
 var africa = new Africa(numOfAnimals, numOfWaterSources)
 
 println(africa)
+
+println("\n\n")
+println("********** animalsWaterSourcesMap **********")
+println("\n")
+println(africa.animalsWaterSourcesMap)
+println("\n")
+println("********************************************")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
