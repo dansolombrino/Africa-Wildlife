@@ -37,7 +37,7 @@ trait Animal {
     val minWater : Double
     val id : Int
 
-    var lifePoints = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(100)
+    var lifePoints = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(100.0)
     var drankWater = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(0.0)
 
     def stillAlive(currentTemp: Double)
@@ -48,6 +48,12 @@ trait Animal {
 
     def getId() : Int = {
         return id
+    }
+
+    def updateLifePoints() {
+        for (day <- 0 to DAYS_IN_YEAR - 1) {
+            lifePoints(day) = 20.0 * drankWater(day)
+        }
     }
 
 }
@@ -153,8 +159,21 @@ trait WaterSource {
     var currentLevel = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(maxLevel)
     val id : Int
 
-    def removeWater(day: Int, water: Double) {
-        currentLevel(day) -= water
+    def removeWater(day: Int, water: Double) : Double = {
+
+        if (currentLevel(day) - water >= 0) {
+            currentLevel(day) -= water
+
+            return water
+        } else {
+            val temp = currentLevel(day)
+            
+            currentLevel(day) = 0
+
+            return temp
+        }
+ 
+        
     }
 }
 
@@ -267,10 +286,10 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int) {
         animalsWaterSourcesMap.keys.foreach(
             day => {
 
-                day--
+                val dayZeroBased = day - 1
 
                 val r = scala.util.Random
-                println("Day: " + day)
+                println("Day: " + dayZeroBased)
                 
                 //println(r.shuffle(animalsWaterSourcesMap(day)))
 
@@ -284,15 +303,20 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int) {
                         println(association._2)
 
                         // drink code
-                        val water = Random.between(0, association._1.minWater)
-                        println("\twater: " + water)
+                        val desired_water = Random.between(0, association._1.minWater)
+                        println("\tdesired_water: " + desired_water)
 
-                        association._1.drinkWater(day, water)
+                        val actual_water = association._2.removeWater(dayZeroBased, desired_water)
+
+                        association._1.drinkWater(dayZeroBased, actual_water)
+                        
 
                         println("\tAnimal " + association._1.id + " AFTER drinking: ")
                         println("\t" + association._1)
                         println("\tWaterSource " + association._2.id + " AFTER drinking: ")
                         println(association._2)
+
+                        println("\n\n\n\n")
 
 
                         
@@ -333,6 +357,12 @@ println("********************************************")
 
 
 africa.simulation()
+africa.animals.animals.foreach(
+    a => {
+        a.updateLifePoints()
+        println(a)
+    }
+)
 
 
 
