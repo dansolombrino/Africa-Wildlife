@@ -36,6 +36,7 @@ trait Animal {
     val maxTemp : Double
     val minWater : Double
     val id : Int
+    val icon : Picture
 
     var lifePoints = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(100.0)
     var drankWater = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(0.0)
@@ -63,7 +64,7 @@ trait Animal {
 
 }
 
-class Lion(val maxTemp : Double, val minWater : Double, val id : Int) extends Animal {
+class Lion(val maxTemp : Double, val minWater : Double, val id : Int, val icon : Picture) extends Animal {
 
     override def toString() : String = {
         return "\n\t\tID: " + id + " --> Lion, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", temp: " + temp + "\n"
@@ -74,7 +75,7 @@ class Lion(val maxTemp : Double, val minWater : Double, val id : Int) extends An
     }
 }
 
-class Elephant(val maxTemp : Double, val minWater : Double, val id : Int) extends Animal {
+class Elephant(val maxTemp : Double, val minWater : Double, val id : Int, val icon : Picture) extends Animal {
 
     override def toString() : String = {
         return "\n\t\tID: " + id + " --> Elephant, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", temp: " + temp + "\n"
@@ -85,7 +86,7 @@ class Elephant(val maxTemp : Double, val minWater : Double, val id : Int) extend
     }
 }
 
-class Zebra(val maxTemp : Double, val minWater : Double, val id : Int) extends Animal {
+class Zebra(val maxTemp : Double, val minWater : Double, val id : Int, val icon : Picture) extends Animal {
 
     override def toString() : String = {
         return "\n\t\tID: " + id + " --> Zebra, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", temp: " + temp + "\n"
@@ -109,19 +110,21 @@ class Animals(val numOfAnimals : Int) {
             animalSpecie match {
         
                 case "Lion" => {
-                    animals += new Lion(LionParams.maxTemp, LionParams.minWater, i)
+                    animals += new Lion(
+                        LionParams.maxTemp, LionParams.minWater, i, Picture.image("/home/daniele/GitHub/Africa-Wildlife/icons/lion.png")
+                    )
                 }
         
                 case "Elephant" => {
-                    animals += new Elephant(ElephantParams.maxTemp, ElephantParams.minWater, i)
+                    animals += new Elephant(ElephantParams.maxTemp, ElephantParams.minWater, i, Picture.image("/home/daniele/GitHub/Africa-Wildlife/icons/elephant.png"))
                 }
         
                 case "Zebra" => {
-                    animals += new Zebra(ZebraParams.maxTemp, ZebraParams.minWater, i)
+                    animals += new Zebra(ZebraParams.maxTemp, ZebraParams.minWater, i, Picture.image("/home/daniele/GitHub/Africa-Wildlife/icons/zebra.png"))
                 }
         
                 case default => {
-                    animals += new Zebra(ZebraParams.maxTemp, ZebraParams.minWater, i)
+                    animals += new Zebra(ZebraParams.maxTemp, ZebraParams.minWater, i, Picture.image("/home/daniele/GitHub/Africa-Wildlife/icons/zebra.png"))
                 }
             }
         }
@@ -373,7 +376,7 @@ victoria.draw()
 val chad = trans(580, 760) * penColor(waterColor) * penThickness(10) * fillColor(waterColor) * rot(-45) -> Picture.ellipse(35, 20)
 chad.draw()
 
-
+africa.animals.draw()
 
 
 
