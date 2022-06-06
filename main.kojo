@@ -39,6 +39,7 @@ trait Animal {
 
     var lifePoints = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(100.0)
     var drankWater = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(0.0)
+    var temp = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(0.0)
 
     def stillAlive(currentTemp: Double)
 
@@ -50,9 +51,13 @@ trait Animal {
         return id
     }
 
-    def updateLifePoints() {
-        for (day <- 0 to DAYS_IN_YEAR - 1) {
-            lifePoints(day) = 20.0 * drankWater(day)
+    def updateLifePoints(day : Int) {
+            lifePoints(day) = 25.0 * drankWater(day) - 0.75 * temp(day)
+    }
+
+    def die(day : Int) {
+        for (i <- day to DAYS_IN_YEAR - 1) {
+            lifePoints(i) = -1
         }
     }
 
@@ -61,7 +66,7 @@ trait Animal {
 class Lion(val maxTemp : Double, val minWater : Double, val id : Int) extends Animal {
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Lion, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + "\n"
+        return "\n\t\tID: " + id + " --> Lion, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", temp: " + temp + "\n"
     }
 
     def stillAlive(currentTemp: Double) {
@@ -72,7 +77,7 @@ class Lion(val maxTemp : Double, val minWater : Double, val id : Int) extends An
 class Elephant(val maxTemp : Double, val minWater : Double, val id : Int) extends Animal {
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Elephant, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + "\n"
+        return "\n\t\tID: " + id + " --> Elephant, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", temp: " + temp + "\n"
     }
 
     def stillAlive(currentTemp: Double) {
@@ -83,7 +88,7 @@ class Elephant(val maxTemp : Double, val minWater : Double, val id : Int) extend
 class Zebra(val maxTemp : Double, val minWater : Double, val id : Int) extends Animal {
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Zebra, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + "\n"
+        return "\n\t\tID: " + id + " --> Zebra, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", temp: " + temp + "\n"
     }
 
     def stillAlive(currentTemp: Double) {
@@ -280,8 +285,8 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int) {
 
     populateAnimalsWaterSourcesMap()
 
-    def waterSimulation() {
-        println("Water simulation!")
+    def simulation() {
+        println("Simulation!")
 
         animalsWaterSourcesMap.keys.foreach(
             day => {
@@ -289,35 +294,51 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int) {
                 val dayZeroBased = day - 1
 
                 val r = scala.util.Random
-                println("Day: " + dayZeroBased)
+
+                val temp_for_the_day = Random.between(30, 45)
+
+                println("Day (zero based): " + dayZeroBased + ", day: " + day +", temperature: " + temp_for_the_day)
                 
                 //println(r.shuffle(animalsWaterSourcesMap(day)))
 
                 r.shuffle(animalsWaterSourcesMap(day)).foreach(
                     association => {
+
+                        if ( association._1.lifePoints( dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 ) ) > 0 ) {
+
+                            println("\tAnimal " + association._1.id + " is drinking from WaterSource " + association._2.id)
+                            println("\tAnimal " + association._1.id + " BEFORE drinking: ")
+                            println("\t" + association._1)
+                            println("\tWaterSource " + association._2.id + " BEFORE drinking: ")
+                            println(association._2)
+    
+                            // drink code
+                            val desired_water = Random.between(0, association._1.minWater)
+                            println("\tdesired_water: " + desired_water)
+    
+                            val actual_water = association._2.removeWater(dayZeroBased, desired_water)
+    
+                            association._1.drinkWater(dayZeroBased, actual_water)
+    
+                            association._1.temp(dayZeroBased) = temp_for_the_day
+    
+                            association._1.updateLifePoints(dayZeroBased)
+                            
+    
+                            println("\tAnimal " + association._1.id + " AFTER drinking: ")
+                            println("\t" + association._1)
+                            println("\tWaterSource " + association._2.id + " AFTER drinking: ")
+                            println(association._2)
+    
+                            println("\n\n\n\n")
+
+                           
+                        } else {
+                            println("\tAnimal " + association._1.id + " DIED :'( ")
+                            association._1.die(dayZeroBased - 1)
+                        }
                         
-                        println("\tAnimal " + association._1.id + " is drinking from WaterSource " + association._2.id)
-                        println("\tAnimal " + association._1.id + " BEFORE drinking: ")
-                        println("\t" + association._1)
-                        println("\tWaterSource " + association._2.id + " BEFORE drinking: ")
-                        println(association._2)
-
-                        // drink code
-                        val desired_water = Random.between(0, association._1.minWater)
-                        println("\tdesired_water: " + desired_water)
-
-                        val actual_water = association._2.removeWater(dayZeroBased, desired_water)
-
-                        association._1.drinkWater(dayZeroBased, actual_water)
                         
-
-                        println("\tAnimal " + association._1.id + " AFTER drinking: ")
-                        println("\t" + association._1)
-                        println("\tWaterSource " + association._2.id + " AFTER drinking: ")
-                        println(association._2)
-
-                        println("\n\n\n\n")
-
 
                         
 
@@ -332,10 +353,6 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int) {
         
 
         
-    }
-
-    def simulation() {
-        waterSimulation()
     }
 }
 
@@ -359,7 +376,6 @@ println("********************************************")
 africa.simulation()
 africa.animals.animals.foreach(
     a => {
-        a.updateLifePoints()
         println(a)
     }
 )
