@@ -203,6 +203,7 @@ class WaterSources(val numOfWaterSources : Int) {
     var waterSources : ListBuffer[WaterSource] = ListBuffer()
 
     def populateWaterSources() {
+        
     
         for (i <- 1 to numOfWaterSources) {
             
@@ -359,7 +360,7 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int) {
 val numOfAnimals = Random.between(MIN_NUM_OF_ANIMALS, MAX_NUM_OF_ANIMALS)
 
 //val numOfWaterSources = Random.between(MIN_NUM_OF_WATER_SOURCES, MAX_NUM_OF_WATER_SOURCES)
-val numOfWaterSources = 1 // keep it this way, for testing purposes
+val numOfWaterSources = 3 // keep it this way, for testing purposes
 
 var africa = new Africa(numOfAnimals, numOfWaterSources)
 
@@ -381,13 +382,10 @@ africa.animals.animals.foreach(
 )
 
 
+setBackground(color(200,235,255))
 
-
-
-
-
-
-
+val africaClean = Picture.image("/home/daniele/GitHub/Africa-Wildlife/africaClean.png")    
+africaClean.draw()
 
 
 
