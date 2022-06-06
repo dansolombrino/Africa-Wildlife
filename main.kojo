@@ -163,6 +163,7 @@ trait WaterSource {
     val maxLevel : Double
     var currentLevel = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(maxLevel)
     val id : Int
+    val name : String
 
     def removeWater(day: Int, water: Double) : Double = {
 
@@ -182,66 +183,33 @@ trait WaterSource {
     }
 }
 
-class Lake(val maxLevel : Double, val radius : Double, val id : Int) extends WaterSource {
-
+class Lake(val maxLevel : Double, val radius : Double, val id : Int, val name : String) extends WaterSource {
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Lake, currentLevel: " + currentLevel + ", maxLevel: " + maxLevel + "\n"
+        return "\n\t\tName: " + name + " --> Lake, currentLevel: " + currentLevel + ", maxLevel: " + maxLevel + "\n"
     }
 }
 
-class River(val maxLevel : Double, val area : Double, val shape : String, val id : Int) extends WaterSource {
+class River(val maxLevel : Double, val length : Double, val id : Int, val name : String) extends WaterSource {
 
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> River, currentLevel: " + currentLevel + ", maxLevel: " + maxLevel + "\n"
+        return "\n\t\tName: " + name + " --> River, currentLevel: " + currentLevel + ", maxLevel: " + maxLevel + "\n"
     }
 }
 
 class WaterSources(val numOfWaterSources : Int) {
-    
-    var waterSources : ListBuffer[WaterSource] = ListBuffer()
 
-    def populateWaterSources() {
-        
-    
-        for (i <- 1 to numOfWaterSources) {
-            
-            val waterSourceType = WATER_SOURCES_TYPES(Random.between(0, WATER_SOURCES_TYPES.length))
-            //println("waterSourceType: " + waterSourceType)
-            
-            val maxLevel = Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND)
-            //println("maxLevel: " + maxLevel)
-            
-            val radiusOrArea = Random.between(0, 1)
+    var waterSources_new = new scala.collection.mutable.HashMap[String, WaterSource]
 
-            waterSourceType match {
-        
-                case "Lake" => {
-                    waterSources += new Lake(maxLevel, radiusOrArea, i)
-                    //println(waterSources)
-                }
-
-                case "River" => {
-                    waterSources += new River(maxLevel, radiusOrArea, "L", i)
-                    //println(waterSources)
-                }
-
-                case default => {
-                    waterSources += new Lake(maxLevel, radiusOrArea, i)
-                    //println(waterSources)
-                }
-
-            }
-        }
-    }
-
-    populateWaterSources()
+    waterSources_new("Chad") = new Lake(Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 4.65, 1, "Chad")
+    waterSources_new("Victoria") = new Lake(Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 0.21, 2, "Victoria")
+    waterSources_new("Niger") = new River(Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 4, 3, "Niger")
     
     override def toString() : String = {
         var out = ""
     
-        waterSources.foreach(
+        waterSources_new.foreach(
             ws => {
                 out += ws.toString()
             }
@@ -252,7 +220,9 @@ class WaterSources(val numOfWaterSources : Int) {
     }
 
     def getRandomWaterSource() : WaterSource = {
-        return waterSources(Random.between(0, numOfWaterSources))
+        //return waterSources(Random.between(0, numOfWaterSources))
+        val waterSourcesList = List("Chad", "Victoria", "Niger")
+        return waterSources_new(waterSourcesList(Random.between(0, numOfWaterSources)))
     }
 }
 
@@ -314,7 +284,7 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int) {
                             println(association._2)
     
                             // drink code
-                            val desired_water = Random.between(0, association._1.minWater)
+                            val desired_water = Random.between(association._1.minWater * 0.0, association._1.minWater)
                             println("\tdesired_water: " + desired_water)
     
                             val actual_water = association._2.removeWater(dayZeroBased, desired_water)
@@ -381,15 +351,27 @@ africa.animals.animals.foreach(
     }
 )
 
-
-setBackground(color(200,235,255))
+clear()
+val bgColor = color(200,235,255)
+setBackground(bgColor)
 
 val africaClean = Picture.image("/home/daniele/GitHub/Africa-Wildlife/africaClean.png")    
 africaClean.draw()
 
+val waterColor = color(88, 148, 245)
+val niger_1 = trans(455, 615) * penColor(waterColor) * penThickness(10) -> Picture.line(10, 50)
+val niger_2 = trans(465, 665) * penColor(waterColor) * penThickness(10) -> Picture.line(-100, 150)
+val niger_3 = trans(365, 815) * rot(90) * penColor(waterColor) * penThickness(10) -> Picture.line(-125, 150)
 
+niger_1.draw()
+niger_2.draw()
+niger_3.draw()
 
+val victoria = trans(850, 535) * penColor(waterColor) * penThickness(10) * fillColor(waterColor) * rot(45) -> Picture.ellipse(35, 20)  
+victoria.draw()
 
+val chad = trans(580, 760) * penColor(waterColor) * penThickness(10) * fillColor(waterColor) * rot(-45) -> Picture.ellipse(35, 20)
+chad.draw()
 
 
 
