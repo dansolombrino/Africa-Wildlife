@@ -37,6 +37,7 @@ trait Animal {
     val minWater : Double
     val id : Int
     val icon : Picture
+    var canvasPosition = (0, 0)
 
     var lifePoints = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(100.0)
     var drankWater = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(0.0)
@@ -111,20 +112,20 @@ class Animals(val numOfAnimals : Int) {
         
                 case "Lion" => {
                     animals += new Lion(
-                        LionParams.maxTemp, LionParams.minWater, i, Picture.image("/home/daniele/GitHub/Africa-Wildlife/icons/lion.png")
+                        LionParams.maxTemp, LionParams.minWater, i, Picture.image("/home/daniele/GitHub/Africa-Wildlife/icons/lion_64.png")
                     )
                 }
         
                 case "Elephant" => {
-                    animals += new Elephant(ElephantParams.maxTemp, ElephantParams.minWater, i, Picture.image("/home/daniele/GitHub/Africa-Wildlife/icons/elephant.png"))
+                    animals += new Elephant(ElephantParams.maxTemp, ElephantParams.minWater, i, Picture.image("/home/daniele/GitHub/Africa-Wildlife/icons/elephant_64.png"))
                 }
         
                 case "Zebra" => {
-                    animals += new Zebra(ZebraParams.maxTemp, ZebraParams.minWater, i, Picture.image("/home/daniele/GitHub/Africa-Wildlife/icons/zebra.png"))
+                    animals += new Zebra(ZebraParams.maxTemp, ZebraParams.minWater, i, Picture.image("/home/daniele/GitHub/Africa-Wildlife/icons/zebra_64.png"))
                 }
         
                 case default => {
-                    animals += new Zebra(ZebraParams.maxTemp, ZebraParams.minWater, i, Picture.image("/home/daniele/GitHub/Africa-Wildlife/icons/zebra.png"))
+                    animals += new Zebra(ZebraParams.maxTemp, ZebraParams.minWater, i, Picture.image("/home/daniele/GitHub/Africa-Wildlife/icons/zebra_64.png"))
                 }
             }
         }
@@ -149,6 +150,16 @@ class Animals(val numOfAnimals : Int) {
 
     def getAnimal(i: Int) : Animal = {
         return animals(i)
+    }
+
+    def draw() {
+        println("drawing animals...")
+
+        animals.foreach(
+            a => {
+                a.icon.draw()
+            }
+        )
     }
 }
 
@@ -355,6 +366,18 @@ africa.animals.animals.foreach(
 )
 
 clear()
+
+// TODO
+
+// create class drawable 
+// attributes: Picture obj of whatever has to be drawn in the canvas (water sources, animals, africa, etc. etc.)
+// method    : draw --> simply calls the draw method on the picture object
+
+// WHEN extending the drawable abstract class, 
+// specify elements typical of the class that is extending the abstract class
+// for example, Water source needs water color, Lake needs radius, River needs len, etc. etc.
+// overload the draw, to use aforementioned attributes
+
 val bgColor = color(200,235,255)
 setBackground(bgColor)
 
