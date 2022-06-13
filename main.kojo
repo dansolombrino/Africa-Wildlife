@@ -3,7 +3,7 @@ import scala.collection.mutable.ListBuffer
 import scala.language.postfixOps
 import scala.collection.mutable.Map
 
-val DAYS_IN_YEAR = 4
+val DAYS_IN_YEAR = 5
 val DELAY_MS = 1500
 
 val MAX_TEMP_LOWERBOUND = 20
