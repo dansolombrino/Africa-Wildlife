@@ -3,7 +3,7 @@ import scala.collection.mutable.ListBuffer
 import scala.language.postfixOps
 import scala.collection.mutable.Map
 
-val DAYS_IN_YEAR = 3
+val DAYS_IN_YEAR = 4
 val DELAY_MS = 1500
 
 val MAX_TEMP_LOWERBOUND = 20
@@ -12,8 +12,8 @@ val MAX_TEMP_UPPERBOUND = 40
 val MIN_WATER_LOWERBOUND = 1.0
 val MIN_WATER_UPPERBOUND = 3.5
 
-val MIN_NUM_OF_ANIMALS = 2
-val MAX_NUM_OF_ANIMALS = 6
+val MIN_NUM_OF_ANIMALS = 6
+val MAX_NUM_OF_ANIMALS = 10
 
 val ANIMAL_SPECIES = List("Lion", "Elephant", "Zebra")
 
@@ -41,7 +41,7 @@ trait Animal {
     var position = (0, 0)
     
 
-    var lifePoints = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(100.0)
+    var lifePoints = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(1.0)
     var drankWater = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(0.0)
     var temp = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(0.0)
 
@@ -56,7 +56,7 @@ trait Animal {
     }
 
     def updateLifePoints(day : Int) {
-            lifePoints(day) = 25.0 * drankWater(day) - 0.75 * temp(day)
+            lifePoints(day) = 50 * drankWater(day) - 1 * temp(day)
     }
 
     def die(day : Int) {
@@ -183,7 +183,7 @@ val MAX_NUM_OF_WATER_SOURCES = 4
 
 val MAX_WATER_SOURCE_LEVEL = 10
 
-val MAX_LEVEL_LOWERBOUND = 2
+val MAX_LEVEL_LOWERBOUND = 3
 val MAX_LEVEL_UPPERBOUND = 4
 
 val WATER_SOURCES_TYPES = List("Lake", "River")
@@ -289,6 +289,14 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
 
     var waterSources = new WaterSources(numOfWaterSources)
 
+    var temps = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(30.0)
+
+    def populateTemps() {
+        for (i <- 1 to DAYS_IN_YEAR) {
+            temps(i) = temps(i - 1) * 1.0125 
+        }
+    }
+
     // LinkedHashMap rather than HashMap so as we can shuffle records
     // Shuffling a HashMap record yould require to convert to list first, since in a Set the order does NOT count, hence shuffling does NOT make any sense 
     var animalsWaterSourcesMap = new scala.collection.mutable.LinkedHashMap[Int, scala.collection.mutable.LinkedHashMap[Animal, WaterSource]]
@@ -339,7 +347,8 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
 
                 val r = scala.util.Random
 
-                val temp_for_the_day = Random.between(30, 45)
+                //val temp_for_the_day = Random.between(30, 45)
+                val temp_for_the_day = temps(dayZeroBased)
 
                 println("Day (zero based): " + dayZeroBased + ", day: " + day +", temperature: " + temp_for_the_day)
                 
@@ -357,7 +366,7 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                             println(association._2)
     
                             // drink code
-                            val desired_water = Random.between(association._1.minWater * 0.0, association._1.minWater)
+                            val desired_water = Random.between(association._1.minWater * 0.8, association._1.minWater)
                             println("\tdesired_water: " + desired_water)
     
                             val actual_water = association._2.removeWater(dayZeroBased, desired_water)
