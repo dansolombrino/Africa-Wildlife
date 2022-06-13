@@ -163,6 +163,9 @@ class Animals(val numOfAnimals : Int) {
     }
 }
 
+val waterColor = color(88, 148, 245)
+val WATER_COLOR = color(88, 148, 245)
+
 val MIN_NUM_OF_WATER_SOURCES = 3
 val MAX_NUM_OF_WATER_SOURCES = 4
 
@@ -173,7 +176,23 @@ val MAX_LEVEL_UPPERBOUND = 4
 
 val WATER_SOURCES_TYPES = List("Lake", "River")
 
-trait WaterSource {
+trait Drawable {
+    val position : (Int, Int)
+    val borderColor : Color
+    val innerColor : Color
+    val rotation : Int
+    val thickness = 10
+    
+    val icon : Picture
+
+    def draw() {
+        val temp = trans(position._1, position._2) * penColor(borderColor) * fillColor(innerColor) * rot(rotation) * penThickness(thickness) -> icon
+        temp.draw()
+    }
+}
+
+
+trait WaterSource extends Drawable {
     val maxLevel : Double
     var currentLevel = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(maxLevel)
     val id : Int
@@ -192,19 +211,21 @@ trait WaterSource {
 
             return temp
         }
- 
-        
     }
+
+    
+
+    
 }
 
-class Lake(val maxLevel : Double, val radius : Double, val id : Int, val name : String) extends WaterSource {
+class Lake(val maxLevel : Double, val radius : Double, val id : Int, val name : String, val icon : Picture, val position : (Int, Int), val borderColor : Color, val innerColor : Color, val rotation : Int) extends WaterSource {
 
     override def toString() : String = {
         return "\n\t\tName: " + name + " --> Lake, currentLevel: " + currentLevel + ", maxLevel: " + maxLevel + "\n"
     }
 }
 
-class River(val maxLevel : Double, val length : Double, val id : Int, val name : String) extends WaterSource {
+class River(val maxLevel : Double, val length : Double, val id : Int, val name : String, val icon : Picture, val position : (Int, Int), val borderColor : Color, val innerColor : Color, val rotation : Int) extends WaterSource {
 
 
     override def toString() : String = {
@@ -216,9 +237,9 @@ class WaterSources(val numOfWaterSources : Int) {
 
     var waterSources_new = new scala.collection.mutable.HashMap[String, WaterSource]
 
-    waterSources_new("Chad") = new Lake(Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 4.65, 1, "Chad")
-    waterSources_new("Victoria") = new Lake(Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 0.21, 2, "Victoria")
-    waterSources_new("Niger") = new River(Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 4, 3, "Niger")
+    waterSources_new("Chad") = new Lake(Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 4.65, 1, "Chad", Picture.ellipse(35, 20),(580, 760), WATER_COLOR, WATER_COLOR, -45)
+    waterSources_new("Victoria") = new Lake(Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 0.21, 2, "Victoria", Picture.ellipse(35, 20),(850, 535), WATER_COLOR, WATER_COLOR, 45)
+    waterSources_new("Niger") = new River(Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 4, 3, "Niger", Picture.line(-160, 150),(365, 815), WATER_COLOR, WATER_COLOR, 80)
     
     override def toString() : String = {
         var out = ""
@@ -237,6 +258,16 @@ class WaterSources(val numOfWaterSources : Int) {
         //return waterSources(Random.between(0, numOfWaterSources))
         val waterSourcesList = List("Chad", "Victoria", "Niger")
         return waterSources_new(waterSourcesList(Random.between(0, numOfWaterSources)))
+    }
+
+    def draw() {
+        println("drawing waterSources...")
+
+        waterSources_new.foreach(
+            ws => {
+                ws._2.draw()
+            }
+        )
     }
 }
 
@@ -367,40 +398,14 @@ africa.animals.animals.foreach(
 
 clear()
 
-// TODO
-
-// create class drawable 
-// attributes: Picture obj of whatever has to be drawn in the canvas (water sources, animals, africa, etc. etc.)
-// method    : draw --> simply calls the draw method on the picture object
-
-// WHEN extending the drawable abstract class, 
-// specify elements typical of the class that is extending the abstract class
-// for example, Water source needs water color, Lake needs radius, River needs len, etc. etc.
-// overload the draw, to use aforementioned attributes
-
 val bgColor = color(200,235,255)
 setBackground(bgColor)
 
 val africaClean = Picture.image("/home/daniele/GitHub/Africa-Wildlife/africaClean.png")    
 africaClean.draw()
 
-val waterColor = color(88, 148, 245)
-val niger_1 = trans(455, 615) * penColor(waterColor) * penThickness(10) -> Picture.line(10, 50)
-val niger_2 = trans(465, 665) * penColor(waterColor) * penThickness(10) -> Picture.line(-100, 150)
-val niger_3 = trans(365, 815) * rot(90) * penColor(waterColor) * penThickness(10) -> Picture.line(-125, 150)
-
-niger_1.draw()
-niger_2.draw()
-niger_3.draw()
-
-val victoria = trans(850, 535) * penColor(waterColor) * penThickness(10) * fillColor(waterColor) * rot(45) -> Picture.ellipse(35, 20)  
-victoria.draw()
-
-val chad = trans(580, 760) * penColor(waterColor) * penThickness(10) * fillColor(waterColor) * rot(-45) -> Picture.ellipse(35, 20)
-chad.draw()
-
 africa.animals.draw()
-
+africa.waterSources.draw()
 
 
 
