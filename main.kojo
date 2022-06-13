@@ -4,6 +4,7 @@ import scala.language.postfixOps
 import scala.collection.mutable.Map
 
 val DAYS_IN_YEAR = 3
+val DELAY_MS = 1500
 
 val MAX_TEMP_LOWERBOUND = 20
 val MAX_TEMP_UPPERBOUND = 40
@@ -12,7 +13,7 @@ val MIN_WATER_LOWERBOUND = 1.0
 val MIN_WATER_UPPERBOUND = 3.5
 
 val MIN_NUM_OF_ANIMALS = 2
-val MAX_NUM_OF_ANIMALS = 4
+val MAX_NUM_OF_ANIMALS = 6
 
 val ANIMAL_SPECIES = List("Lion", "Elephant", "Zebra")
 
@@ -68,6 +69,10 @@ trait Animal {
         icon.setPosition(position._1, position._2)
         icon.draw()
         
+    }
+
+    def undraw() {
+        icon.erase()
     }
 
 }
@@ -303,7 +308,9 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                     
                     animalsWaterSourcesMap(i) += ((a, ws))
 
-                    a.position = ws.position
+                    var randShiftX = Random.between(-10, 50)
+                    var randShiftY = Random.between(-10, 50)
+                    a.position = (ws.position._1 + randShiftX, ws.position._2 + randShiftY)
                 }
             )
            
@@ -315,8 +322,18 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
     def simulation() {
         println("Simulation!")
 
+        //africa.
+        icon.draw()
+        //africa.
+        animals.draw()
+        //africa.
+        waterSources.draw()
+
         animalsWaterSourcesMap.keys.foreach(
             day => {
+                val day_pic = Picture.text("Day: " + day)
+                day_pic.setPosition(500, 1150)
+                draw(day_pic)
 
                 val dayZeroBased = day - 1
 
@@ -351,7 +368,7 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
     
                             association._1.updateLifePoints(dayZeroBased)
                             
-    
+   
                             println("\tAnimal " + association._1.id + " AFTER drinking: ")
                             println("\t" + association._1)
                             println("\tWaterSource " + association._2.id + " AFTER drinking: ")
@@ -363,6 +380,7 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                         } else {
                             println("\tAnimal " + association._1.id + " DIED :'( ")
                             association._1.die(dayZeroBased - 1)
+                            association._1.undraw()
                         }
                         
                         
@@ -373,12 +391,15 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                         
                     }
                 )
-                
-                
+        
+                println("sleeping for " + DELAY_MS + " ms")
+                Thread.sleep(DELAY_MS)
+                println("waking up after sleeping for " + DELAY_MS + " ms")
+                day_pic.erase()
             }
         )
         
-
+        
         
     }
 
@@ -400,22 +421,23 @@ println("\n")
 println("\n")
 println("********************************************")
 
+clear()
+
+val bgColor = color(200,235,255)
+setBackground(bgColor)
 
 africa.simulation()
+
 africa.animals.animals.foreach(
     a => {
         println(a)
     }
 )
 
-clear()
 
-val bgColor = color(200,235,255)
-setBackground(bgColor)
 
-africa.icon.draw()
-africa.animals.draw()
-africa.waterSources.draw()
+
+
 
 
 
