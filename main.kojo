@@ -37,7 +37,8 @@ trait Animal {
     val minWater : Double
     val id : Int
     val icon : Picture
-    var canvasPosition = (0, 0)
+    var position = (0, 0)
+    
 
     var lifePoints = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(100.0)
     var drankWater = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(0.0)
@@ -61,6 +62,11 @@ trait Animal {
         for (i <- day to DAYS_IN_YEAR - 1) {
             lifePoints(i) = -1
         }
+    }
+
+    def draw() {
+        var simone = trans(canvasPosition._1, canvasPosition._2) -> icon
+        simone.draw()
     }
 
 }
@@ -157,7 +163,7 @@ class Animals(val numOfAnimals : Int) {
 
         animals.foreach(
             a => {
-                a.icon.draw()
+                a.draw()
             }
         )
     }
@@ -271,7 +277,7 @@ class WaterSources(val numOfWaterSources : Int) {
     }
 }
 
-class Africa(val numOfAnimals : Int, val numOfWaterSources : Int) {
+class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Picture) {
 
     var animals = new Animals(numOfAnimals)
 
@@ -292,7 +298,11 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int) {
             
             animals.animals.foreach(
                 a => {
-                    animalsWaterSourcesMap(i) += ((a, waterSources.getRandomWaterSource()))
+                    val ws = waterSources.getRandomWaterSource()
+                    
+                    animalsWaterSourcesMap(i) += ((a, ws))
+
+                    a.canvasPosition = ws.position
                 }
             )
            
@@ -370,6 +380,7 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int) {
 
         
     }
+
 }
 
 val numOfAnimals = Random.between(MIN_NUM_OF_ANIMALS, MAX_NUM_OF_ANIMALS)
@@ -377,7 +388,7 @@ val numOfAnimals = Random.between(MIN_NUM_OF_ANIMALS, MAX_NUM_OF_ANIMALS)
 //val numOfWaterSources = Random.between(MIN_NUM_OF_WATER_SOURCES, MAX_NUM_OF_WATER_SOURCES)
 val numOfWaterSources = 3 // keep it this way, for testing purposes
 
-var africa = new Africa(numOfAnimals, numOfWaterSources)
+var africa = new Africa(numOfAnimals, numOfWaterSources, Picture.image("/home/daniele/GitHub/Africa-Wildlife/africaClean.png"))
 
 //println(africa)
 
@@ -401,9 +412,7 @@ clear()
 val bgColor = color(200,235,255)
 setBackground(bgColor)
 
-val africaClean = Picture.image("/home/daniele/GitHub/Africa-Wildlife/africaClean.png")    
-africaClean.draw()
-
+africa.icon.draw()
 africa.animals.draw()
 africa.waterSources.draw()
 
