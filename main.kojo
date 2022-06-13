@@ -65,8 +65,9 @@ trait Animal {
     }
 
     def draw() {
-        var simone = trans(canvasPosition._1, canvasPosition._2) -> icon
-        simone.draw()
+        icon.setPosition(position._1, position._2)
+        icon.draw()
+        
     }
 
 }
@@ -302,7 +303,7 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                     
                     animalsWaterSourcesMap(i) += ((a, ws))
 
-                    a.canvasPosition = ws.position
+                    a.position = ws.position
                 }
             )
            
