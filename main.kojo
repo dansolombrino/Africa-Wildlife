@@ -409,8 +409,6 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                                 association._1.icon.translate(0, 0)
                                 
                                 association._1.days_without_satisfied_needs = 0
-
-                                return
                             }
                         
                             // migration code end
