@@ -3,6 +3,8 @@ import scala.collection.mutable.ListBuffer
 import scala.language.postfixOps
 import scala.collection.mutable.Map
 
+//TODO make animal extend drawable
+
 val MAX_DAYS_WITHOUT_SATISFIED_NEEDS = 2
 
 val DAYS_IN_YEAR = 5
@@ -192,7 +194,7 @@ val MAX_LEVEL_UPPERBOUND = 4
 val WATER_SOURCES_TYPES = List("Lake", "River")
 
 trait Drawable {
-    val position : (Int, Int)
+    var position : (Int, Int)
     val borderColor : Color
     val innerColor : Color
     val rotation : Int
@@ -233,14 +235,14 @@ trait WaterSource extends Drawable {
     
 }
 
-class Lake(val maxLevel : Double, val radius : Double, val id : Int, val name : String, val icon : Picture, val position : (Int, Int), val borderColor : Color, val innerColor : Color, val rotation : Int) extends WaterSource {
+class Lake(val maxLevel : Double, val radius : Double, val id : Int, val name : String, val icon : Picture, var position : (Int, Int), val borderColor : Color, val innerColor : Color, val rotation : Int) extends WaterSource {
 
     override def toString() : String = {
         return "\n\t\tName: " + name + " --> Lake, currentLevel: " + currentLevel + ", maxLevel: " + maxLevel + "\n"
     }
 }
 
-class River(val maxLevel : Double, val length : Double, val id : Int, val name : String, val icon : Picture, val position : (Int, Int), val borderColor : Color, val innerColor : Color, val rotation : Int) extends WaterSource {
+class River(val maxLevel : Double, val length : Double, val id : Int, val name : String, val icon : Picture, var position : (Int, Int), val borderColor : Color, val innerColor : Color, val rotation : Int) extends WaterSource {
 
 
     override def toString() : String = {
@@ -274,6 +276,15 @@ class WaterSources(val numOfWaterSources : Int) {
         val waterSourcesList = List("Chad", "Victoria", "Niger")
         return waterSources_new(waterSourcesList(Random.between(0, numOfWaterSources)))
     }
+
+    def getRandomWaterSource(exclude : String) : WaterSource = {
+        //return waterSources(Random.between(0, numOfWaterSources))
+        var waterSourcesList = ListBuffer("Chad", "Victoria", "Niger")
+
+        waterSourcesList -= exclude
+        return waterSources_new(waterSourcesList(Random.between(0, numOfWaterSources - 1)))
+    }
+
 
     def draw() {
         println("drawing waterSources...")
@@ -315,7 +326,7 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
             
             animals.animals.foreach(
                 a => {
-                    val ws = waterSources.getRandomWaterSource()
+                    var ws = waterSources.getRandomWaterSource()
                     
                     animalsWaterSourcesMap(i) += ((a, ws))
 
@@ -380,7 +391,29 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                                 println("\tAnimal " + association._1.id + " days_without_satisfied_needs: " + association._1.days_without_satisfied_needs)
                             }
 
-                            // migration code here
+                            // migration code begin
+
+                            if (association._1.days_without_satisfied_needs >= MAX_DAYS_WITHOUT_SATISFIED_NEEDS) {
+                                println("\tAnimal " + association._1.id + " MIGRATING")
+
+                                
+                                animalsWaterSourcesMap(day)(association._1) = waterSources.getRandomWaterSource(association._2.name)
+
+                                var randShiftX = Random.between(-10, 50)
+                                var randShiftY = Random.between(-10, 50)
+                                association._1.icon.setPosition(
+                                    association._2.position._1 + randShiftX, 
+                                    association._2.position._2 + randShiftY
+                                )
+
+                                association._1.icon.translate(0, 0)
+                                
+                                association._1.days_without_satisfied_needs = 0
+
+                                return
+                            }
+                        
+                            // migration code end
     
                             association._1.drinkWater(dayZeroBased, actual_water)
     
@@ -448,13 +481,14 @@ setBackground(bgColor)
 
 africa.simulation()
 
+/*
 africa.animals.animals.foreach(
     a => {
         println(a)
     }
 )
 
-
+*/
 
 
 
