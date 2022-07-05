@@ -3,6 +3,8 @@ import scala.collection.mutable.ListBuffer
 import scala.language.postfixOps
 import scala.collection.mutable.Map
 
+val MAX_DAYS_WITHOUT_SATISFIED_NEEDS = 2
+
 val DAYS_IN_YEAR = 5
 val DELAY_MS = 1500
 
@@ -39,6 +41,7 @@ trait Animal {
     val id : Int
     val icon : Picture
     var position = (0, 0)
+    var days_without_satisfied_needs = 0
     
 
     var lifePoints = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(1.0)
@@ -370,6 +373,14 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                             println("\tdesired_water: " + desired_water)
     
                             val actual_water = association._2.removeWater(dayZeroBased, desired_water)
+
+                            if (actual_water < desired_water) {
+                                association._1.days_without_satisfied_needs += 1
+                                println("\tAnimal " + association._1.id + " did NOT get enough water.")
+                                println("\tAnimal " + association._1.id + " days_without_satisfied_needs: " + association._1.days_without_satisfied_needs)
+                            }
+
+                            // migration code here
     
                             association._1.drinkWater(dayZeroBased, actual_water)
     
