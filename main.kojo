@@ -129,20 +129,20 @@ class Animals(val numOfAnimals : Int) {
         
                 case "Lion" => {
                     animals += new Lion(
-                        LionParams.maxTemp, LionParams.minWater, i, Picture.image("/home/daniele/GitHub/Africa-Wildlife/icons/lion_64.png")
+                        LionParams.maxTemp, LionParams.minWater, i, Picture.image("/home/dansolombrino/GitHub/Africa-Wildlife/icons/lion_64.png")
                     )
                 }
         
                 case "Elephant" => {
-                    animals += new Elephant(ElephantParams.maxTemp, ElephantParams.minWater, i, Picture.image("/home/daniele/GitHub/Africa-Wildlife/icons/elephant_64.png"))
+                    animals += new Elephant(ElephantParams.maxTemp, ElephantParams.minWater, i, Picture.image("/home/dansolombrino/GitHub/Africa-Wildlife/icons/elephant_64.png"))
                 }
         
                 case "Zebra" => {
-                    animals += new Zebra(ZebraParams.maxTemp, ZebraParams.minWater, i, Picture.image("/home/daniele/GitHub/Africa-Wildlife/icons/zebra_64.png"))
+                    animals += new Zebra(ZebraParams.maxTemp, ZebraParams.minWater, i, Picture.image("/home/dansolombrino/GitHub/Africa-Wildlife/icons/zebra_64.png"))
                 }
         
                 case default => {
-                    animals += new Zebra(ZebraParams.maxTemp, ZebraParams.minWater, i, Picture.image("/home/daniele/GitHub/Africa-Wildlife/icons/zebra_64.png"))
+                    animals += new Zebra(ZebraParams.maxTemp, ZebraParams.minWater, i, Picture.image("/home/dansolombrino/GitHub/Africa-Wildlife/icons/zebra_64.png"))
                 }
             }
         }
@@ -461,7 +461,7 @@ val numOfAnimals = Random.between(MIN_NUM_OF_ANIMALS, MAX_NUM_OF_ANIMALS)
 //val numOfWaterSources = Random.between(MIN_NUM_OF_WATER_SOURCES, MAX_NUM_OF_WATER_SOURCES)
 val numOfWaterSources = 3 // keep it this way, for testing purposes
 
-var africa = new Africa(numOfAnimals, numOfWaterSources, Picture.image("/home/daniele/GitHub/Africa-Wildlife/africaClean.png"))
+var africa = new Africa(numOfAnimals, numOfWaterSources, Picture.image("/home/dansolombrino/GitHub/Africa-Wildlife/africaClean.png"))
 
 //println(africa)
 
