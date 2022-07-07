@@ -88,12 +88,12 @@ trait Animal {
         draw()
         */
 
-        println("CurrentPosition: " + this.position)
+        println("CurrentPosition: " + this.icon.position)
         println("TargetPosition: " + ws.position)
 
         //var absDist = ((position._1 - ws.position._1).abs, (position._1 - ws.position._1).abs)
         //var absDist = (-(position._1 - ws.position._1), -(position._1 - ws.position._1))
-        var absDist = (ws.position._1 - this.position._1, ws.position._2 - this.position._2)
+        var absDist = (ws.position._1 - this.icon.position.x, ws.position._2 - this.icon.position.y)
         println("absDistance: " + absDist)
 
         var step_x = absDist._1 / NUM_STEPS
@@ -103,6 +103,17 @@ trait Animal {
             println("step: " + i)
             icon.translate(step_x,step_y)
             Thread.sleep(DELAY_MS)
+            if (icon.collidesWith(ws.icon)) {
+                println("COLLISION DETECTED, APPLYING OFFSET!")
+
+                var randShiftX = Random.between(30, 75)
+                var randShiftY = Random.between(30, 75)
+
+                randShiftX *= (if (Random.between(0, 2) == 1) -1 else 1)
+                randShiftY *= (if (Random.between(0, 2) == 1) -1 else 1)
+
+                icon.translate(randShiftX, randShiftY)
+            }
             
         }
         
@@ -284,7 +295,8 @@ class WaterSources(val numOfWaterSources : Int) {
 
     waterSources_new("Chad") = new Lake(Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 4.65, 1, "Chad", Picture.ellipse(35, 20),(580, 760), WATER_COLOR, WATER_COLOR, -45)
     waterSources_new("Victoria") = new Lake(Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 0.21, 2, "Victoria", Picture.ellipse(35, 20),(850, 535), WATER_COLOR, WATER_COLOR, 45)
-    waterSources_new("Niger") = new River(Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 4, 3, "Niger", Picture.line(-160, 150),(365, 815), WATER_COLOR, WATER_COLOR, 80)
+    //waterSources_new("Niger") = new River(Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 4, 3, "Niger", Picture.line(-160, 150),(365, 815), WATER_COLOR, WATER_COLOR, 80)
+    waterSources_new("Niger") = new River(Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 4, 3, "Niger", Picture.ellipse(10, 225),(365, 815), WATER_COLOR, WATER_COLOR, -230)
     
     override def toString() : String = {
         var out = ""
@@ -411,8 +423,9 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                 //val temp_for_the_day = Random.between(30, 45)
                 val temp_for_the_day = temps(dayZeroBased)
 
-                println("Day (zero based): " + dayZeroBased + ", day: " + day +", temperature: " + temp_for_the_day)
-                
+                //println("Day (zero based): " + dayZeroBased + ", day: " + day +", temperature: " + temp_for_the_day)
+                println("Day (zero based): " + dayZeroBased)
+                println("Day             : " + day)
                 //println(r.shuffle(animalsWaterSourcesMap(day)))
 
                 r.shuffle(animalsWaterSourcesMap(day)).foreach(
@@ -449,7 +462,7 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                                 
                                 association._1.migrate(wsToMigrateTo)
 
-                                for (i <- day to DAYS_IN_YEAR) {
+                                for (i <- dayZeroBased to DAYS_IN_YEAR) {
                                     println("\tapplying migration for day: " + i)
                                    animalsWaterSourcesMap(i)(association._1) = wsToMigrateTo                          
                                 }
