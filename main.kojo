@@ -127,8 +127,8 @@ trait Animal {
             if (icon.collidesWith(ws.icon)) {
                 println("COLLISION DETECTED, APPLYING OFFSET!")
 
-                var randShiftX = Random.between(30, 75)
-                var randShiftY = Random.between(30, 75)
+                var randShiftX = Random.between(17, 40)
+                var randShiftY = Random.between(17, 40)
 
                 randShiftX *= (if (Random.between(0, 2) == 1) -1 else 1)
                 randShiftY *= (if (Random.between(0, 2) == 1) -1 else 1)
@@ -483,8 +483,8 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                 val temp_for_the_day = temps(dayZeroBased)
 
                 //println("Day (zero based): " + dayZeroBased + ", day: " + day +", temperature: " + temp_for_the_day)
-                println("Day (zero based): " + dayZeroBased)
-                println("Day             : " + day)
+                //println("Day (zero based): " + dayZeroBased)
+                //println("Day             : " + day)
                 //println(r.shuffle(animalsWaterSourcesMap(day)))
 
                 r.shuffle(animalsWaterSourcesMap(day)).foreach(
@@ -513,16 +513,16 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                             // migration code begin
 
                             if (association._1.days_without_satisfied_needs >= MAX_DAYS_WITHOUT_SATISFIED_NEEDS) {
-                                println("\tAnimal " + association._1.id + " MIGRATING")
+                                //println("\tAnimal " + association._1.id + " MIGRATING")
 
-                                println("original water source: " + association._2.name + ", " + association._2.position)
+                                //println("original water source: " + association._2.name + ", " + association._2.position)
                                 val wsToMigrateTo = waterSources.getRandomWaterSource(association._2.name)
-                                println("new water source: " + wsToMigrateTo.name + ", " + wsToMigrateTo.position)
+                                //println("new water source: " + wsToMigrateTo.name + ", " + wsToMigrateTo.position)
                                 
                                 association._1.migrate(wsToMigrateTo)
 
                                 for (i <- dayZeroBased to DAYS_IN_YEAR) {
-                                    println("\tapplying migration for day: " + i)
+                                   //println("\tapplying migration for day: " + i)
                                    animalsWaterSourcesMap(i)(association._1) = wsToMigrateTo
 
                                    try {
@@ -559,9 +559,9 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
     
                             association._1.temp(dayZeroBased) = temp_for_the_day
 
-                            println("SUS BEGIN")
+                            //println("SUS BEGIN")
                             val numEncounteredRivals = association._1.countEncounteredRivals(waterSourcesAnimalsMap(day)(association._2))
-                            println("SUS END")
+                            //println("SUS END")
                             
                             association._1.updateLifePoints(dayZeroBased, numEncounteredRivals)
                             
