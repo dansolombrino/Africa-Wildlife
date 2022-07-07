@@ -348,12 +348,28 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
     }
 
     def populateAnimalsWaterSourcesMap() {
+
+        var animalsWaterSourcesMapGlobal = new scala.collection.mutable.LinkedHashMap[Animal, WaterSource]
+
+        animals.animals.foreach(
+            a => {
+
+                val ws = waterSources.getRandomWaterSource()
+                
+                animalsWaterSourcesMapGlobal(a) = ws
+                
+                var randShiftX = Random.between(-10, 50)
+                var randShiftY = Random.between(-10, 50)
+                a.position = (ws.position._1 + randShiftX, ws.position._2 + randShiftY)
+            }
+        )
         for (i <- 1 to DAYS_IN_YEAR) {
 
             animalsWaterSourcesMap(i) = new scala.collection.mutable.LinkedHashMap[Animal, WaterSource]
             
             animals.animals.foreach(
                 a => {
+                    /*
                     var ws = waterSources.getRandomWaterSource()
                     
                     animalsWaterSourcesMap(i) += ((a, ws))
@@ -361,6 +377,9 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                     var randShiftX = Random.between(-10, 50)
                     var randShiftY = Random.between(-10, 50)
                     a.position = (ws.position._1 + randShiftX, ws.position._2 + randShiftY)
+                    */
+
+                    animalsWaterSourcesMap(i) += ((a, animalsWaterSourcesMapGlobal(a)))
                 }
             )
            
@@ -392,7 +411,7 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                 //val temp_for_the_day = Random.between(30, 45)
                 val temp_for_the_day = temps(dayZeroBased)
 
-                //println("Day (zero based): " + dayZeroBased + ", day: " + day +", temperature: " + temp_for_the_day)
+                println("Day (zero based): " + dayZeroBased + ", day: " + day +", temperature: " + temp_for_the_day)
                 
                 //println(r.shuffle(animalsWaterSourcesMap(day)))
 
@@ -427,10 +446,14 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                                 println("original water source: " + association._2.name + ", " + association._2.position)
                                 val wsToMigrateTo = waterSources.getRandomWaterSource(association._2.name)
                                 println("new water source: " + wsToMigrateTo.name + ", " + wsToMigrateTo.position)
+                                
                                 association._1.migrate(wsToMigrateTo)
 
-                                                         
-                                animalsWaterSourcesMap(day)(association._1) = wsToMigrateTo
+                                for (i <- day to DAYS_IN_YEAR) {
+                                    println("\tapplying migration for day: " + i)
+                                   animalsWaterSourcesMap(i)(association._1) = wsToMigrateTo                          
+                                }
+                                
 
                                 /*
                                 var randShiftX = Random.between(-10, 50)
