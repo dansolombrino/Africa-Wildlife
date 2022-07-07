@@ -64,6 +64,10 @@ trait Animal {
             lifePoints(day) = 50 * drankWater(day) - 1 * temp(day)
     }
 
+    def updateLifePoints(day : Int, enemyPenalty : Double) {
+            lifePoints(day) = 50 * drankWater(day) - 1 * temp(day)
+    }
+
     def die(day : Int) {
         for (i <- day to DAYS_IN_YEAR - 1) {
             lifePoints(i) = -1
@@ -354,7 +358,8 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
     // LinkedHashMap rather than HashMap so as we can shuffle records
     // Shuffling a HashMap record yould require to convert to list first, since in a Set the order does NOT count, hence shuffling does NOT make any sense 
     var animalsWaterSourcesMap = new scala.collection.mutable.LinkedHashMap[Int, scala.collection.mutable.LinkedHashMap[Animal, WaterSource]]
-
+    var waterSourcesAnimalsMap = new scala.collection.mutable.LinkedHashMap[Int, scala.collection.mutable.LinkedHashMap[WaterSource, Animal]]
+    
     override def toString() : String = {
         return "*** Africa ***\n\n" + "\t number of animals: " + numOfAnimals + "\n\t animals: " + animals.toString() + "\t number of water sources: " + numOfWaterSources + "\n\t water sources: " + waterSources.toString() + "\n\n**************"
     }
@@ -362,6 +367,7 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
     def populateAnimalsWaterSourcesMap() {
 
         var animalsWaterSourcesMapGlobal = new scala.collection.mutable.LinkedHashMap[Animal, WaterSource]
+        var waterSourcesAnimalsMapGlobal = new scala.collection.mutable.LinkedHashMap[WaterSource, Animal]
 
         animals.animals.foreach(
             a => {
@@ -369,6 +375,7 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                 val ws = waterSources.getRandomWaterSource()
                 
                 animalsWaterSourcesMapGlobal(a) = ws
+                waterSourcesAnimalsMapGlobal(ws) = a
                 
                 var randShiftX = Random.between(-10, 50)
                 var randShiftY = Random.between(-10, 50)
@@ -378,6 +385,7 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
         for (i <- 1 to DAYS_IN_YEAR) {
 
             animalsWaterSourcesMap(i) = new scala.collection.mutable.LinkedHashMap[Animal, WaterSource]
+            waterSourcesAnimalsMap(i) = new scala.collection.mutable.LinkedHashMap[WaterSource, Animal]
             
             animals.animals.foreach(
                 a => {
@@ -392,6 +400,7 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                     */
 
                     animalsWaterSourcesMap(i) += ((a, animalsWaterSourcesMapGlobal(a)))
+                    waterSourcesAnimalsMap(i) += ((animalsWaterSourcesMapGlobal(a), a))
                 }
             )
            
