@@ -44,6 +44,8 @@ trait Animal {
     var icon : Picture
     var position = (0, 0)
     var days_without_satisfied_needs = 0
+
+    var rival = ""
     
 
     var lifePoints = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(1.0)
@@ -64,7 +66,7 @@ trait Animal {
             lifePoints(day) = 50 * drankWater(day) - 1 * temp(day)
     }
 
-    def updateLifePoints(day : Int, enemyPenalty : Double) {
+    def updateLifePoints(day : Int, countEncounteredRivals : Int) {
             lifePoints(day) = 50 * drankWater(day) - 1 * temp(day)
     }
 
@@ -82,6 +84,21 @@ trait Animal {
 
     def undraw() {
         icon.erase()
+    }
+
+    def countEncounteredRivals(neighbouringAnimals : ListBuffer[Animal]) : Int = {
+        var numEncounteredRivals = 0
+
+        neighbouringAnimals.foreach(
+            a => {
+                numEncounteredRivals += (if (a.getClass.getSimpleName == this.rival) 1 else 0)
+            }
+        )
+
+        //println(this.getClass.getSimpleName + "encountersRival: " + (sum > 0))
+        //println("neighbouringAnimals: " + neighbouringAnimals)
+
+        return numEncounteredRivals
     }
 
     def migrate(ws : WaterSource) {
@@ -127,6 +144,8 @@ trait Animal {
 
 class Lion(val maxTemp : Double, val minWater : Double, val id : Int, var icon : Picture) extends Animal {
 
+    rival = "Zebra"
+
     override def toString() : String = {
         return "\n\t\tID: " + id + " --> Lion, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", temp: " + temp + "\n"
     }
@@ -138,6 +157,8 @@ class Lion(val maxTemp : Double, val minWater : Double, val id : Int, var icon :
 
 class Elephant(val maxTemp : Double, val minWater : Double, val id : Int, var icon : Picture) extends Animal {
 
+    rival = "Lion"
+
     override def toString() : String = {
         return "\n\t\tID: " + id + " --> Elephant, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", temp: " + temp + "\n"
     }
@@ -148,6 +169,8 @@ class Elephant(val maxTemp : Double, val minWater : Double, val id : Int, var ic
 }
 
 class Zebra(val maxTemp : Double, val minWater : Double, val id : Int, var icon : Picture) extends Animal {
+
+    rival = "Lion"
 
     override def toString() : String = {
         return "\n\t\tID: " + id + " --> Zebra, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", temp: " + temp + "\n"
@@ -358,7 +381,8 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
     // LinkedHashMap rather than HashMap so as we can shuffle records
     // Shuffling a HashMap record yould require to convert to list first, since in a Set the order does NOT count, hence shuffling does NOT make any sense 
     var animalsWaterSourcesMap = new scala.collection.mutable.LinkedHashMap[Int, scala.collection.mutable.LinkedHashMap[Animal, WaterSource]]
-    var waterSourcesAnimalsMap = new scala.collection.mutable.LinkedHashMap[Int, scala.collection.mutable.LinkedHashMap[WaterSource, Animal]]
+    var waterSourcesAnimalsMap = new scala.collection.mutable.LinkedHashMap[Int, scala.collection.mutable.LinkedHashMap[WaterSource, ListBuffer[Animal]]]
+    
     
     override def toString() : String = {
         return "*** Africa ***\n\n" + "\t number of animals: " + numOfAnimals + "\n\t animals: " + animals.toString() + "\t number of water sources: " + numOfWaterSources + "\n\t water sources: " + waterSources.toString() + "\n\n**************"
@@ -367,7 +391,7 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
     def populateAnimalsWaterSourcesMap() {
 
         var animalsWaterSourcesMapGlobal = new scala.collection.mutable.LinkedHashMap[Animal, WaterSource]
-        var waterSourcesAnimalsMapGlobal = new scala.collection.mutable.LinkedHashMap[WaterSource, Animal]
+        var waterSourcesAnimalsMapGlobal = new scala.collection.mutable.LinkedHashMap[WaterSource, ListBuffer[Animal]]
 
         animals.animals.foreach(
             a => {
@@ -375,7 +399,17 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                 val ws = waterSources.getRandomWaterSource()
                 
                 animalsWaterSourcesMapGlobal(a) = ws
-                waterSourcesAnimalsMapGlobal(ws) = a
+                //waterSourcesAnimalsMapGlobal(ws) += a
+
+                    try {
+                       waterSourcesAnimalsMapGlobal(ws) += a
+                    } catch {
+                        case e: NoSuchElementException => {
+                            waterSourcesAnimalsMapGlobal.put(ws, new ListBuffer[Animal])
+                            waterSourcesAnimalsMapGlobal(ws) += a
+                        }
+                    }
+                
                 
                 var randShiftX = Random.between(-10, 50)
                 var randShiftY = Random.between(-10, 50)
@@ -385,7 +419,7 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
         for (i <- 1 to DAYS_IN_YEAR) {
 
             animalsWaterSourcesMap(i) = new scala.collection.mutable.LinkedHashMap[Animal, WaterSource]
-            waterSourcesAnimalsMap(i) = new scala.collection.mutable.LinkedHashMap[WaterSource, Animal]
+            waterSourcesAnimalsMap(i) = new scala.collection.mutable.LinkedHashMap[WaterSource, ListBuffer[Animal]]
             
             animals.animals.foreach(
                 a => {
@@ -400,7 +434,23 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                     */
 
                     animalsWaterSourcesMap(i) += ((a, animalsWaterSourcesMapGlobal(a)))
-                    waterSourcesAnimalsMap(i) += ((animalsWaterSourcesMapGlobal(a), a))
+                    //waterSourcesAnimalsMap(i) += ((animalsWaterSourcesMapGlobal(a), a))
+                    //waterSourcesAnimalsMap(i)(animalsWaterSourcesMapGlobal(a)) += a
+
+                    try {
+                       waterSourcesAnimalsMap(i)(animalsWaterSourcesMapGlobal(a)) += a
+                    } catch {
+                        case e: NoSuchElementException => {
+                            waterSourcesAnimalsMap(i).put(animalsWaterSourcesMapGlobal(a), new ListBuffer[Animal])
+                            waterSourcesAnimalsMap(i)(animalsWaterSourcesMapGlobal(a)) += a
+                        }
+                            
+                            
+                        
+                    }
+                   
+                    
+                    
                 }
             )
            
@@ -473,7 +523,21 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
 
                                 for (i <- dayZeroBased to DAYS_IN_YEAR) {
                                     println("\tapplying migration for day: " + i)
-                                   animalsWaterSourcesMap(i)(association._1) = wsToMigrateTo                          
+                                   animalsWaterSourcesMap(i)(association._1) = wsToMigrateTo
+
+                                   try {
+                                       waterSourcesAnimalsMap(i)(wsToMigrateTo) += association._1
+                                    } catch {
+                                        case e: NoSuchElementException => {
+                                            waterSourcesAnimalsMap(i).put(wsToMigrateTo, new ListBuffer[Animal])
+                                            waterSourcesAnimalsMap(i)(wsToMigrateTo) += association._1
+                                        }
+                                            
+                                            
+                                        
+                                    }
+                                   
+                                                             
                                 }
                                 
 
@@ -494,8 +558,12 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                             association._1.drinkWater(dayZeroBased, actual_water)
     
                             association._1.temp(dayZeroBased) = temp_for_the_day
-    
-                            association._1.updateLifePoints(dayZeroBased)
+
+                            println("SUS BEGIN")
+                            val numEncounteredRivals = association._1.countEncounteredRivals(waterSourcesAnimalsMap(day)(association._2))
+                            println("SUS END")
+                            
+                            association._1.updateLifePoints(dayZeroBased, numEncounteredRivals)
                             
    
                             //println("\tAnimal " + association._1.id + " AFTER drinking: ")
