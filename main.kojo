@@ -41,7 +41,7 @@ trait Animal {
     val maxTemp : Double
     val minWater : Double
     val id : Int
-    val icon : Picture
+    var icon : Picture
     var position = (0, 0)
     var days_without_satisfied_needs = 0
     
@@ -80,9 +80,37 @@ trait Animal {
         icon.erase()
     }
 
+    def migrate(ws : WaterSource) {
+        var NUM_STEPS = 5
+        /*
+        icon.erase()
+        icon = fillColor(red) -> Picture.rectangle(64, 64)
+        draw()
+        */
+
+        println("CurrentPosition: " + this.position)
+        println("TargetPosition: " + ws.position)
+
+        //var absDist = ((position._1 - ws.position._1).abs, (position._1 - ws.position._1).abs)
+        //var absDist = (-(position._1 - ws.position._1), -(position._1 - ws.position._1))
+        var absDist = (ws.position._1 - this.position._1, ws.position._2 - this.position._2)
+        println("absDistance: " + absDist)
+
+        var step_x = absDist._1 / NUM_STEPS
+        var step_y = absDist._2 / NUM_STEPS
+
+        for (i <- 1 to NUM_STEPS) {
+            println("step: " + i)
+            icon.translate(step_x,step_y)
+            Thread.sleep(DELAY_MS)
+            
+        }
+        
+    }
+
 }
 
-class Lion(val maxTemp : Double, val minWater : Double, val id : Int, val icon : Picture) extends Animal {
+class Lion(val maxTemp : Double, val minWater : Double, val id : Int, var icon : Picture) extends Animal {
 
     override def toString() : String = {
         return "\n\t\tID: " + id + " --> Lion, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", temp: " + temp + "\n"
@@ -93,7 +121,7 @@ class Lion(val maxTemp : Double, val minWater : Double, val id : Int, val icon :
     }
 }
 
-class Elephant(val maxTemp : Double, val minWater : Double, val id : Int, val icon : Picture) extends Animal {
+class Elephant(val maxTemp : Double, val minWater : Double, val id : Int, var icon : Picture) extends Animal {
 
     override def toString() : String = {
         return "\n\t\tID: " + id + " --> Elephant, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", temp: " + temp + "\n"
@@ -104,7 +132,7 @@ class Elephant(val maxTemp : Double, val minWater : Double, val id : Int, val ic
     }
 }
 
-class Zebra(val maxTemp : Double, val minWater : Double, val id : Int, val icon : Picture) extends Animal {
+class Zebra(val maxTemp : Double, val minWater : Double, val id : Int, var icon : Picture) extends Animal {
 
     override def toString() : String = {
         return "\n\t\tID: " + id + " --> Zebra, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", temp: " + temp + "\n"
@@ -342,7 +370,7 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
     populateAnimalsWaterSourcesMap()
 
     def simulation() {
-        println("Simulation!")
+        //println("Simulation!")
 
         //africa.
         icon.draw()
@@ -364,7 +392,7 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                 //val temp_for_the_day = Random.between(30, 45)
                 val temp_for_the_day = temps(dayZeroBased)
 
-                println("Day (zero based): " + dayZeroBased + ", day: " + day +", temperature: " + temp_for_the_day)
+                //println("Day (zero based): " + dayZeroBased + ", day: " + day +", temperature: " + temp_for_the_day)
                 
                 //println(r.shuffle(animalsWaterSourcesMap(day)))
 
@@ -373,22 +401,22 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
 
                         if ( association._1.lifePoints( dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 ) ) > 0 ) {
 
-                            println("\tAnimal " + association._1.id + " is drinking from WaterSource " + association._2.id)
-                            println("\tAnimal " + association._1.id + " BEFORE drinking: ")
-                            println("\t" + association._1)
-                            println("\tWaterSource " + association._2.id + " BEFORE drinking: ")
-                            println(association._2)
+                            //println("\tAnimal " + association._1.id + " is drinking from WaterSource " + association._2.id)
+                            //println("\tAnimal " + association._1.id + " BEFORE drinking: ")
+                            //println("\t" + association._1)
+                            //println("\tWaterSource " + association._2.id + " BEFORE drinking: ")
+                            //println(association._2)
     
                             // drink code
                             val desired_water = Random.between(association._1.minWater * 0.8, association._1.minWater)
-                            println("\tdesired_water: " + desired_water)
+                            //println("\tdesired_water: " + desired_water)
     
                             val actual_water = association._2.removeWater(dayZeroBased, desired_water)
 
                             if (actual_water < desired_water) {
                                 association._1.days_without_satisfied_needs += 1
-                                println("\tAnimal " + association._1.id + " did NOT get enough water.")
-                                println("\tAnimal " + association._1.id + " days_without_satisfied_needs: " + association._1.days_without_satisfied_needs)
+                                //println("\tAnimal " + association._1.id + " did NOT get enough water.")
+                                //println("\tAnimal " + association._1.id + " days_without_satisfied_needs: " + association._1.days_without_satisfied_needs)
                             }
 
                             // migration code begin
@@ -396,17 +424,22 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                             if (association._1.days_without_satisfied_needs >= MAX_DAYS_WITHOUT_SATISFIED_NEEDS) {
                                 println("\tAnimal " + association._1.id + " MIGRATING")
 
-                                
-                                animalsWaterSourcesMap(day)(association._1) = waterSources.getRandomWaterSource(association._2.name)
+                                println("original water source: " + association._2.name + ", " + association._2.position)
+                                val wsToMigrateTo = waterSources.getRandomWaterSource(association._2.name)
+                                println("new water source: " + wsToMigrateTo.name + ", " + wsToMigrateTo.position)
+                                association._1.migrate(wsToMigrateTo)
 
+                                                         
+                                animalsWaterSourcesMap(day)(association._1) = wsToMigrateTo
+
+                                /*
                                 var randShiftX = Random.between(-10, 50)
                                 var randShiftY = Random.between(-10, 50)
                                 association._1.icon.setPosition(
                                     association._2.position._1 + randShiftX, 
                                     association._2.position._2 + randShiftY
                                 )
-
-                                association._1.icon.translate(0, 0)
+                                */
                                 
                                 association._1.days_without_satisfied_needs = 0
                             }
@@ -420,16 +453,16 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                             association._1.updateLifePoints(dayZeroBased)
                             
    
-                            println("\tAnimal " + association._1.id + " AFTER drinking: ")
-                            println("\t" + association._1)
-                            println("\tWaterSource " + association._2.id + " AFTER drinking: ")
-                            println(association._2)
+                            //println("\tAnimal " + association._1.id + " AFTER drinking: ")
+                            //println("\t" + association._1)
+                            //println("\tWaterSource " + association._2.id + " AFTER drinking: ")
+                            //println(association._2)
     
-                            println("\n\n\n\n")
+                            //println("\n\n\n\n")
 
                            
                         } else {
-                            println("\tAnimal " + association._1.id + " DIED :'( ")
+                            //println("\tAnimal " + association._1.id + " DIED :'( ")
                             association._1.die(dayZeroBased - 1)
                             association._1.undraw()
                         }
@@ -443,9 +476,9 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                     }
                 )
         
-                println("sleeping for " + DELAY_MS + " ms")
+                //println("sleeping for " + DELAY_MS + " ms")
                 Thread.sleep(DELAY_MS)
-                println("waking up after sleeping for " + DELAY_MS + " ms")
+                //println("waking up after sleeping for " + DELAY_MS + " ms")
                 day_pic.erase()
             }
         )
@@ -479,6 +512,8 @@ setBackground(bgColor)
 
 africa.simulation()
 
+println("DONE")
+
 /*
 africa.animals.animals.foreach(
     a => {
@@ -487,8 +522,6 @@ africa.animals.animals.foreach(
 )
 
 */
-
-
 
 
 
