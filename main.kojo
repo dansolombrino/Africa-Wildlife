@@ -522,11 +522,11 @@ class WaterSources(val numOfWaterSources : Int) {
     }
 }
 
-class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Picture, var position : (Int, Int)) extends Drawable {
+class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture, var position : (Int, Int)) extends Drawable {
 
-    var fauna = new Fauna(numOfAnimals)
+    var fauna = new Fauna(faunaSize)
 
-    var waterSources = new WaterSources(numOfWaterSources)
+    var waterSources = new WaterSources(waterSourcesSize)
 
     var temperatures = Seq.fill(DAYS_IN_YEAR)(30.0)
 
@@ -552,7 +552,7 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
     ]
     
     override def toString() : String = {
-        return "*** Africa ***\n\n" + "\t number of animals: " + faunaSize + "\n\t animals: " + fauna.toString() + "\t number of water sources: " + numOfWaterSources + "\n\t water sources: " + waterSources.toString() + "\n\n**************"
+        return "*** Africa ***\n\n" + "\t number of animals: " + faunaSize + "\n\t animals: " + fauna.toString() + "\t number of water sources: " + waterSourcesSize + "\n\t water sources: " + waterSources.toString() + "\n\n**************"
     }
 
     def populateAnimalsWaterSourcesMap() {
@@ -707,7 +707,7 @@ object AfricaParams {
   val numOfAnimals = Random.between(MIN_NUM_OF_ANIMALS, MAX_NUM_OF_ANIMALS)
   val numOfWaterSources = 3 // keep it this way, for testing purposes
   val iconFilePath = ICON_FOLDER_PATH + "africaClean.png"
-  val position = (0.0)
+  val position = (0, 0)
 }
 
 var africa = new Africa(
@@ -717,15 +717,6 @@ var africa = new Africa(
     AfricaParams.position
 )
 
-//println(africa)
-
-println("\n\n")
-println("********** animalsWaterSourcesMapAcrossYears **********")
-println("\n")
-//println(africa.animalsWaterSourcesMapAcrossYears)
-println("\n")
-println("********************************************")
-
 clear()
 
 val bgColor = color(200,235,255)
@@ -734,15 +725,6 @@ setBackground(bgColor)
 africa.simulation()
 
 println("DONE")
-
-/*
-africa.animals.animals.foreach(
-    a => {
-        println(a)
-    }
-)
-
-*/
 
 
 
