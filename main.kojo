@@ -322,6 +322,26 @@ trait WaterSource extends DrawableShape {
             return maxAvailableWater
         }
     }
+
+    def canEqual(a: Any) = a.isInstanceOf[WaterSource]
+
+    override def equals(that: Any): Boolean =
+        that match {
+            case that: WaterSource => {
+                that.canEqual(this) &&
+                this.name == that.name &&
+                this.position == that.position &&
+                this.rotation == that.rotation &&
+                this.maxLevel == that.maxLevel
+            }
+            case _ => false
+        }
+
+    override def hashCode: Int = {
+        name.hashCode + position.hashCode + rotation.hashCode + maxLevel.hashCode
+    }
+
+    
 }
 
 class Lake(
@@ -360,6 +380,9 @@ class River(
 
 class WaterSources(val numOfWaterSources : Int) {
 
+    // TODO load it from disk
+    val waterSourcesList = ListBuffer("Chad", "Victoria", "Niger")
+    
     var waterSources_new = new scala.collection.mutable.HashMap[String, WaterSource]
 
     waterSources_new("Chad") = new Lake(
@@ -412,18 +435,26 @@ class WaterSources(val numOfWaterSources : Int) {
     }
 
     def getRandomWaterSource() : WaterSource = {
-        val waterSourcesList = List("Chad", "Victoria", "Niger")
-        
         return waterSources_new(waterSourcesList(Random.between(0, numOfWaterSources)))
+    }
+
+    def getRandomWaterSource(exclude : WaterSource) {
+        do {
+            val randomWaterSource = getRandomWaterSource()
+
+            if (randomWaterSource.equals(exclude) == false) {
+                return randomWaterSource
+            }
+        } while (true)
     }
 
     def getRandomWaterSource(exclude : String) : WaterSource = {
         
-        var waterSourcesList = ListBuffer("Chad", "Victoria", "Niger")
-
-        waterSourcesList -= exclude
+        var waterSourcesListTempCopy = ListBuffer("Chad", "Victoria", "Niger")
         
-        return waterSources_new(waterSourcesList(Random.between(0, numOfWaterSources - 1)))
+        waterSourcesListTempCopy -= exclude
+        
+        return waterSources_new(waterSourcesListTempCopy(Random.between(0, numOfWaterSources - 1)))
     }
 
 
