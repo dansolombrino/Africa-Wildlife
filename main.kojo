@@ -5,13 +5,13 @@ import scala.collection.mutable.Map
 
 //TODO make animal extend drawable
 
-val MAX_DAYS_WITHOUT_SATISFIED_NEEDS = 2
+val MAX_daysWithoutSatisfiedNeeds = 2
 
 val DAYS_IN_YEAR = 5
 val DELAY_MS = 1500
 
-val MAX_TEMP_LOWERBOUND = 20
-val MAX_TEMP_UPPERBOUND = 40
+val MAX_feltTemperature_LOWERBOUND = 20
+val MAX_feltTemperature_UPPERBOUND = 40
 
 val MIN_WATER_LOWERBOUND = 1.0
 val MIN_WATER_UPPERBOUND = 3.5
@@ -22,37 +22,37 @@ val MAX_NUM_OF_ANIMALS = 10
 val ANIMAL_SPECIES = List("Lion", "Elephant", "Zebra")
 
 object LionParams {
-  val maxTemp = 40;
+  val maxfeltTemperature = 40;
   val minWater = 2
 }
 
 object ElephantParams {
-  val maxTemp = 45;
+  val maxfeltTemperature = 45;
   val minWater = 2
 }
 
 object ZebraParams {
-  val maxTemp = 45;
+  val maxfeltTemperature = 45;
   val minWater = 2
 }
 
-trait Animal {
+trait Animal extends Drawable {
 
-    val maxTemp : Double
+    val maxfeltTemperature : Double
     val minWater : Double
     val id : Int
-    var icon : Picture
-    var position = (0, 0)
-    var days_without_satisfied_needs = 0
-
+    //var icon : Picture
+    //var position = (0, 0)
+    var daysWithoutSatisfiedNeeds = 0
     var rival = ""
     
-
     var lifePoints = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(1.0)
     var drankWater = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(0.0)
-    var temp = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(0.0)
+    var feltTemperature = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(0.0)
 
-    def stillAlive(currentTemp: Double)
+    def isAlive(day : Int) : Boolean = {
+        return lifePoints(day) > 0
+    }
 
     def drinkWater(day: Int, water: Double) {
         drankWater(day) += water
@@ -63,27 +63,24 @@ trait Animal {
     }
 
     def updateLifePoints(day : Int) {
-            lifePoints(day) = 50 * drankWater(day) - 1 * temp(day)
+            lifePoints(day) = 50 * drankWater(day) - 1 * feltTemperature(day)
     }
 
-    def updateLifePoints(day : Int, countEncounteredRivals : Int) {
-            lifePoints(day) = 50 * drankWater(day) - 1 * temp(day)
+    def updateLifePoints(day : Int, numEncounteredRivals : Int) {
+            lifePoints(day) = 50 * drankWater(day) - 1 * feltTemperature(day) - 10 * numEncounteredRivals
     }
 
     def die(day : Int) {
         for (i <- day to DAYS_IN_YEAR - 1) {
             lifePoints(i) = -1
         }
-    }
 
-    def draw() {
-        icon.setPosition(position._1, position._2)
-        icon.draw()
-        
-    }
-
-    def undraw() {
         icon.erase()
+    }
+
+    def TODO_REMOVE_ME() {
+        icon.setPosition(position._1, position._2)
+        icon.draw()  
     }
 
     def countEncounteredRivals(neighbouringAnimals : ListBuffer[Animal]) : Int = {
@@ -103,17 +100,11 @@ trait Animal {
 
     def migrate(ws : WaterSource) {
         var NUM_STEPS = 5
-        /*
-        icon.erase()
-        icon = fillColor(red) -> Picture.rectangle(64, 64)
-        draw()
-        */
+        
 
         println("CurrentPosition: " + this.icon.position)
         println("TargetPosition: " + ws.position)
 
-        //var absDist = ((position._1 - ws.position._1).abs, (position._1 - ws.position._1).abs)
-        //var absDist = (-(position._1 - ws.position._1), -(position._1 - ws.position._1))
         var absDist = (ws.position._1 - this.icon.position.x, ws.position._2 - this.icon.position.y)
         println("absDistance: " + absDist)
 
@@ -127,12 +118,12 @@ trait Animal {
             if (icon.collidesWith(ws.icon)) {
                 println("COLLISION DETECTED, APPLYING OFFSET!")
 
-                var randShiftX = Random.between(17, 40)
+                var randShiftX = Random.between(17, 40) 
                 var randShiftY = Random.between(17, 40)
 
                 randShiftX *= (if (Random.between(0, 2) == 1) -1 else 1)
                 randShiftY *= (if (Random.between(0, 2) == 1) -1 else 1)
-
+                
                 icon.translate(randShiftX, randShiftY)
             }
             
@@ -142,42 +133,48 @@ trait Animal {
 
 }
 
-class Lion(val maxTemp : Double, val minWater : Double, val id : Int, var icon : Picture) extends Animal {
+class Lion(
+    val maxfeltTemperature : Double, 
+    val minWater : Double, 
+    val id : Int, 
+    val icon : Picture, 
+    var position: (Int, Int)
+) extends Animal {
 
     rival = "Zebra"
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Lion, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", temp: " + temp + "\n"
-    }
-
-    def stillAlive(currentTemp: Double) {
-        println("stillAlive Lion" + currentTemp)
+        return "\n\t\tID: " + id + " --> Lion, maxfeltTemperature: " + maxfeltTemperature + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", feltTemperature: " + feltTemperature + "\n"
     }
 }
 
-class Elephant(val maxTemp : Double, val minWater : Double, val id : Int, var icon : Picture) extends Animal {
+class Elephant(
+    val maxfeltTemperature : Double, 
+    val minWater : Double, 
+    val id : Int, 
+    val icon : Picture,
+    var position : (Int, Int)
+) extends Animal {
 
     rival = "Lion"
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Elephant, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", temp: " + temp + "\n"
-    }
-
-    def stillAlive(currentTemp: Double) {
-        println("stillAlive Elephant" + currentTemp)
+        return "\n\t\tID: " + id + " --> Elephant, maxfeltTemperature: " + maxfeltTemperature + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", feltTemperature: " + feltTemperature + "\n"
     }
 }
 
-class Zebra(val maxTemp : Double, val minWater : Double, val id : Int, var icon : Picture) extends Animal {
+class Zebra(
+    val maxfeltTemperature : Double, 
+    val minWater : Double, 
+    val id : Int, 
+    val icon : Picture,
+    var position : (Int, Int)
+) extends Animal {
 
     rival = "Lion"
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Zebra, maxTemp: " + maxTemp + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", temp: " + temp + "\n"
-    }
-
-    def stillAlive(currentTemp: Double) {
-        println("stillAlive Zebra" + currentTemp)
+        return "\n\t\tID: " + id + " --> Zebra, maxfeltTemperature: " + maxfeltTemperature + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", feltTemperature: " + feltTemperature + "\n"
     }
 }
 
@@ -195,20 +192,42 @@ class Animals(val numOfAnimals : Int) {
         
                 case "Lion" => {
                     animals += new Lion(
-                        LionParams.maxTemp, LionParams.minWater, i, Picture.image("/home/dansolombrino/GitHub/Africa-Wildlife/icons/lion_64.png")
+                        LionParams.maxfeltTemperature, 
+                        LionParams.minWater, 
+                        i, 
+                        Picture.image("/home/dansolombrino/GitHub/Africa-Wildlife/icons/lion_64.png"), 
+                        (0, 0)
                     )
                 }
         
                 case "Elephant" => {
-                    animals += new Elephant(ElephantParams.maxTemp, ElephantParams.minWater, i, Picture.image("/home/dansolombrino/GitHub/Africa-Wildlife/icons/elephant_64.png"))
+                    animals += new Elephant(
+                        ElephantParams.maxfeltTemperature, 
+                        ElephantParams.minWater, 
+                        i, 
+                        Picture.image("/home/dansolombrino/GitHub/Africa-Wildlife/icons/elephant_64.png"),
+                        (0, 0)
+                    )
                 }
         
                 case "Zebra" => {
-                    animals += new Zebra(ZebraParams.maxTemp, ZebraParams.minWater, i, Picture.image("/home/dansolombrino/GitHub/Africa-Wildlife/icons/zebra_64.png"))
+                    animals += new Zebra(
+                        ZebraParams.maxfeltTemperature, 
+                        ZebraParams.minWater, 
+                        i, 
+                        Picture.image("/home/dansolombrino/GitHub/Africa-Wildlife/icons/zebra_64.png"),
+                        (0, 0)
+                    )
                 }
         
                 case default => {
-                    animals += new Zebra(ZebraParams.maxTemp, ZebraParams.minWater, i, Picture.image("/home/dansolombrino/GitHub/Africa-Wildlife/icons/zebra_64.png"))
+                    animals += new Zebra(
+                        ZebraParams.maxfeltTemperature, 
+                        ZebraParams.minWater, 
+                        i, 
+                        Picture.image("/home/dansolombrino/GitHub/Africa-Wildlife/icons/zebra_64.png"),
+                        (0, 0)
+                    )
                 }
             }
         }
@@ -261,21 +280,29 @@ val WATER_SOURCES_TYPES = List("Lake", "River")
 
 trait Drawable {
     var position : (Int, Int)
-    val borderColor : Color
-    val innerColor : Color
-    val rotation : Int
-    val thickness = 10
-    
     val icon : Picture
 
     def draw() {
-        val temp = trans(position._1, position._2) * penColor(borderColor) * fillColor(innerColor) * rot(rotation) * penThickness(thickness) -> icon
-        temp.draw()
+        icon.setPosition(position._1, position._2)
+        icon.draw()
+    }
+}
+
+trait DrawableShape extends Drawable {
+    
+    val borderColor : Color
+    val innerColor : Color
+    val rotation : Int
+    val thickness : Int
+
+    override def draw() {
+        val tempIcon = trans(position._1, position._2) * penColor(borderColor) * fillColor(innerColor) * rot(rotation) * penThickness(thickness) -> icon
+        tempIcon.draw()
     }
 }
 
 
-trait WaterSource extends Drawable {
+trait WaterSource extends DrawableShape {
     val maxLevel : Double
     var currentLevel = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(maxLevel)
     val id : Int
@@ -288,28 +315,43 @@ trait WaterSource extends Drawable {
 
             return water
         } else {
-            val temp = currentLevel(day)
+            val maxAvailableWater = currentLevel(day)
             
             currentLevel(day) = 0
 
-            return temp
+            return maxAvailableWater
         }
     }
-
-    
-
-    
 }
 
-class Lake(val maxLevel : Double, val radius : Double, val id : Int, val name : String, val icon : Picture, var position : (Int, Int), val borderColor : Color, val innerColor : Color, val rotation : Int) extends WaterSource {
+class Lake(
+    val maxLevel : Double, 
+    val id : Int, 
+    val name : String, 
+    val icon : Picture, 
+    var position : (Int, Int), 
+    val borderColor : Color, 
+    val innerColor : Color, 
+    val rotation : Int, 
+    val thickness : Int
+) extends WaterSource {
 
     override def toString() : String = {
         return "\n\t\tName: " + name + " --> Lake, currentLevel: " + currentLevel + ", maxLevel: " + maxLevel + "\n"
     }
 }
 
-class River(val maxLevel : Double, val length : Double, val id : Int, val name : String, val icon : Picture, var position : (Int, Int), val borderColor : Color, val innerColor : Color, val rotation : Int) extends WaterSource {
-
+class River(
+    val maxLevel : Double, 
+    val id : Int, 
+    val name : String, 
+    val icon : Picture, 
+    var position : (Int, Int), 
+    val borderColor : Color, 
+    val innerColor : Color, 
+    val rotation : Int, 
+    val thickness : Int
+) extends WaterSource {
 
     override def toString() : String = {
         return "\n\t\tName: " + name + " --> River, currentLevel: " + currentLevel + ", maxLevel: " + maxLevel + "\n"
@@ -320,10 +362,41 @@ class WaterSources(val numOfWaterSources : Int) {
 
     var waterSources_new = new scala.collection.mutable.HashMap[String, WaterSource]
 
-    waterSources_new("Chad") = new Lake(Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 4.65, 1, "Chad", Picture.ellipse(35, 20),(580, 760), WATER_COLOR, WATER_COLOR, -45)
-    waterSources_new("Victoria") = new Lake(Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 0.21, 2, "Victoria", Picture.ellipse(35, 20),(850, 535), WATER_COLOR, WATER_COLOR, 45)
-    //waterSources_new("Niger") = new River(Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 4, 3, "Niger", Picture.line(-160, 150),(365, 815), WATER_COLOR, WATER_COLOR, 80)
-    waterSources_new("Niger") = new River(Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 4, 3, "Niger", Picture.ellipse(10, 225),(365, 815), WATER_COLOR, WATER_COLOR, -230)
+    waterSources_new("Chad") = new Lake(
+        Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 
+        1, 
+        "Chad", 
+        Picture.ellipse(35, 20),
+        (580, 760), 
+        WATER_COLOR, 
+        WATER_COLOR, 
+        -45, 
+        10
+    )
+    
+    waterSources_new("Victoria") = new Lake(
+        Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 
+        2, 
+        "Victoria", 
+        Picture.ellipse(35, 20),
+        (850, 535), 
+        WATER_COLOR, 
+        WATER_COLOR, 
+        45, 
+        10
+    )
+    
+    waterSources_new("Niger") = new River(
+        Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 
+        3, 
+        "Niger", 
+        Picture.ellipse(10, 225),
+        (365, 815), 
+        WATER_COLOR, 
+        WATER_COLOR, 
+        -230, 
+        10
+    )
     
     override def toString() : String = {
         var out = ""
@@ -339,16 +412,17 @@ class WaterSources(val numOfWaterSources : Int) {
     }
 
     def getRandomWaterSource() : WaterSource = {
-        //return waterSources(Random.between(0, numOfWaterSources))
         val waterSourcesList = List("Chad", "Victoria", "Niger")
+        
         return waterSources_new(waterSourcesList(Random.between(0, numOfWaterSources)))
     }
 
     def getRandomWaterSource(exclude : String) : WaterSource = {
-        //return waterSources(Random.between(0, numOfWaterSources))
+        
         var waterSourcesList = ListBuffer("Chad", "Victoria", "Niger")
 
         waterSourcesList -= exclude
+        
         return waterSources_new(waterSourcesList(Random.between(0, numOfWaterSources - 1)))
     }
 
@@ -370,11 +444,11 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
 
     var waterSources = new WaterSources(numOfWaterSources)
 
-    var temps = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(30.0)
+    var feltTemperatures = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(30.0)
 
-    def populateTemps() {
+    def populatefeltTemperatures() {
         for (i <- 1 to DAYS_IN_YEAR) {
-            temps(i) = temps(i - 1) * 1.0125 
+            feltTemperatures(i) = feltTemperatures(i - 1) * 1.0125 
         }
     }
 
@@ -479,10 +553,10 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
 
                 val r = scala.util.Random
 
-                //val temp_for_the_day = Random.between(30, 45)
-                val temp_for_the_day = temps(dayZeroBased)
+                //val feltTemperature_for_the_day = Random.between(30, 45)
+                val feltTemperature_for_the_day = feltTemperatures(dayZeroBased)
 
-                //println("Day (zero based): " + dayZeroBased + ", day: " + day +", temperature: " + temp_for_the_day)
+                //println("Day (zero based): " + dayZeroBased + ", day: " + day +", feltTemperatureerature: " + feltTemperature_for_the_day)
                 //println("Day (zero based): " + dayZeroBased)
                 //println("Day             : " + day)
                 //println(r.shuffle(animalsWaterSourcesMap(day)))
@@ -490,7 +564,8 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                 r.shuffle(animalsWaterSourcesMap(day)).foreach(
                     association => {
 
-                        if ( association._1.lifePoints( dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 ) ) > 0 ) {
+                         if ( association._1.isAlive( dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 ) ) ) {
+                        //if ( association._1.lifePoints( dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 ) ) > 0 ) {
 
                             //println("\tAnimal " + association._1.id + " is drinking from WaterSource " + association._2.id)
                             //println("\tAnimal " + association._1.id + " BEFORE drinking: ")
@@ -505,14 +580,14 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                             val actual_water = association._2.removeWater(dayZeroBased, desired_water)
 
                             if (actual_water < desired_water) {
-                                association._1.days_without_satisfied_needs += 1
+                                association._1.daysWithoutSatisfiedNeeds += 1
                                 //println("\tAnimal " + association._1.id + " did NOT get enough water.")
-                                //println("\tAnimal " + association._1.id + " days_without_satisfied_needs: " + association._1.days_without_satisfied_needs)
+                                //println("\tAnimal " + association._1.id + " daysWithoutSatisfiedNeeds: " + association._1.daysWithoutSatisfiedNeeds)
                             }
 
                             // migration code begin
 
-                            if (association._1.days_without_satisfied_needs >= MAX_DAYS_WITHOUT_SATISFIED_NEEDS) {
+                            if (association._1.daysWithoutSatisfiedNeeds >= MAX_daysWithoutSatisfiedNeeds) {
                                 //println("\tAnimal " + association._1.id + " MIGRATING")
 
                                 //println("original water source: " + association._2.name + ", " + association._2.position)
@@ -550,14 +625,14 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                                 )
                                 */
                                 
-                                association._1.days_without_satisfied_needs = 0
+                                association._1.daysWithoutSatisfiedNeeds = 0
                             }
                         
                             // migration code end
     
                             association._1.drinkWater(dayZeroBased, actual_water)
     
-                            association._1.temp(dayZeroBased) = temp_for_the_day
+                            association._1.feltTemperature(dayZeroBased) = feltTemperature_for_the_day
 
                             //println("SUS BEGIN")
                             val numEncounteredRivals = association._1.countEncounteredRivals(waterSourcesAnimalsMap(day)(association._2))
@@ -577,7 +652,6 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                         } else {
                             //println("\tAnimal " + association._1.id + " DIED :'( ")
                             association._1.die(dayZeroBased - 1)
-                            association._1.undraw()
                         }
                         
                         
