@@ -73,11 +73,19 @@ trait Animal extends Drawable {
     }
 
     def updateLifePoints(day : Int) {
-            lifePoints(day) = 50 * drankWater(day) - 1 * feltTemperature(day)
+        lifePoints(day) = 50 * drankWater(day) - 1 * feltTemperature(day)
+
+        if (lifePoints(day) < 0) {
+            die(day)
+        }
     }
 
     def updateLifePoints(day : Int, numEncounteredRivals : Int) {
-            lifePoints(day) = 50 * drankWater(day) - 1 * feltTemperature(day) - 10 * numEncounteredRivals
+        lifePoints(day) = 50 * drankWater(day) - 1 * feltTemperature(day) - 10 * numEncounteredRivals
+
+        if (lifePoints(day) < 0) {
+            die(day)
+        }
     }
 
     def die(day : Int) {
@@ -88,19 +96,14 @@ trait Animal extends Drawable {
         icon.erase()
     }
 
-    /*
-    def TODO_REMOVE_ME() {
-        icon.setPosition(position._1, position._2)
-        icon.draw()  
-    }
-    */
-
     def handleNeedsSatisfaction(actual_water : Double, desired_water : Double) {
+        
         if (actual_water < desired_water) {
+            
             daysWithoutSatisfiedNeeds += 1
-            //println("\tAnimal " + association._1.id + " did NOT get enough water.")
-            //println("\tAnimal " + association._1.id + " daysWithoutSatisfiedNeeds: " + association._1.daysWithoutSatisfiedNeeds)
+        
         }
+        
     }
 
     def evaluateMigration(actual_water : Double, desired_water : Double) : Boolean = {
@@ -651,14 +654,11 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
                 handleDisplayDayText(day)
 
                 val dayZeroBased = day - 1
+                val previousDay = 10000
 
                 temperatures(dayZeroBased) = temperatures(
                     dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 )
                 ) * TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR
-
-                //println("Day (zero based): " + dayZeroBased)
-                //println("Temperature     : " + temperatures(dayZeroBased))
-                //println("Day             : " + day)
 
                 Random.shuffle(animalsWaterSourcesMapAcrossYears(day)).foreach(
                     association => {
@@ -690,30 +690,15 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
                             
                             association._1.updateLifePoints(dayZeroBased, numEncounteredRivals)
                            
-                        } else {
-                            
-                            association._1.die(dayZeroBased - 1)
-                            
                         }
-                        
-                        
-
-                        
-
-                        
-                        
                     }
                 )
         
-                //println("sleeping for " + DELAY_MS + " ms")
                 Thread.sleep(DELAY_MS)
-                //println("waking up after sleeping for " + DELAY_MS + " ms")
-                
+     
             }
         )
-        
-        
-        
+
     }
 
 }
