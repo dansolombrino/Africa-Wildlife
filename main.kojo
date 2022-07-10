@@ -701,9 +701,12 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
 
                             association._1.feelTemperature(dayZeroBased, temperatures(dayZeroBased))
 
-                            val numEncounteredRivals = association._1.countEncounteredRivals(waterSourcesAnimalsMapAcrossYears(day)(association._2))
-                            
-                            association._1.updateLifePoints(dayZeroBased, numEncounteredRivals)
+                            association._1.updateLifePoints(
+                                dayZeroBased, 
+                                association._1.countEncounteredRivals(
+                                    waterSourcesAnimalsMapAcrossYears(day)(association._2)
+                                )
+                            )
                            
                         }
                     }
