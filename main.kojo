@@ -659,16 +659,18 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
                 handleDisplayDayText(day)
 
                 val dayZeroBased = day - 1
-                val previousDay = 10000
+                val previousDay = dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 )
 
                 temperatures(dayZeroBased) = temperatures(
-                    dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 )
+                    //dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 )
+                    previousDay
                 ) * TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR
 
                 Random.shuffle(animalsWaterSourcesMapAcrossYears(day)).foreach(
                     association => {
 
-                         if ( association._1.isAlive( dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 ) ) ) {
+                         //if ( association._1.isAlive( dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 ) ) ) {
+                         if ( association._1.isAlive(previousDay) ) {
                       
                             val desired_water = Random.between(
                                 association._1.minWater * 0.8, association._1.minWater
