@@ -97,6 +97,12 @@ trait Animal extends Drawable {
         icon.erase()
     }
 
+    def getDesiredWater() : Double = {
+        
+        return Random.between(minWater * 0.8, minWater)
+        
+    }
+
     def handleNeedsSatisfaction(actual_water : Double, desired_water : Double) {
         
         if (actual_water < desired_water) {
@@ -662,19 +668,21 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
                 val previousDay = dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 )
 
                 temperatures(dayZeroBased) = temperatures(
-                    //dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 )
                     previousDay
                 ) * TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR
 
                 Random.shuffle(animalsWaterSourcesMapAcrossYears(day)).foreach(
                     association => {
 
-                         //if ( association._1.isAlive( dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 ) ) ) {
                          if ( association._1.isAlive(previousDay) ) {
-                      
+
+                            val desired_water = association._1.getDesiredWater()
+
+                            /*
                             val desired_water = Random.between(
                                 association._1.minWater * 0.8, association._1.minWater
                             )
+                            */
     
                             val actual_water = association._2.removeWater(
                                 dayZeroBased, desired_water
