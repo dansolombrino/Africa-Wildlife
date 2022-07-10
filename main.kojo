@@ -103,6 +103,12 @@ trait Animal extends Drawable {
         
     }
 
+    def feelTemperature(day : Int, temperatureValue : Double) {
+        
+        feltTemperature(day) = temperatureValue
+        
+    }
+
     def handleNeedsSatisfaction(actual_water : Double, desired_water : Double) {
         
         if (actual_water < desired_water) {
@@ -677,12 +683,6 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
                          if ( association._1.isAlive(previousDay) ) {
 
                             val desired_water = association._1.getDesiredWater()
-
-                            /*
-                            val desired_water = Random.between(
-                                association._1.minWater * 0.8, association._1.minWater
-                            )
-                            */
     
                             val actual_water = association._2.removeWater(
                                 dayZeroBased, desired_water
@@ -698,8 +698,8 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
                             }
     
                             association._1.drinkWater(dayZeroBased, actual_water)
-    
-                            association._1.feltTemperature(dayZeroBased) = temperatures(dayZeroBased)
+
+                            association._1.feelTemperature(dayZeroBased, temperatures(dayZeroBased))
 
                             val numEncounteredRivals = association._1.countEncounteredRivals(waterSourcesAnimalsMapAcrossYears(day)(association._2))
                             
