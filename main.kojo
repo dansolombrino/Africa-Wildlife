@@ -77,10 +77,12 @@ trait Animal extends Drawable {
         icon.erase()
     }
 
+    /*
     def TODO_REMOVE_ME() {
         icon.setPosition(position._1, position._2)
         icon.draw()  
     }
+    */
 
     def countEncounteredRivals(neighbouringAnimals : ListBuffer[Animal]) : Int = {
         var numEncounteredRivals = 0
@@ -247,12 +249,12 @@ class Fauna(val faunaSize : Int) {
         return fauna(i)
     }
 
-    def draw() {
+    def drawInCanvas() {
         //println("drawing animals...")
 
         fauna.foreach(
             a => {
-                a.draw()
+                a.drawInCanvas()
             }
         )
     }
@@ -279,7 +281,7 @@ trait Drawable {
     var position : (Int, Int)
     val icon : Picture
 
-    def draw() {
+    def drawInCanvas() {
         icon.setPosition(position._1, position._2)
         icon.draw()
     }
@@ -292,7 +294,7 @@ trait DrawableShape extends Drawable {
     val rotation : Int
     val thickness : Int
 
-    override def draw() {
+    override def drawInCanvas() {
         val tempIcon = trans(position._1, position._2) * penColor(borderColor) * fillColor(innerColor) * rot(rotation) * penThickness(thickness) -> icon
         tempIcon.draw()
     }
@@ -462,18 +464,18 @@ class WaterSources(val numOfWaterSources : Int) {
     }
     */
 
-    def draw() {
+    def drawInCanvas() {
         //println("drawing waterSources...")
 
         waterSources_new.foreach(
             ws => {
-                ws._2.draw()
+                ws._2.drawInCanvas()
             }
         )
     }
 }
 
-class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Picture) {
+class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Picture, var position : (Int, Int)) extends Drawable {
 
     var fauna = new Fauna(numOfAnimals)
 
@@ -563,12 +565,11 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
     def simulation() {
         //println("Simulation!")
 
-        //africa.
         icon.draw()
-        //africa.
-        fauna.draw()
-        //africa.
-        waterSources.draw()
+
+        fauna.drawInCanvas()
+        
+        waterSources.drawInCanvas()
 
         animalsWaterSourcesMapAcrossYears.keys.foreach(
             day => {
@@ -704,7 +705,12 @@ val numOfAnimals = Random.between(MIN_NUM_OF_ANIMALS, MAX_NUM_OF_ANIMALS)
 //val numOfWaterSources = Random.between(MIN_NUM_OF_WATER_SOURCES, MAX_NUM_OF_WATER_SOURCES)
 val numOfWaterSources = 3 // keep it this way, for testing purposes
 
-var africa = new Africa(numOfAnimals, numOfWaterSources, Picture.image("/home/dansolombrino/GitHub/Africa-Wildlife/africaClean.png"))
+var africa = new Africa(
+    numOfAnimals, 
+    numOfWaterSources, 
+    Picture.image("/home/dansolombrino/GitHub/Africa-Wildlife/africaClean.png"),
+    (0, 0)
+)
 
 //println(africa)
 
