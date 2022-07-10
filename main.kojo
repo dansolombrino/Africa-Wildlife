@@ -620,8 +620,6 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
 
                 val dayZeroBased = day - 1
 
-                val r = scala.util.Random
-
                 temperatures(dayZeroBased) = temperatures(
                     dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 )
                 ) * TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR
@@ -631,7 +629,7 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
                 //println("Day             : " + day)
                 //println(r.shuffle(animalsWaterSourcesMapAcrossYears(day)))
 
-                r.shuffle(animalsWaterSourcesMapAcrossYears(day)).foreach(
+                Random.shuffle(animalsWaterSourcesMapAcrossYears(day)).foreach(
                     association => {
 
                          if ( association._1.isAlive( dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 ) ) ) {
