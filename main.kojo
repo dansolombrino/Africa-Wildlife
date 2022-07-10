@@ -1,5 +1,6 @@
 import scala.util.Random
 import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.LinkedHashMap
 import scala.language.postfixOps
 import scala.collection.mutable.Map
 
@@ -487,16 +488,16 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
     // Shuffling a HashMap record yould require to convert to list first, since in a Set the order does NOT count, hence shuffling does NOT make any sense 
     // int --> day index
     // inner map --> actual water source <----> animal association, for that given day
-    var animalsWaterSourcesMapAcrossYears = new scala.collection.mutable.LinkedHashMap[
+    var animalsWaterSourcesMapAcrossYears = new LinkedHashMap[
         Int, 
-        scala.collection.mutable.LinkedHashMap[
+        LinkedHashMap[
             Animal, WaterSource
         ]
     ]
     
-    var waterSourcesAnimalsMapAcrossYears = new scala.collection.mutable.LinkedHashMap[
+    var waterSourcesAnimalsMapAcrossYears = new LinkedHashMap[
         Int, 
-        scala.collection.mutable.LinkedHashMap[
+        LinkedHashMap[
             WaterSource, 
             ListBuffer[Animal]
         ]
@@ -508,8 +509,8 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
 
     def populateAnimalsWaterSourcesMap() {
 
-        var animalsWaterSourcesMap = new scala.collection.mutable.LinkedHashMap[Animal, WaterSource]
-        var waterSourcesAnimalsMap = new scala.collection.mutable.LinkedHashMap[WaterSource, ListBuffer[Animal]]
+        var animalsWaterSourcesMap = new LinkedHashMap[Animal, WaterSource]
+        var waterSourcesAnimalsMap = new LinkedHashMap[WaterSource, ListBuffer[Animal]]
 
         fauna.fauna.foreach(
             a => {
@@ -535,10 +536,10 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
         )
         for (i <- 1 to DAYS_IN_YEAR) {
 
-            animalsWaterSourcesMapAcrossYears(i) = new scala.collection.mutable.LinkedHashMap[
+            animalsWaterSourcesMapAcrossYears(i) = new LinkedHashMap[
                 Animal, WaterSource
             ]
-            waterSourcesAnimalsMapAcrossYears(i) = new scala.collection.mutable.LinkedHashMap[
+            waterSourcesAnimalsMapAcrossYears(i) = new LinkedHashMap[
                 WaterSource, ListBuffer[Animal]
             ]
             
