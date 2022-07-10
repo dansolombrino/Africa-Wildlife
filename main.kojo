@@ -673,69 +673,27 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
                                 dayZeroBased, desired_water
                             )
 
-                            //association._1.handleNeedsSatisfaction(actual_water, desired_water)
-
-                            //association._1.evaluateMigration(actual_water, desired_water)
-
-                            // migration code begin
-
-                            //if (association._1.daysWithoutSatisfiedNeeds >= MAX_daysWithoutSatisfiedNeeds) {
                             if ( association._1.evaluateMigration(actual_water, desired_water) ) {
-                                //println("\tAnimal " + association._1.id + " MIGRATING")
-
-                                //println("original water source: " + association._2.name + ", " + association._2.position)
-                                //val wsToMigrateTo = waterSources.getRandomWaterSource(association._2.name)
+                      
                                 val wsToMigrateTo = waterSources.getRandomWaterSource(association._2)
-                                //println("new water source: " + wsToMigrateTo.name + ", " + wsToMigrateTo.position)
                                 
                                 association._1.migrate(wsToMigrateTo)
 
                                 updateAnimalsWaterSourcesMap(dayZeroBased, association._1, wsToMigrateTo)
-
-                                /*
-                                for (i <- dayZeroBased to DAYS_IN_YEAR) {
-                                   //println("\tapplying migration for day: " + i)
-                                   animalsWaterSourcesMapAcrossYears(i)(association._1) = wsToMigrateTo
-
-                                   try {
-                                       waterSourcesAnimalsMapAcrossYears(i)(wsToMigrateTo) += association._1
-                                    } catch {
-                                        case e: NoSuchElementException => {
-                                            waterSourcesAnimalsMapAcrossYears(i).put(wsToMigrateTo, new ListBuffer[Animal])
-                                            waterSourcesAnimalsMapAcrossYears(i)(wsToMigrateTo) += association._1
-                                        }
-                                       
-                                    }                                                                 
-                                } 
-                               */
-                                //association._1.daysWithoutSatisfiedNeeds = 0
                             }
-                        
-                            // migration code end
     
                             association._1.drinkWater(dayZeroBased, actual_water)
     
-                            //association._1.feltTemperature(dayZeroBased) = feltTemperature_for_the_day
                             association._1.feltTemperature(dayZeroBased) = temperatures(dayZeroBased)
 
-                            //println("SUS BEGIN")
                             val numEncounteredRivals = association._1.countEncounteredRivals(waterSourcesAnimalsMapAcrossYears(day)(association._2))
-                            //println("SUS END")
                             
                             association._1.updateLifePoints(dayZeroBased, numEncounteredRivals)
-                            
-   
-                            //println("\tAnimal " + association._1.id + " AFTER drinking: ")
-                            //println("\t" + association._1)
-                            //println("\tWaterSource " + association._2.id + " AFTER drinking: ")
-                            //println(association._2)
-    
-                            //println("\n\n\n\n")
-
                            
                         } else {
-                            //println("\tAnimal " + association._1.id + " DIED :'( ")
+                            
                             association._1.die(dayZeroBased - 1)
+                            
                         }
                         
                         
