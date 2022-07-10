@@ -305,6 +305,7 @@ class Fauna(val faunaSize : Int) {
 val waterColor = color(88, 148, 245)
 val WATER_COLOR = color(88, 148, 245)
 val DEEP_BLUE_COLOR = color(7, 42, 108)
+val RED_COLOR_CHANNEL = 175
 val BACKGROUND_COLOR = color(200, 235, 255)
 
 val MIN_NUM_OF_WATER_SOURCES = 3
@@ -514,20 +515,8 @@ class WaterSources(val numOfWaterSources : Int) {
         return randomWaterSource
     }
 
-    /*
-    def getRandomWaterSource(exclude : String) : WaterSource = {
-        
-        var waterSourcesListTempCopy = ListBuffer("Chad", "Victoria", "Niger")
-        
-        waterSourcesListTempCopy -= exclude
-        
-        return waterSources_new(waterSourcesListTempCopy(Random.between(0, numOfWaterSources - 1)))
-    }
-    */
-
     def drawInCanvas() {
-        //println("drawing waterSources...")
-
+       
         waterSources_new.foreach(
             ws => {
                 ws._2.drawInCanvas()
@@ -545,6 +534,8 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
     var temperatures = Seq.fill(DAYS_IN_YEAR)(30.0)
 
     var dayText = Picture.text(" ")
+
+    var temperatureText = Picture.text(" ")
 
     // LinkedHashMap rather than HashMap so as records can be shuffled
     // Shuffling a HashMap record yould require to convert to list first, since in a Set the order does NOT count, hence shuffling does NOT make any sense 
@@ -582,12 +573,18 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
                 animalsWaterSourcesMap(a) = ws
 
                     try {
+                       
                        waterSourcesAnimalsMap(ws) += a
+                    
                     } catch {
+                        
                         case e: NoSuchElementException => {
+                            
                             waterSourcesAnimalsMap.put(ws, new ListBuffer[Animal])
                             waterSourcesAnimalsMap(ws) += a
+                       
                         }
+                        
                     }
                 
                 a.position = (
@@ -641,16 +638,32 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
         } 
     }
 
-    def handleDisplayDayText(day : Int) {
+    def handleDisplayHeaderText(day : Int, temperature : Double) {
         if (day > 1) {
             dayText.erase()
+            temperatureText.erase()
         }
         
         dayText = Picture.text("Day: " + day)
-        dayText.setPosition(500, 1300)
+        dayText.setPosition(500, 1400)
         dayText.setPenColor(DEEP_BLUE_COLOR)
         dayText.scale(YEAR_TEXT_SCALE_FACTOR)
+
+        temperatureText = Picture.text("Temperature: " + Math.floor(temperature * 100) / 100)
+        temperatureText.setPosition(250, 1300)
+        temperatureText.setPenColor(
+            color(
+                Math.min(
+                    255, 
+                    RED_COLOR_CHANNEL + 20 * day
+                ), 0, 0
+            )
+        )
+        temperatureText.scale(YEAR_TEXT_SCALE_FACTOR)
+
+        
         draw(dayText)
+        draw(temperatureText)
     }
 
     def simulation() {
@@ -668,14 +681,14 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
         animalsWaterSourcesMapAcrossYears.keys.foreach(
             day => {
 
-                handleDisplayDayText(day)
-
                 val dayZeroBased = day - 1
                 val previousDay = dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 )
 
                 temperatures(dayZeroBased) = temperatures(
                     previousDay
                 ) * TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR
+
+                handleDisplayHeaderText(day, temperatures(dayZeroBased))
 
                 Random.shuffle(animalsWaterSourcesMapAcrossYears(day)).foreach(
                     association => {
