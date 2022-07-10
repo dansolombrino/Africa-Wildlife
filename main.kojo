@@ -147,6 +147,8 @@ trait Animal extends Drawable {
             }
             
         }
+
+        daysWithoutSatisfiedNeeds = 0
         
     }
 
@@ -606,6 +608,22 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
 
     populateAnimalsWaterSourcesMap()
 
+    def updateAnimalsWaterSourcesMap(dayZeroBased : Int, animal : Animal, wsToMigrateTo : WaterSource) {
+        for (i <- dayZeroBased to DAYS_IN_YEAR) {
+           //println("\tapplying migration for day: " + i)
+           animalsWaterSourcesMapAcrossYears(i)(animal) = wsToMigrateTo
+    
+           try {
+               waterSourcesAnimalsMapAcrossYears(i)(wsToMigrateTo) += animal
+            } catch {
+                case e: NoSuchElementException => {
+                    waterSourcesAnimalsMapAcrossYears(i).put(wsToMigrateTo, new ListBuffer[Animal])
+                    waterSourcesAnimalsMapAcrossYears(i)(wsToMigrateTo) += animal
+                }
+            }                                                                 
+        } 
+    }
+
     def handleDisplayDayText(day : Int) {
         if (day > 1) {
             dayText.erase()
@@ -672,6 +690,9 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
                                 
                                 association._1.migrate(wsToMigrateTo)
 
+                                updateAnimalsWaterSourcesMap(dayZeroBased, association._1, wsToMigrateTo)
+
+                                /*
                                 for (i <- dayZeroBased to DAYS_IN_YEAR) {
                                    //println("\tapplying migration for day: " + i)
                                    animalsWaterSourcesMapAcrossYears(i)(association._1) = wsToMigrateTo
@@ -686,7 +707,8 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
                                        
                                     }                                                                 
                                 } 
-                                association._1.daysWithoutSatisfiedNeeds = 0
+                               */
+                                //association._1.daysWithoutSatisfiedNeeds = 0
                             }
                         
                             // migration code end
