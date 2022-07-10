@@ -5,6 +5,8 @@ import scala.language.postfixOps
 import scala.collection.mutable.Map
 import scala.collection.mutable.Seq
 
+val YEAR_TEXT_SCALE_FACTOR = 5
+
 var MIGRATION_NUM_VISUAL_STEPS = 5
 
 var ICON_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/icons/"
@@ -270,6 +272,7 @@ class Fauna(val faunaSize : Int) {
 
 val waterColor = color(88, 148, 245)
 val WATER_COLOR = color(88, 148, 245)
+val DEEP_BLUE_COLOR = color(7, 42, 108)
 
 val MIN_NUM_OF_WATER_SOURCES = 3
 val MAX_NUM_OF_WATER_SOURCES = 4
@@ -508,6 +511,8 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
 
     var temperatures = Seq.fill(DAYS_IN_YEAR)(30.0)
 
+    var dayText = Picture.text(" ")
+
     // LinkedHashMap rather than HashMap so as records can be shuffled
     // Shuffling a HashMap record yould require to convert to list first, since in a Set the order does NOT count, hence shuffling does NOT make any sense 
     // int --> day index
@@ -587,6 +592,18 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
 
     populateAnimalsWaterSourcesMap()
 
+    def handleDisplayDayText(day : Int) {
+        if (day > 1) {
+            dayText.erase()
+        }
+        
+        dayText = Picture.text("Day: " + day)
+        dayText.setPosition(500, 1300)
+        dayText.setPenColor(DEEP_BLUE_COLOR)
+        dayText.scale(YEAR_TEXT_SCALE_FACTOR)
+        draw(dayText)
+    }
+
     def simulation() {
         //println("Simulation!")
 
@@ -598,9 +615,8 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
 
         animalsWaterSourcesMapAcrossYears.keys.foreach(
             day => {
-                val day_pic = Picture.text("Day: " + day)
-                day_pic.setPosition(500, 1150)
-                draw(day_pic)
+
+                handleDisplayDayText(day)
 
                 val dayZeroBased = day - 1
 
@@ -715,7 +731,7 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
                 //println("sleeping for " + DELAY_MS + " ms")
                 Thread.sleep(DELAY_MS)
                 //println("waking up after sleeping for " + DELAY_MS + " ms")
-                day_pic.erase()
+                
             }
         )
         
