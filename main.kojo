@@ -703,16 +703,18 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
 
 }
 
-val numOfAnimals = Random.between(MIN_NUM_OF_ANIMALS, MAX_NUM_OF_ANIMALS)
-
-//val numOfWaterSources = Random.between(MIN_NUM_OF_WATER_SOURCES, MAX_NUM_OF_WATER_SOURCES)
-val numOfWaterSources = 3 // keep it this way, for testing purposes
+object AfricaParams {
+  val numOfAnimals = Random.between(MIN_NUM_OF_ANIMALS, MAX_NUM_OF_ANIMALS)
+  val numOfWaterSources = 3 // keep it this way, for testing purposes
+  val iconFilePath = ICON_FOLDER_PATH + "africaClean.png"
+  val position = (0.0)
+}
 
 var africa = new Africa(
-    numOfAnimals, 
-    numOfWaterSources, 
-    Picture.image("/home/dansolombrino/GitHub/Africa-Wildlife/africaClean.png"),
-    (0, 0)
+    AfricaParams.numOfAnimals, 
+    AfricaParams.numOfWaterSources, 
+    Picture.image(AfricaParams.iconFilePath),
+    AfricaParams.position
 )
 
 //println(africa)
