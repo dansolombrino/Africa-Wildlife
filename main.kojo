@@ -438,14 +438,20 @@ class WaterSources(val numOfWaterSources : Int) {
         return waterSources_new(waterSourcesList(Random.between(0, numOfWaterSources)))
     }
 
-    def getRandomWaterSource(exclude : WaterSource) {
+    def getRandomWaterSource(exclude : WaterSource) : WaterSource = {
+        
+        var randomWaterSource = getRandomWaterSource()
+        
         do {
-            val randomWaterSource = getRandomWaterSource()
-
             if (randomWaterSource.equals(exclude) == false) {
                 return randomWaterSource
             }
+
+            randomWaterSource = getRandomWaterSource()
+            
         } while (true)
+
+        return randomWaterSource
     }
 
     def getRandomWaterSource(exclude : String) : WaterSource = {
@@ -622,7 +628,8 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
                                 //println("\tAnimal " + association._1.id + " MIGRATING")
 
                                 //println("original water source: " + association._2.name + ", " + association._2.position)
-                                val wsToMigrateTo = waterSources.getRandomWaterSource(association._2.name)
+                                //val wsToMigrateTo = waterSources.getRandomWaterSource(association._2.name)
+                                val wsToMigrateTo = waterSources.getRandomWaterSource(association._2)
                                 //println("new water source: " + wsToMigrateTo.name + ", " + wsToMigrateTo.position)
                                 
                                 association._1.migrate(wsToMigrateTo)
