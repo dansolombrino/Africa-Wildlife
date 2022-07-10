@@ -116,14 +116,8 @@ trait Animal extends Drawable {
             Thread.sleep(DELAY_MS)
             if (icon.collidesWith(ws.icon)) {
                 println("COLLISION DETECTED, APPLYING OFFSET!")
-
-                var randShiftX = Random.between(17, 40) 
-                var randShiftY = Random.between(17, 40)
-
-                randShiftX *= (if (Random.between(0, 2) == 1) -1 else 1)
-                randShiftY *= (if (Random.between(0, 2) == 1) -1 else 1)
                 
-                icon.translate(randShiftX, randShiftY)
+                icon.translate(getRandomShift(), getRandomShift())
             }
             
         }
@@ -276,6 +270,10 @@ val MAX_LEVEL_LOWERBOUND = 3
 val MAX_LEVEL_UPPERBOUND = 4
 
 val WATER_SOURCES_TYPES = List("Lake", "River")
+
+def getRandomShift() : Int = {
+    return Random.between(25, 50) * (if (Random.between(0, 2) == 1) -1 else 1)
+ }
 
 trait Drawable {
     var position : (Int, Int)
@@ -527,35 +525,25 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
                         }
                     }
                 
-                var randShiftX = Random.between(-10, 50)
-                var randShiftY = Random.between(-10, 50)
-
-                randShiftX *= (if (Random.between(0, 2) == 1) -1 else 1)
-                randShiftY *= (if (Random.between(0, 2) == 1) -1 else 1)
-                
-                a.position = (ws.position._1 + randShiftX, ws.position._2 + randShiftY)
+                a.position = (
+                    ws.position._1 + getRandomShift(), 
+                    ws.position._2 + getRandomShift()
+                )
             }
         )
         for (i <- 1 to DAYS_IN_YEAR) {
 
-            animalsWaterSourcesMapAcrossYears(i) = new scala.collection.mutable.LinkedHashMap[Animal, WaterSource]
-            waterSourcesAnimalsMapAcrossYears(i) = new scala.collection.mutable.LinkedHashMap[WaterSource, ListBuffer[Animal]]
+            animalsWaterSourcesMapAcrossYears(i) = new scala.collection.mutable.LinkedHashMap[
+                Animal, WaterSource
+            ]
+            waterSourcesAnimalsMapAcrossYears(i) = new scala.collection.mutable.LinkedHashMap[
+                WaterSource, ListBuffer[Animal]
+            ]
             
             fauna.fauna.foreach(
                 a => {
-                    /*
-                    var ws = waterSources.getRandomWaterSource()
-                    
-                    animalsWaterSourcesMapAcrossYears(i) += ((a, ws))
-
-                    var randShiftX = Random.between(-10, 50)
-                    var randShiftY = Random.between(-10, 50)
-                    a.position = (ws.position._1 + randShiftX, ws.position._2 + randShiftY)
-                    */
 
                     animalsWaterSourcesMapAcrossYears(i) += ((a, animalsWaterSourcesMap(a)))
-                    //waterSourcesAnimalsMapAcrossYears(i) += ((animalsWaterSourcesMap(a), a))
-                    //waterSourcesAnimalsMapAcrossYears(i)(animalsWaterSourcesMap(a)) += a
 
                     try {
                        waterSourcesAnimalsMapAcrossYears(i)(animalsWaterSourcesMap(a)) += a
@@ -563,17 +551,10 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
                         case e: NoSuchElementException => {
                             waterSourcesAnimalsMapAcrossYears(i).put(animalsWaterSourcesMap(a), new ListBuffer[Animal])
                             waterSourcesAnimalsMapAcrossYears(i)(animalsWaterSourcesMap(a)) += a
-                        }
-                            
-                            
-                        
-                    }
-                   
-                    
-                    
+                        }   
+                    }   
                 }
             )
-           
         }
     }
 
@@ -664,14 +645,7 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
                                 }
                                 
 
-                                /*
-                                var randShiftX = Random.between(-10, 50)
-                                var randShiftY = Random.between(-10, 50)
-                                association._1.icon.setPosition(
-                                    association._2.position._1 + randShiftX, 
-                                    association._2.position._2 + randShiftY
-                                )
-                                */
+                             
                                 
                                 association._1.daysWithoutSatisfiedNeeds = 0
                             }
