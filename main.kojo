@@ -95,6 +95,14 @@ trait Animal extends Drawable {
     }
     */
 
+    def handleNeedsSatisfaction(actual_water : Double, desired_water : Double) {
+        if (actual_water < desired_water) {
+            daysWithoutSatisfiedNeeds += 1
+            //println("\tAnimal " + association._1.id + " did NOT get enough water.")
+            //println("\tAnimal " + association._1.id + " daysWithoutSatisfiedNeeds: " + association._1.daysWithoutSatisfiedNeeds)
+        }
+    }
+
     def countEncounteredRivals(neighbouringAnimals : ListBuffer[Animal]) : Int = {
         var numEncounteredRivals = 0
 
@@ -627,31 +635,21 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
                 //println("Day (zero based): " + dayZeroBased)
                 //println("Temperature     : " + temperatures(dayZeroBased))
                 //println("Day             : " + day)
-                //println(r.shuffle(animalsWaterSourcesMapAcrossYears(day)))
 
                 Random.shuffle(animalsWaterSourcesMapAcrossYears(day)).foreach(
                     association => {
 
                          if ( association._1.isAlive( dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 ) ) ) {
-                        //if ( association._1.lifePoints( dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 ) ) > 0 ) {
-
-                            //println("\tAnimal " + association._1.id + " is drinking from WaterSource " + association._2.id)
-                            //println("\tAnimal " + association._1.id + " BEFORE drinking: ")
-                            //println("\t" + association._1)
-                            //println("\tWaterSource " + association._2.id + " BEFORE drinking: ")
-                            //println(association._2)
+                      
+                            val desired_water = Random.between(
+                                association._1.minWater * 0.8, association._1.minWater
+                            )
     
-                            // drink code
-                            val desired_water = Random.between(association._1.minWater * 0.8, association._1.minWater)
-                            //println("\tdesired_water: " + desired_water)
-    
-                            val actual_water = association._2.removeWater(dayZeroBased, desired_water)
+                            val actual_water = association._2.removeWater(
+                                dayZeroBased, desired_water
+                            )
 
-                            if (actual_water < desired_water) {
-                                association._1.daysWithoutSatisfiedNeeds += 1
-                                //println("\tAnimal " + association._1.id + " did NOT get enough water.")
-                                //println("\tAnimal " + association._1.id + " daysWithoutSatisfiedNeeds: " + association._1.daysWithoutSatisfiedNeeds)
-                            }
+                            association._1.handleNeedsSatisfaction(actual_water, desired_water)
 
                             // migration code begin
 
@@ -676,17 +674,9 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
                                             waterSourcesAnimalsMapAcrossYears(i).put(wsToMigrateTo, new ListBuffer[Animal])
                                             waterSourcesAnimalsMapAcrossYears(i)(wsToMigrateTo) += association._1
                                         }
-                                            
-                                            
-                                        
-                                    }
-                                   
-                                                             
-                                }
-                                
-
-                             
-                                
+                                       
+                                    }                                                                 
+                                } 
                                 association._1.daysWithoutSatisfiedNeeds = 0
                             }
                         
