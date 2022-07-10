@@ -3,7 +3,8 @@ import scala.collection.mutable.ListBuffer
 import scala.language.postfixOps
 import scala.collection.mutable.Map
 
-//TODO make animal extend drawable
+// TODO load from disk
+val TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR = 1.025
 
 val MAX_daysWithoutSatisfiedNeeds = 2
 
@@ -41,8 +42,6 @@ trait Animal extends Drawable {
     val maxfeltTemperature : Double
     val minWater : Double
     val id : Int
-    //var icon : Picture
-    //var position = (0, 0)
     var daysWithoutSatisfiedNeeds = 0
     var rival = ""
     
@@ -178,20 +177,20 @@ class Zebra(
     }
 }
 
-class Animals(val numOfAnimals : Int) {
+class Fauna(val faunaSize : Int) {
     
-    var animals: ListBuffer[Animal] = ListBuffer()
+    var fauna: ListBuffer[Animal] = ListBuffer()
 
-    def populateAnimals(): ListBuffer[Animal] = {
+    def populateFauna(): ListBuffer[Animal] = {
         
-        for (i <- 1 to numOfAnimals) {
+        for (i <- 1 to faunaSize) {
             
             val animalSpecie = ANIMAL_SPECIES(Random.between(0, ANIMAL_SPECIES.length))
         
             animalSpecie match {
         
                 case "Lion" => {
-                    animals += new Lion(
+                    fauna += new Lion(
                         LionParams.maxfeltTemperature, 
                         LionParams.minWater, 
                         i, 
@@ -201,7 +200,7 @@ class Animals(val numOfAnimals : Int) {
                 }
         
                 case "Elephant" => {
-                    animals += new Elephant(
+                    fauna += new Elephant(
                         ElephantParams.maxfeltTemperature, 
                         ElephantParams.minWater, 
                         i, 
@@ -211,7 +210,7 @@ class Animals(val numOfAnimals : Int) {
                 }
         
                 case "Zebra" => {
-                    animals += new Zebra(
+                    fauna += new Zebra(
                         ZebraParams.maxfeltTemperature, 
                         ZebraParams.minWater, 
                         i, 
@@ -221,7 +220,7 @@ class Animals(val numOfAnimals : Int) {
                 }
         
                 case default => {
-                    animals += new Zebra(
+                    fauna += new Zebra(
                         ZebraParams.maxfeltTemperature, 
                         ZebraParams.minWater, 
                         i, 
@@ -232,15 +231,15 @@ class Animals(val numOfAnimals : Int) {
             }
         }
     
-        return animals
+        return fauna
     }
 
-    populateAnimals()
+    populateFauna()
 
     override def toString() : String = {
         var out = ""
 
-        animals.foreach(
+        fauna.foreach(
             a => {
                 out += a.toString()
             }
@@ -251,13 +250,13 @@ class Animals(val numOfAnimals : Int) {
     }
 
     def getAnimal(i: Int) : Animal = {
-        return animals(i)
+        return fauna(i)
     }
 
     def draw() {
-        println("drawing animals...")
+        //println("drawing animals...")
 
-        animals.foreach(
+        fauna.foreach(
             a => {
                 a.draw()
             }
@@ -454,6 +453,7 @@ class WaterSources(val numOfWaterSources : Int) {
         return randomWaterSource
     }
 
+    /*
     def getRandomWaterSource(exclude : String) : WaterSource = {
         
         var waterSourcesListTempCopy = ListBuffer("Chad", "Victoria", "Niger")
@@ -462,10 +462,10 @@ class WaterSources(val numOfWaterSources : Int) {
         
         return waterSources_new(waterSourcesListTempCopy(Random.between(0, numOfWaterSources - 1)))
     }
-
+    */
 
     def draw() {
-        println("drawing waterSources...")
+        //println("drawing waterSources...")
 
         waterSources_new.foreach(
             ws => {
@@ -475,85 +475,94 @@ class WaterSources(val numOfWaterSources : Int) {
     }
 }
 
-class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Picture) {
+class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Picture) {
 
-    var animals = new Animals(numOfAnimals)
+    var fauna = new Fauna(numOfAnimals)
 
     var waterSources = new WaterSources(numOfWaterSources)
 
-    var feltTemperatures = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(30.0)
+    var temperatures = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(30.0)
 
-    def populatefeltTemperatures() {
-        for (i <- 1 to DAYS_IN_YEAR) {
-            feltTemperatures(i) = feltTemperatures(i - 1) * 1.0125 
-        }
-    }
-
-    // LinkedHashMap rather than HashMap so as we can shuffle records
+    // LinkedHashMap rather than HashMap so as records can be shuffled
     // Shuffling a HashMap record yould require to convert to list first, since in a Set the order does NOT count, hence shuffling does NOT make any sense 
-    var animalsWaterSourcesMap = new scala.collection.mutable.LinkedHashMap[Int, scala.collection.mutable.LinkedHashMap[Animal, WaterSource]]
-    var waterSourcesAnimalsMap = new scala.collection.mutable.LinkedHashMap[Int, scala.collection.mutable.LinkedHashMap[WaterSource, ListBuffer[Animal]]]
+    // int --> day index
+    // inner map --> actual water source <----> animal association, for that given day
+    var animalsWaterSourcesMapAcrossYears = new scala.collection.mutable.LinkedHashMap[
+        Int, 
+        scala.collection.mutable.LinkedHashMap[
+            Animal, WaterSource
+        ]
+    ]
     
+    var waterSourcesAnimalsMapAcrossYears = new scala.collection.mutable.LinkedHashMap[
+        Int, 
+        scala.collection.mutable.LinkedHashMap[
+            WaterSource, 
+            ListBuffer[Animal]
+        ]
+    ]
     
     override def toString() : String = {
-        return "*** Africa ***\n\n" + "\t number of animals: " + numOfAnimals + "\n\t animals: " + animals.toString() + "\t number of water sources: " + numOfWaterSources + "\n\t water sources: " + waterSources.toString() + "\n\n**************"
+        return "*** Africa ***\n\n" + "\t number of animals: " + faunaSize + "\n\t animals: " + fauna.toString() + "\t number of water sources: " + numOfWaterSources + "\n\t water sources: " + waterSources.toString() + "\n\n**************"
     }
 
     def populateAnimalsWaterSourcesMap() {
 
-        var animalsWaterSourcesMapGlobal = new scala.collection.mutable.LinkedHashMap[Animal, WaterSource]
-        var waterSourcesAnimalsMapGlobal = new scala.collection.mutable.LinkedHashMap[WaterSource, ListBuffer[Animal]]
+        var animalsWaterSourcesMap = new scala.collection.mutable.LinkedHashMap[Animal, WaterSource]
+        var waterSourcesAnimalsMap = new scala.collection.mutable.LinkedHashMap[WaterSource, ListBuffer[Animal]]
 
-        animals.animals.foreach(
+        fauna.fauna.foreach(
             a => {
 
                 val ws = waterSources.getRandomWaterSource()
                 
-                animalsWaterSourcesMapGlobal(a) = ws
-                //waterSourcesAnimalsMapGlobal(ws) += a
+                animalsWaterSourcesMap(a) = ws
 
                     try {
-                       waterSourcesAnimalsMapGlobal(ws) += a
+                       waterSourcesAnimalsMap(ws) += a
                     } catch {
                         case e: NoSuchElementException => {
-                            waterSourcesAnimalsMapGlobal.put(ws, new ListBuffer[Animal])
-                            waterSourcesAnimalsMapGlobal(ws) += a
+                            waterSourcesAnimalsMap.put(ws, new ListBuffer[Animal])
+                            waterSourcesAnimalsMap(ws) += a
                         }
                     }
                 
-                
                 var randShiftX = Random.between(-10, 50)
                 var randShiftY = Random.between(-10, 50)
+
+                randShiftX *= (if (Random.between(0, 2) == 1) -1 else 1)
+                randShiftY *= (if (Random.between(0, 2) == 1) -1 else 1)
+                
                 a.position = (ws.position._1 + randShiftX, ws.position._2 + randShiftY)
             }
         )
         for (i <- 1 to DAYS_IN_YEAR) {
 
-            animalsWaterSourcesMap(i) = new scala.collection.mutable.LinkedHashMap[Animal, WaterSource]
-            waterSourcesAnimalsMap(i) = new scala.collection.mutable.LinkedHashMap[WaterSource, ListBuffer[Animal]]
+            animalsWaterSourcesMapAcrossYears(i) = new scala.collection.mutable.LinkedHashMap[Animal, WaterSource]
+            waterSourcesAnimalsMapAcrossYears(i) = new scala.collection.mutable.LinkedHashMap[WaterSource, ListBuffer[Animal]]
             
-            animals.animals.foreach(
+            fauna.fauna.foreach(
                 a => {
                     /*
                     var ws = waterSources.getRandomWaterSource()
                     
-                    animalsWaterSourcesMap(i) += ((a, ws))
+                    animalsWaterSourcesMapAcrossYears(i) += ((a, ws))
 
                     var randShiftX = Random.between(-10, 50)
                     var randShiftY = Random.between(-10, 50)
                     a.position = (ws.position._1 + randShiftX, ws.position._2 + randShiftY)
                     */
 
-                    animalsWaterSourcesMap(i) += ((a, animalsWaterSourcesMapGlobal(a)))
-                    //waterSourcesAnimalsMap(i) += ((animalsWaterSourcesMapGlobal(a), a))
-                    //waterSourcesAnimalsMap(i)(animalsWaterSourcesMapGlobal(a)) += a
+                    animalsWaterSourcesMapAcrossYears(i) += ((a, animalsWaterSourcesMap(a)))
+                    //waterSourcesAnimalsMapAcrossYears(i) += ((animalsWaterSourcesMap(a), a))
+                    //waterSourcesAnimalsMapAcrossYears(i)(animalsWaterSourcesMap(a)) += a
 
                     try {
-                       waterSourcesAnimalsMap(i)(animalsWaterSourcesMapGlobal(a)) += a
+                       waterSourcesAnimalsMapAcrossYears(i)(animalsWaterSourcesMap(a)) += a
                     } catch {
                         case e: NoSuchElementException => {
-                            waterSourcesAnimalsMap(i).put(animalsWaterSourcesMapGlobal(a), new ListBuffer[Animal])
-                            waterSourcesAnimalsMap(i)(animalsWaterSourcesMapGlobal(a)) += a
+                            waterSourcesAnimalsMapAcrossYears(i).put(animalsWaterSourcesMap(a), new ListBuffer[Animal])
+                            waterSourcesAnimalsMapAcrossYears(i)(animalsWaterSourcesMap(a)) += a
                         }
                             
                             
@@ -576,11 +585,11 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
         //africa.
         icon.draw()
         //africa.
-        animals.draw()
+        fauna.draw()
         //africa.
         waterSources.draw()
 
-        animalsWaterSourcesMap.keys.foreach(
+        animalsWaterSourcesMapAcrossYears.keys.foreach(
             day => {
                 val day_pic = Picture.text("Day: " + day)
                 day_pic.setPosition(500, 1150)
@@ -590,15 +599,16 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
 
                 val r = scala.util.Random
 
-                //val feltTemperature_for_the_day = Random.between(30, 45)
-                val feltTemperature_for_the_day = feltTemperatures(dayZeroBased)
+                temperatures(dayZeroBased) = temperatures(
+                    dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 )
+                ) * TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR
 
-                //println("Day (zero based): " + dayZeroBased + ", day: " + day +", feltTemperatureerature: " + feltTemperature_for_the_day)
                 //println("Day (zero based): " + dayZeroBased)
+                //println("Temperature     : " + temperatures(dayZeroBased))
                 //println("Day             : " + day)
-                //println(r.shuffle(animalsWaterSourcesMap(day)))
+                //println(r.shuffle(animalsWaterSourcesMapAcrossYears(day)))
 
-                r.shuffle(animalsWaterSourcesMap(day)).foreach(
+                r.shuffle(animalsWaterSourcesMapAcrossYears(day)).foreach(
                     association => {
 
                          if ( association._1.isAlive( dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 ) ) ) {
@@ -636,14 +646,14 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
 
                                 for (i <- dayZeroBased to DAYS_IN_YEAR) {
                                    //println("\tapplying migration for day: " + i)
-                                   animalsWaterSourcesMap(i)(association._1) = wsToMigrateTo
+                                   animalsWaterSourcesMapAcrossYears(i)(association._1) = wsToMigrateTo
 
                                    try {
-                                       waterSourcesAnimalsMap(i)(wsToMigrateTo) += association._1
+                                       waterSourcesAnimalsMapAcrossYears(i)(wsToMigrateTo) += association._1
                                     } catch {
                                         case e: NoSuchElementException => {
-                                            waterSourcesAnimalsMap(i).put(wsToMigrateTo, new ListBuffer[Animal])
-                                            waterSourcesAnimalsMap(i)(wsToMigrateTo) += association._1
+                                            waterSourcesAnimalsMapAcrossYears(i).put(wsToMigrateTo, new ListBuffer[Animal])
+                                            waterSourcesAnimalsMapAcrossYears(i)(wsToMigrateTo) += association._1
                                         }
                                             
                                             
@@ -670,10 +680,11 @@ class Africa(val numOfAnimals : Int, val numOfWaterSources : Int, val icon : Pic
     
                             association._1.drinkWater(dayZeroBased, actual_water)
     
-                            association._1.feltTemperature(dayZeroBased) = feltTemperature_for_the_day
+                            //association._1.feltTemperature(dayZeroBased) = feltTemperature_for_the_day
+                            association._1.feltTemperature(dayZeroBased) = temperatures(dayZeroBased)
 
                             //println("SUS BEGIN")
-                            val numEncounteredRivals = association._1.countEncounteredRivals(waterSourcesAnimalsMap(day)(association._2))
+                            val numEncounteredRivals = association._1.countEncounteredRivals(waterSourcesAnimalsMapAcrossYears(day)(association._2))
                             //println("SUS END")
                             
                             association._1.updateLifePoints(dayZeroBased, numEncounteredRivals)
@@ -724,9 +735,9 @@ var africa = new Africa(numOfAnimals, numOfWaterSources, Picture.image("/home/da
 //println(africa)
 
 println("\n\n")
-println("********** animalsWaterSourcesMap **********")
+println("********** animalsWaterSourcesMapAcrossYears **********")
 println("\n")
-//println(africa.animalsWaterSourcesMap)
+//println(africa.animalsWaterSourcesMapAcrossYears)
 println("\n")
 println("********************************************")
 
