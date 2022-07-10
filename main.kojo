@@ -3,6 +3,7 @@ import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.LinkedHashMap
 import scala.language.postfixOps
 import scala.collection.mutable.Map
+import scala.collection.mutable.Seq
 
 // TODO load from disk
 val TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR = 1.025
@@ -46,9 +47,9 @@ trait Animal extends Drawable {
     var daysWithoutSatisfiedNeeds = 0
     var rival = ""
     
-    var lifePoints = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(1.0)
-    var drankWater = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(0.0)
-    var feltTemperature = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(0.0)
+    var lifePoints = Seq.fill(DAYS_IN_YEAR)(1.0)
+    var drankWater = Seq.fill(DAYS_IN_YEAR)(0.0)
+    var feltTemperature = Seq.fill(DAYS_IN_YEAR)(0.0)
 
     def isAlive(day : Int) : Boolean = {
         return lifePoints(day) > 0
@@ -304,7 +305,7 @@ trait DrawableShape extends Drawable {
 
 trait WaterSource extends DrawableShape {
     val maxLevel : Double
-    var currentLevel = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(maxLevel)
+    var currentLevel = Seq.fill(DAYS_IN_YEAR)(maxLevel)
     val id : Int
     val name : String
 
@@ -482,7 +483,7 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
 
     var waterSources = new WaterSources(numOfWaterSources)
 
-    var temperatures = scala.collection.mutable.Seq.fill(DAYS_IN_YEAR)(30.0)
+    var temperatures = Seq.fill(DAYS_IN_YEAR)(30.0)
 
     // LinkedHashMap rather than HashMap so as records can be shuffled
     // Shuffling a HashMap record yould require to convert to list first, since in a Set the order does NOT count, hence shuffling does NOT make any sense 
