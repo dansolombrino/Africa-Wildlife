@@ -103,6 +103,12 @@ trait Animal extends Drawable {
         }
     }
 
+    def evaluateMigration(actual_water : Double, desired_water : Double) : Boolean = {
+        handleNeedsSatisfaction(actual_water, desired_water)
+
+        return daysWithoutSatisfiedNeeds >= MAX_daysWithoutSatisfiedNeeds
+    }
+
     def countEncounteredRivals(neighbouringAnimals : ListBuffer[Animal]) : Int = {
         var numEncounteredRivals = 0
 
@@ -649,11 +655,14 @@ class Africa(val faunaSize : Int, val numOfWaterSources : Int, val icon : Pictur
                                 dayZeroBased, desired_water
                             )
 
-                            association._1.handleNeedsSatisfaction(actual_water, desired_water)
+                            //association._1.handleNeedsSatisfaction(actual_water, desired_water)
+
+                            //association._1.evaluateMigration(actual_water, desired_water)
 
                             // migration code begin
 
-                            if (association._1.daysWithoutSatisfiedNeeds >= MAX_daysWithoutSatisfiedNeeds) {
+                            //if (association._1.daysWithoutSatisfiedNeeds >= MAX_daysWithoutSatisfiedNeeds) {
+                            if ( association._1.evaluateMigration(actual_water, desired_water) ) {
                                 //println("\tAnimal " + association._1.id + " MIGRATING")
 
                                 //println("original water source: " + association._2.name + ", " + association._2.position)
