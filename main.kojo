@@ -638,32 +638,54 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
         } 
     }
 
-    def handleDisplayHeaderText(day : Int, temperature : Double) {
-        if (day > 1) {
-            dayText.erase()
-            temperatureText.erase()
-        }
+    def updateHeader(
+        day : Int, 
+        previousHeader : net.kogics.kojo.picture.TextPic,
+        textContent : String, 
+        position : (Int, Int), 
+        textColor : Color, 
+        textScale : Double
+    ) : net.kogics.kojo.picture.TextPic = {
         
-        dayText = Picture.text("Day: " + day)
-        dayText.setPosition(500, 1400)
-        dayText.setPenColor(DEEP_BLUE_COLOR)
-        dayText.scale(YEAR_TEXT_SCALE_FACTOR)
+        if (day > -1) {
+            previousHeader.erase()
+        }
 
-        temperatureText = Picture.text("Temperature: " + Math.floor(temperature * 100) / 100)
-        temperatureText.setPosition(250, 1300)
-        temperatureText.setPenColor(
+        val headerPic = Picture.text(textContent)
+        headerPic.setPosition(position._1, position._2)
+        headerPic.setPenColor(textColor)
+        headerPic.scale(textScale)
+
+        headerPic.draw()
+
+        return headerPic
+        
+    }
+
+    def updateHeaderInCanvas(day : Int, temperature : Double) {
+        
+        dayText = updateHeader(
+            day, 
+            dayText,
+            "Day: " + day, 
+            (500, 1400), 
+            DEEP_BLUE_COLOR, 
+            YEAR_TEXT_SCALE_FACTOR
+        )
+
+        temperatureText = updateHeader(
+            day, 
+            temperatureText,
+            "Temperature: " + (Math.floor(temperature * 100) / 100), 
+            (250, 1300), 
             color(
                 Math.min(
                     255, 
                     RED_COLOR_CHANNEL + 20 * day
                 ), 0, 0
-            )
+            ), 
+            YEAR_TEXT_SCALE_FACTOR
         )
-        temperatureText.scale(YEAR_TEXT_SCALE_FACTOR)
-
-        
-        draw(dayText)
-        draw(temperatureText)
     }
 
     def simulation() {
@@ -688,7 +710,7 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
                     previousDay
                 ) * TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR
 
-                handleDisplayHeaderText(day, temperatures(dayZeroBased))
+                updateHeaderInCanvas(day, temperatures(dayZeroBased))
 
                 Random.shuffle(animalsWaterSourcesMapAcrossYears(day)).foreach(
                     association => {
