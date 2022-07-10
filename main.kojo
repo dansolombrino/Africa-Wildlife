@@ -7,6 +7,8 @@ import scala.collection.mutable.Seq
 
 var MIGRATION_NUM_VISUAL_STEPS = 5
 
+var ICON_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/icons/"
+
 // TODO load from disk
 val TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR = 1.025
 
@@ -29,16 +31,19 @@ val ANIMAL_SPECIES = List("Lion", "Elephant", "Zebra")
 object LionParams {
   val maxfeltTemperature = 40;
   val minWater = 2
+  val iconFilePath = ICON_FOLDER_PATH + "lion_64.png"
 }
 
 object ElephantParams {
   val maxfeltTemperature = 45;
   val minWater = 2
+  val iconFilePath = ICON_FOLDER_PATH + "elephant_64.png"
 }
 
 object ZebraParams {
   val maxfeltTemperature = 45;
   val minWater = 2
+  val iconFilePath = ICON_FOLDER_PATH + "zebra_64.png"
 }
 
 trait Animal extends Drawable {
@@ -193,7 +198,7 @@ class Fauna(val faunaSize : Int) {
                         LionParams.maxfeltTemperature, 
                         LionParams.minWater, 
                         i, 
-                        Picture.image("/home/dansolombrino/GitHub/Africa-Wildlife/icons/lion_64.png"), 
+                        Picture.image(LionParams.iconFilePath), 
                         (0, 0)
                     )
                 }
@@ -203,7 +208,7 @@ class Fauna(val faunaSize : Int) {
                         ElephantParams.maxfeltTemperature, 
                         ElephantParams.minWater, 
                         i, 
-                        Picture.image("/home/dansolombrino/GitHub/Africa-Wildlife/icons/elephant_64.png"),
+                        Picture.image(ElephantParams.iconFilePath),
                         (0, 0)
                     )
                 }
@@ -213,7 +218,7 @@ class Fauna(val faunaSize : Int) {
                         ZebraParams.maxfeltTemperature, 
                         ZebraParams.minWater, 
                         i, 
-                        Picture.image("/home/dansolombrino/GitHub/Africa-Wildlife/icons/zebra_64.png"),
+                        Picture.image(ZebraParams.iconFilePath),
                         (0, 0)
                     )
                 }
@@ -223,7 +228,7 @@ class Fauna(val faunaSize : Int) {
                         ZebraParams.maxfeltTemperature, 
                         ZebraParams.minWater, 
                         i, 
-                        Picture.image("/home/dansolombrino/GitHub/Africa-Wildlife/icons/zebra_64.png"),
+                        Picture.image(ZebraParams.iconFilePath),
                         (0, 0)
                     )
                 }
@@ -342,7 +347,9 @@ trait WaterSource extends DrawableShape {
     def canEqual(a: Any) = a.isInstanceOf[WaterSource]
 
     override def equals(that: Any): Boolean =
+        
         that match {
+            
             case that: WaterSource => {
                 that.canEqual(this) &&
                 this.name == that.name &&
@@ -350,6 +357,7 @@ trait WaterSource extends DrawableShape {
                 this.rotation == that.rotation &&
                 this.maxLevel == that.maxLevel
             }
+            
             case _ => false
         }
 
