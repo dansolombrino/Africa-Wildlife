@@ -293,6 +293,7 @@ class Fauna(val faunaSize : Int) {
 val waterColor = color(88, 148, 245)
 val WATER_COLOR = color(88, 148, 245)
 val DEEP_BLUE_COLOR = color(7, 42, 108)
+val BACKGROUND_COLOR = color(200, 235, 255)
 
 val MIN_NUM_OF_WATER_SOURCES = 3
 val MAX_NUM_OF_WATER_SOURCES = 4
@@ -641,7 +642,10 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
     }
 
     def simulation() {
-        //println("Simulation!")
+        
+        clear()
+
+        setBackground(BACKGROUND_COLOR)
 
         icon.draw()
 
@@ -717,11 +721,6 @@ var africa = new Africa(
     Picture.image(AfricaParams.iconFilePath),
     AfricaParams.position
 )
-
-clear()
-
-val bgColor = color(200,235,255)
-setBackground(bgColor)
 
 africa.simulation()
 
