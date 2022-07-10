@@ -5,6 +5,8 @@ import scala.language.postfixOps
 import scala.collection.mutable.Map
 import scala.collection.mutable.Seq
 
+var MIGRATION_NUM_VISUAL_STEPS = 5
+
 // TODO load from disk
 val TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR = 1.025
 
@@ -102,22 +104,21 @@ trait Animal extends Drawable {
     }
 
     def migrate(ws : WaterSource) {
-        var NUM_STEPS = 5
-        
-
         println("CurrentPosition: " + this.icon.position)
         println("TargetPosition: " + ws.position)
 
         var absDist = (ws.position._1 - this.icon.position.x, ws.position._2 - this.icon.position.y)
         println("absDistance: " + absDist)
 
-        var step_x = absDist._1 / NUM_STEPS
-        var step_y = absDist._2 / NUM_STEPS
+        var step_x = absDist._1 / MIGRATION_NUM_VISUAL_STEPS
+        var step_y = absDist._2 / MIGRATION_NUM_VISUAL_STEPS
 
-        for (i <- 1 to NUM_STEPS) {
+        for (i <- 1 to MIGRATION_NUM_VISUAL_STEPS) {
+            
             println("step: " + i)
             icon.translate(step_x,step_y)
             Thread.sleep(DELAY_MS)
+            
             if (icon.collidesWith(ws.icon)) {
                 println("COLLISION DETECTED, APPLYING OFFSET!")
                 
@@ -297,8 +298,22 @@ trait DrawableShape extends Drawable {
     val thickness : Int
 
     override def drawInCanvas() {
-        val tempIcon = trans(position._1, position._2) * penColor(borderColor) * fillColor(innerColor) * rot(rotation) * penThickness(thickness) -> icon
+        
+        val tempIcon = trans(
+            position._1, position._2
+        ) * penColor(
+            borderColor
+        ) * fillColor(
+            innerColor
+        ) * rot(
+            rotation
+        ) * penThickness(
+            thickness
+        ) -> icon
+        
         tempIcon.draw()
+
+        
     }
 }
 
