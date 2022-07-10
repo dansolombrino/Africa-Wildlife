@@ -10,6 +10,7 @@ val YEAR_TEXT_SCALE_FACTOR = 5
 var MIGRATION_NUM_VISUAL_STEPS = 5
 
 var ICON_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/icons/"
+var BACKGROUND_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/background/"
 
 // TODO load from disk
 val TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR = 1.025
@@ -706,7 +707,7 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
 object AfricaParams {
   val numOfAnimals = Random.between(MIN_NUM_OF_ANIMALS, MAX_NUM_OF_ANIMALS)
   val numOfWaterSources = 3 // keep it this way, for testing purposes
-  val iconFilePath = ICON_FOLDER_PATH + "africaClean.png"
+  val iconFilePath = BACKGROUND_FOLDER_PATH + "africaClean.png"
   val position = (0, 0)
 }
 
