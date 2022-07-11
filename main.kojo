@@ -582,7 +582,9 @@ class Header(val elements : List[HeaderElement]) {
     
     def update(day : Int, updatedValues : List[Double], updatedColors : List[Color]) {
 
-        // TODO throw exception if lenghts of updatedValues and elements do NOT match)
+        if (updatedValues.length != updatedColors.length) {
+            throw new RuntimeException("ERROR updatedValues.length must be equal to updatedColors.length!")
+        }
         
         for (e <- 0 to updatedValues.length - 1) {
             
