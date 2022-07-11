@@ -142,9 +142,6 @@ trait Animal extends Drawable {
             }
         )
 
-        //println(this.getClass.getSimpleName + "encountersRival: " + (sum > 0))
-        //println("neighbouringAnimals: " + neighbouringAnimals)
-
         return numEncounteredRivals
     }
 
@@ -349,7 +346,7 @@ trait DrawableShape extends Drawable {
     val rotation : Int
     val thickness : Int
     
-    var opacity = new ValueInRange(1.0, 0.0, 1.0)
+    var opacity = new ValueInRange(1.0, 1.0, 0.0)
 
     override def drawInCanvas() {
 
@@ -404,17 +401,8 @@ trait WaterSource extends DrawableShape {
         }
 
         if (handleOpacity) {
-            var op = 1.0 - currentLevel(day) / maxLevel
-
-            if (op < 0.0) {
-                op = 0
-            }
-    
-            if (op > 1.0) {
-                op = 1
-            }
-    
-            icon.setOpacity(op)  
+            opacity.setValue(1.0 - currentLevel(day) / maxLevel)
+            icon.setOpacity(opacity.value)
         }
 
         if (day + 1 < DAYS_IN_YEAR) {
@@ -837,49 +825,9 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
                             if (hasDied) {
                                 fauna.faunaCount -= 1
                             }
-
-                            //association._2.updateSubsequentWaterLevel(dayZeroBased)
-
-                     
-
-                            
-                            //association._2.icon.setOpacity(op)
                         }
-
-                        /*
-                        var op = 1.0 - association._2.currentLevel(dayZeroBased) / association._2.maxLevel
-
-                        if (op < 0.0) {
-                            op = 0
-                        }
-        
-                        if (op > 1.0) {
-                            op = 1
-                        }
-                
-                        association._2.icon.setOpacity(0.5)
-                        */
                     }
                 )
-
-                 /*
-                 waterSourcesAnimalsMapAcrossYears(day).foreach(
-                    association => {
-
-                        var op = 1.0 - association._1.currentLevel(dayZeroBased) / association._1.maxLevel
-
-                        if (op < 0.0) {
-                            op = 0
-                        }
-        
-                        if (op > 1.0) {
-                            op = 1
-                        }
-                
-                        association._1.icon.setOpacity(0.5)
-                    }
-                 )
-                 */
                 
                 Thread.sleep(DELAY_MS)
      
