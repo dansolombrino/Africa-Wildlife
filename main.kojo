@@ -713,6 +713,25 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
         } 
     }
 
+    def getColorChannelsInFunctionOfValue(
+            startingValue : Int, 
+            multiplier : Int, 
+            value : Double, 
+            r : Boolean, 
+            g : Boolean, 
+            b : Boolean
+    ) : Color = {
+        val color = new ValueInRange(0, 255, 0)
+
+        color.setValue(startingValue + multiplier * value)
+
+        return Color(
+            if (r) color.value.toInt else 0,
+            if (g) color.value.toInt else 0,
+            if (b) color.value.toInt else 0
+        )
+    }
+
     def simulation() {
         
         clear()
@@ -724,25 +743,6 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
         fauna.drawInCanvas()
         
         waterSources.drawInCanvas()
-
-        def getTemperatureColor(day : Double) : Color = {
-            val redColorChannel = new ValueInRange(0, 255, 0)
-                redColorChannel.setValue(RED_COLOR_CHANNEL + 20 * day)
-
-            return Color(redColorChannel.value.toInt, 0, 0)
-        }
-
-        def getFaunaColor(faunaCount : Int) : Color = {
-            val greenColorChannel = new ValueInRange(0, 255, 0)
-            greenColorChannel.setValue(0 + 20 * fauna.faunaCount)
-
-            val blueColorChannel = new ValueInRange(0, 255, 0)
-            blueColorChannel.setValue(0 + 20 * fauna.faunaCount)
-
-            return Color(0, greenColorChannel.value.toInt, blueColorChannel.value.toInt)
-        }
-
-        
 
         animalsWaterSourcesMapAcrossYears.keys.foreach(
             day => {
@@ -762,11 +762,24 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
                         fauna.faunaCount
                     ), 
                     List(
-                        BLUE_COLOR, 
-                        getTemperatureColor(day),
-                        getFaunaColor(fauna.faunaCount)
+                        BLUE_COLOR,
+                        getColorChannelsInFunctionOfValue(
+                            RED_COLOR_CHANNEL, 
+                            20,
+                            temperatures(dayZeroBased), 
+                            true, 
+                            false, 
+                            false
+                        ),
+                        getColorChannelsInFunctionOfValue(
+                            0, 
+                            20, 
+                            fauna.faunaCount, 
+                            false, 
+                            true, 
+                            true
+                       )
                     )
-                
                 )
 
                 Random.shuffle(animalsWaterSourcesMapAcrossYears(day)).foreach(
