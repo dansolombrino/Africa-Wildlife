@@ -642,15 +642,20 @@ class Header(protected val elements : List[HeaderElement]) {
     
 }
 
-class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture, var position : (Int, Int)) extends Drawable {
+class Africa(
+    protected val faunaSize : Int, 
+    protected val waterSourcesSize : Int, 
+    protected val icon : Picture, 
+    protected var position : (Int, Int)
+ ) extends Drawable {
 
-    var fauna = new Fauna(faunaSize)
+    protected var fauna = new Fauna(faunaSize)
 
-    var waterSources = new WaterSources(waterSourcesSize)
+    protected var waterSources = new WaterSources(waterSourcesSize)
 
-    var temperatures = Seq.fill(DAYS_IN_YEAR)(30.0)
+    protected var temperatures = Seq.fill(DAYS_IN_YEAR)(30.0)
 
-    var header = new Header(
+    protected var header = new Header(
         List(
             new HeaderElement("Day", 0, (500, 1400), BLUE_COLOR, HEADER_TEXT_SCALE_FACTOR),
             new HeaderElement("Temperature", 0, (250, 1300), RED_COLOR, HEADER_TEXT_SCALE_FACTOR),
@@ -662,14 +667,14 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
     // Shuffling a HashMap record yould require to convert to list first, since in a Set the order does NOT count, hence shuffling does NOT make any sense 
     // int --> day index
     // inner map --> actual water source <----> animal association, for that given day
-    var animalsWaterSourcesMapAcrossYears = new LinkedHashMap[
+    protected var animalsWaterSourcesMapAcrossYears = new LinkedHashMap[
         Int, 
         LinkedHashMap[
             Animal, WaterSource
         ]
     ]
     
-    var waterSourcesAnimalsMapAcrossYears = new LinkedHashMap[
+    protected var waterSourcesAnimalsMapAcrossYears = new LinkedHashMap[
         Int, 
         LinkedHashMap[
             WaterSource, 
