@@ -413,22 +413,6 @@ trait WaterSource extends DrawableShape {
 
     }
 
-    
-
-    def updateSubsequentWaterLevel(day : Int) {
-        println("inside")
-        try {
-            println("try")
-            currentLevel(day + 1) = currentLevel(day) * 10
-        } catch {
-            case e : IndexOutOfBoundsException => {
-                println("catch")
-                currentLevel(day) = currentLevel(day - 1) * 10
-            }
-        }
-        
-    }
-
     def canEqual(a: Any) = a.isInstanceOf[WaterSource]
 
     override def equals(that: Any): Boolean =
@@ -562,13 +546,6 @@ class WaterSources(val numOfWaterSources : Int) {
         } while (true)
 
         return randomWaterSource
-    }
-
-    def updateSubsequentWaterLevels(day : Int) {
-
-        waterSources_new.foreach(
-            association => association._2.updateSubsequentWaterLevel(day)
-        )
     }
 
     def drawInCanvas() {
