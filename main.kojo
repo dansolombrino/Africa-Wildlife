@@ -32,7 +32,6 @@ val MAX_NUM_OF_ANIMALS = 10
 
 val ANIMAL_SPECIES = List("Lion", "Elephant", "Zebra")
 
-val waterColor = color(88, 148, 245)
 val WATER_COLOR = color(88, 148, 245)
 val BLUE_COLOR  = color(0, 0, 255)
 val RED_COLOR   = color(255, 0, 0)
