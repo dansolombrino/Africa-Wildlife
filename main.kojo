@@ -372,12 +372,12 @@ trait Drawable {
 
 trait DrawableShape extends Drawable {
     
-    val borderColor : Color
-    val innerColor : Color
-    val rotation : Int
-    val thickness : Int
+    protected val borderColor : Color
+    protected val innerColor : Color
+    protected val rotation : Int
+    protected val thickness : Int
     
-    var opacity = new ValueInRange(1.0, 1.0, 0.0)
+    protected var opacity = new ValueInRange(1.0, 1.0, 0.0)
 
     override def drawInCanvas(checkCollisionAgainst : List[Picture]) {
 
@@ -390,7 +390,11 @@ trait DrawableShape extends Drawable {
     }
 }
 
-class ValueInRange(var value : Double, val max : Double, val min : Double) {
+class ValueInRange(
+    protected var value : Double, 
+    protected val max : Double, 
+    protected val min : Double
+) {
     
     def trimValueIntoRange() {
         if (value > max) {
@@ -400,6 +404,10 @@ class ValueInRange(var value : Double, val max : Double, val min : Double) {
         if (value < min) {
             value = min
         }
+    }
+
+    def getValue() : Double = {
+        return value
     }
     
     def setValue(newValue : Double) {
@@ -434,7 +442,7 @@ trait WaterSource extends DrawableShape {
 
         if (handleOpacity) {
             opacity.setValue(1.0 - currentLevel(day) / maxLevel)
-            icon.setOpacity(opacity.value)
+            icon.setOpacity(opacity.getValue())
         }
 
         if (day + 1 < DAYS_IN_YEAR) {
@@ -757,9 +765,9 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
         color.setValue(startingValue + multiplier * value)
 
         return Color(
-            if (r) color.value.toInt else 0,
-            if (g) color.value.toInt else 0,
-            if (b) color.value.toInt else 0
+            if (r) color.getValue.toInt else 0,
+            if (g) color.getValue.toInt else 0,
+            if (b) color.getValue.toInt else 0
         )
     }
 
