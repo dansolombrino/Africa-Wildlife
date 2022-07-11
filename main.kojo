@@ -348,6 +348,8 @@ trait DrawableShape extends Drawable {
     val innerColor : Color
     val rotation : Int
     val thickness : Int
+    
+    var opacity = new ValueInRange(1.0, 0.0, 1.0)
 
     override def drawInCanvas() {
 
@@ -357,6 +359,24 @@ trait DrawableShape extends Drawable {
         icon.setPenThickness(thickness)
 
         super.drawInCanvas()
+    }
+}
+
+class ValueInRange(var value : Double, val max : Double, val min : Double) {
+
+    def trimValueIntoRange() {
+        if (value > max) {
+            value = max
+        }
+
+        if (value < min) {
+            value = min
+        }
+    }
+    def setValue(newValue : Double) {
+        value = newValue
+
+        trimValueIntoRange()
     }
 }
 
