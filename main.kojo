@@ -516,13 +516,13 @@ class River(
 
 class WaterSources(val numOfWaterSources : Int) {
     
-    protected var waterSources_new = new HashMap[String, WaterSource]
+    protected var waterSources = new HashMap[String, WaterSource]
 
     def getWaterSourcers() : HashMap[String, WaterSource] = {
-        return waterSources_new
+        return waterSources
     }
 
-    waterSources_new("Chad") = new Lake(
+    waterSources("Chad") = new Lake(
         Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 
         1, 
         "Chad", 
@@ -534,7 +534,7 @@ class WaterSources(val numOfWaterSources : Int) {
         10
     )
     
-    waterSources_new("Victoria") = new Lake(
+    waterSources("Victoria") = new Lake(
         Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 
         2, 
         "Victoria", 
@@ -546,7 +546,7 @@ class WaterSources(val numOfWaterSources : Int) {
         10
     )
     
-    waterSources_new("Niger") = new River(
+    waterSources("Niger") = new River(
         Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 
         3, 
         "Niger", 
@@ -561,7 +561,7 @@ class WaterSources(val numOfWaterSources : Int) {
     override def toString() : String = {
         var out = ""
     
-        waterSources_new.foreach(
+        waterSources.foreach(
             ws => {
                 out += ws.toString()
             }
@@ -572,7 +572,7 @@ class WaterSources(val numOfWaterSources : Int) {
     }
 
     def getRandomWaterSource() : WaterSource = {
-        return waterSources_new(WATER_SOURCES_LIST(Random.between(0, numOfWaterSources)))
+        return waterSources(WATER_SOURCES_LIST(Random.between(0, numOfWaterSources)))
     }
 
     def getRandomWaterSource(exclude : WaterSource) : WaterSource = {
@@ -593,7 +593,7 @@ class WaterSources(val numOfWaterSources : Int) {
 
     def drawInCanvas() {
        
-        waterSources_new.foreach(
+        waterSources.foreach(
             ws => {
                 ws._2.drawInCanvas(List())
             }
