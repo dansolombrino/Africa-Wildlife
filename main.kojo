@@ -359,19 +359,26 @@ trait WaterSource extends DrawableShape {
 
     def removeWater(day: Int, water: Double) : Double = {
 
+        var maxAvailableWater = 0.0
+
         if (currentLevel(day) - water >= 0) {
             currentLevel(day) -= water
 
-            return water
+
+            maxAvailableWater = water
         } else {
-            val maxAvailableWater = currentLevel(day)
+            maxAvailableWater = currentLevel(day)
             
             currentLevel(day) = 0
-
-            return maxAvailableWater
+            
         }
 
-        //icon.setOpacity(10)
+        icon.setOpacity(
+            1.0 - currentLevel(day) / maxLevel
+        )
+
+        return maxAvailableWater
+
     }
 
     def drawInCanvas(day : Int) {
