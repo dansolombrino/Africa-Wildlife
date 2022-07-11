@@ -356,8 +356,8 @@ trait WaterSource extends DrawableShape {
     var currentLevel = Seq.fill(DAYS_IN_YEAR)(maxLevel)
     val id : Int
     val name : String
-
-    def removeWater(day: Int, water: Double) : Double = {
+    
+    def removeWater(day: Int, water: Double, handleOpacity : Boolean) : Double = {
 
         var maxAvailableWater = 0.0
 
@@ -373,9 +373,23 @@ trait WaterSource extends DrawableShape {
             
         }
 
-        icon.setOpacity(
-            1.0 - currentLevel(day) / maxLevel
-        )
+        if (handleOpacity) {
+            var op = 1.0 - currentLevel(day) / maxLevel
+
+            if (op < 0.0) {
+                op = 0
+            }
+    
+            if (op > 1.0) {
+                op = 1
+            }
+    
+            icon.setOpacity(op)  
+        }
+
+        if (day + 1 < DAYS_IN_YEAR) {
+            removeWater(day + 1, water / 10, false)
+        }
 
         return maxAvailableWater
 
@@ -387,6 +401,20 @@ trait WaterSource extends DrawableShape {
 
         icon.setOpacity(10)
 
+        
+    }
+
+    def updateSubsequentWaterLevel(day : Int) {
+        println("inside")
+        try {
+            println("try")
+            currentLevel(day + 1) = currentLevel(day) * 10
+        } catch {
+            case e : IndexOutOfBoundsException => {
+                println("catch")
+                currentLevel(day) = currentLevel(day - 1) * 10
+            }
+        }
         
     }
 
@@ -402,6 +430,7 @@ trait WaterSource extends DrawableShape {
                 this.position == that.position &&
                 this.rotation == that.rotation &&
                 this.maxLevel == that.maxLevel
+                
             }
             
             case _ => false
@@ -522,6 +551,13 @@ class WaterSources(val numOfWaterSources : Int) {
         } while (true)
 
         return randomWaterSource
+    }
+
+    def updateSubsequentWaterLevels(day : Int) {
+
+        waterSources_new.foreach(
+            association => association._2.updateSubsequentWaterLevel(day)
+        )
     }
 
     def drawInCanvas() {
@@ -729,7 +765,7 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
                             val desired_water = association._1.getDesiredWater()
     
                             val actual_water = association._2.removeWater(
-                                dayZeroBased, desired_water
+                                dayZeroBased, desired_water, true
                             )
 
                             if ( association._1.evaluateMigration(actual_water, desired_water) ) {
@@ -739,6 +775,7 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
                                 association._1.migrate(wsToMigrateTo)
 
                                 updateAnimalsWaterSourcesMap(dayZeroBased, association._1, wsToMigrateTo)
+
                             }
     
                             association._1.drinkWater(dayZeroBased, actual_water)
@@ -751,11 +788,50 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
                                     waterSourcesAnimalsMapAcrossYears(day)(association._2)
                                 )
                             )
-                           
+
+                            //association._2.updateSubsequentWaterLevel(dayZeroBased)
+
+                     
+
+                            
+                            //association._2.icon.setOpacity(op)
                         }
+
+                        /*
+                        var op = 1.0 - association._2.currentLevel(dayZeroBased) / association._2.maxLevel
+
+                        if (op < 0.0) {
+                            op = 0
+                        }
+        
+                        if (op > 1.0) {
+                            op = 1
+                        }
+                
+                        association._2.icon.setOpacity(0.5)
+                        */
                     }
                 )
+
+                 /*
+                 waterSourcesAnimalsMapAcrossYears(day).foreach(
+                    association => {
+
+                        var op = 1.0 - association._1.currentLevel(dayZeroBased) / association._1.maxLevel
+
+                        if (op < 0.0) {
+                            op = 0
+                        }
         
+                        if (op > 1.0) {
+                            op = 1
+                        }
+                
+                        association._1.icon.setOpacity(0.5)
+                    }
+                 )
+                 */
+                
                 Thread.sleep(DELAY_MS)
      
             }
