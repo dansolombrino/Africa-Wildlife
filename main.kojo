@@ -1,6 +1,7 @@
 import scala.util.Random
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.LinkedHashMap
+import scala.collection.mutable.HashMap
 import scala.language.postfixOps
 import scala.collection.mutable.Map
 import scala.collection.mutable.Seq
@@ -48,6 +49,7 @@ val MAX_LEVEL_LOWERBOUND = 3
 val MAX_LEVEL_UPPERBOUND = 4
 
 val WATER_SOURCES_TYPES = List("Lake", "River")
+val WATER_SOURCES_LIST = ListBuffer("Chad", "Victoria", "Niger")
 
 object LionParams {
   val maxfeltTemperature = 40;
@@ -419,10 +421,10 @@ class ValueInRange(
 
 
 trait WaterSource extends DrawableShape {
-    val maxLevel : Double
-    var currentLevel = Seq.fill(DAYS_IN_YEAR)(maxLevel)
-    val id : Int
-    val name : String
+    protected val maxLevel : Double
+    protected var currentLevel = Seq.fill(DAYS_IN_YEAR)(maxLevel)
+    protected val id : Int
+    protected val name : String
     
     def removeWater(day: Int, water: Double, handleOpacity : Boolean) : Double = {
 
@@ -479,15 +481,15 @@ trait WaterSource extends DrawableShape {
 }
 
 class Lake(
-    val maxLevel : Double, 
-    val id : Int, 
-    val name : String, 
-    val icon : Picture, 
-    var position : (Int, Int), 
-    val borderColor : Color, 
-    val innerColor : Color, 
-    val rotation : Int, 
-    val thickness : Int
+    protected val maxLevel : Double, 
+    protected val id : Int, 
+    protected val name : String, 
+    protected val icon : Picture, 
+    protected var position : (Int, Int), 
+    protected val borderColor : Color, 
+    protected val innerColor : Color, 
+    protected val rotation : Int, 
+    protected val thickness : Int
 ) extends WaterSource {
 
     override def toString() : String = {
@@ -496,15 +498,15 @@ class Lake(
 }
 
 class River(
-    val maxLevel : Double, 
-    val id : Int, 
-    val name : String, 
-    val icon : Picture, 
-    var position : (Int, Int), 
-    val borderColor : Color, 
-    val innerColor : Color, 
-    val rotation : Int, 
-    val thickness : Int
+    protected val maxLevel : Double, 
+    protected val id : Int, 
+    protected val name : String, 
+    protected val icon : Picture, 
+    protected var position : (Int, Int), 
+    protected val borderColor : Color, 
+    protected val innerColor : Color, 
+    protected val rotation : Int, 
+    protected val thickness : Int
 ) extends WaterSource {
 
     override def toString() : String = {
@@ -513,11 +515,12 @@ class River(
 }
 
 class WaterSources(val numOfWaterSources : Int) {
-
-    // TODO load it from disk
-    val waterSourcesList = ListBuffer("Chad", "Victoria", "Niger")
     
-    var waterSources_new = new scala.collection.mutable.HashMap[String, WaterSource]
+    protected var waterSources_new = new HashMap[String, WaterSource]
+
+    def getWaterSourcers() : HashMap[String, WaterSource] = {
+        return waterSources_new
+    }
 
     waterSources_new("Chad") = new Lake(
         Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 
@@ -569,7 +572,7 @@ class WaterSources(val numOfWaterSources : Int) {
     }
 
     def getRandomWaterSource() : WaterSource = {
-        return waterSources_new(waterSourcesList(Random.between(0, numOfWaterSources)))
+        return waterSources_new(WATER_SOURCES_LIST(Random.between(0, numOfWaterSources)))
     }
 
     def getRandomWaterSource(exclude : WaterSource) : WaterSource = {
@@ -780,7 +783,7 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
         icon.draw()
 
         fauna.drawInCanvas(
-            waterSources.waterSources_new.map{
+            waterSources.getWaterSourcers().map{
                 ws => ws._2.getIcon()
             }.toList
         )
