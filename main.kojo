@@ -362,7 +362,7 @@ trait DrawableShape extends Drawable {
 }
 
 class ValueInRange(var value : Double, val max : Double, val min : Double) {
-
+    
     def trimValueIntoRange() {
         if (value > max) {
             value = max
@@ -372,6 +372,7 @@ class ValueInRange(var value : Double, val max : Double, val min : Double) {
             value = min
         }
     }
+    
     def setValue(newValue : Double) {
         value = newValue
 
@@ -611,12 +612,6 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
         )
     )
 
-    //var dayText = Picture.text(" ")
-
-    //var temperatureText = Picture.text(" ")
-
-    //var faunaText = Picture.text(" ")
-
     // LinkedHashMap rather than HashMap so as records can be shuffled
     // Shuffling a HashMap record yould require to convert to list first, since in a Set the order does NOT count, hence shuffling does NOT make any sense 
     // int --> day index
@@ -730,6 +725,25 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
         
         waterSources.drawInCanvas()
 
+        def getTemperatureColor(day : Double) : Color = {
+            val redColorChannel = new ValueInRange(0, 255, 0)
+                redColorChannel.setValue(RED_COLOR_CHANNEL + 20 * day)
+
+            return Color(redColorChannel.value.toInt, 0, 0)
+        }
+
+        def getFaunaColor(faunaCount : Int) : Color = {
+            val greenColorChannel = new ValueInRange(0, 255, 0)
+            greenColorChannel.setValue(0 + 20 * fauna.faunaCount)
+
+            val blueColorChannel = new ValueInRange(0, 255, 0)
+            blueColorChannel.setValue(0 + 20 * fauna.faunaCount)
+
+            return Color(0, greenColorChannel.value.toInt, blueColorChannel.value.toInt)
+        }
+
+        
+
         animalsWaterSourcesMapAcrossYears.keys.foreach(
             day => {
 
@@ -749,8 +763,8 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
                     ), 
                     List(
                         BLUE_COLOR, 
-                        color(Math.min(255, RED_COLOR_CHANNEL + 20 * day), 0, 0),
-                        color(0, Math.min(0 + 20 * fauna.faunaCount, 255), Math.min(0 + 20 * fauna.faunaCount, 255))
+                        getTemperatureColor(day),
+                        getFaunaColor(fauna.faunaCount)
                     )
                 
                 )
