@@ -5,7 +5,7 @@ import scala.language.postfixOps
 import scala.collection.mutable.Map
 import scala.collection.mutable.Seq
 
-val YEAR_TEXT_SCALE_FACTOR = 5
+val HEADER_TEXT_SCALE_FACTOR = 5
 
 var MIGRATION_NUM_VISUAL_STEPS = 5
 
@@ -620,9 +620,9 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
 
     var header = new Header(
         List(
-            new HeaderElement("Day", 0, (500, 1400), BLUE_COLOR, YEAR_TEXT_SCALE_FACTOR),
-            new HeaderElement("Temperature", 0, (250, 1300), RED_COLOR, YEAR_TEXT_SCALE_FACTOR),
-            new HeaderElement("Fauna count", 0, (350, 1215), GREEN_COLOR, YEAR_TEXT_SCALE_FACTOR)
+            new HeaderElement("Day", 0, (500, 1400), BLUE_COLOR, HEADER_TEXT_SCALE_FACTOR),
+            new HeaderElement("Temperature", 0, (250, 1300), RED_COLOR, HEADER_TEXT_SCALE_FACTOR),
+            new HeaderElement("Fauna count", 0, (350, 1215), GREEN_COLOR, HEADER_TEXT_SCALE_FACTOR)
         )
     )
 
