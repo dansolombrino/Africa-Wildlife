@@ -12,16 +12,16 @@ var MIGRATION_NUM_VISUAL_STEPS = 5
 var ICON_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/icons/"
 var BACKGROUND_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/background/"
 
-// TODO load from disk
 val TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR = 1.025
 
 val MAX_daysWithoutSatisfiedNeeds = 2
 
 val DAYS_IN_YEAR = 7
+
 val DELAY_MS = 1500
 
-val MAX_feltTemperature_LOWERBOUND = 20
-val MAX_feltTemperature_UPPERBOUND = 40
+val MAX_FELT_TEMPERATURE_LOWERBOUND = 20
+val MAX_FELT_TEMPERATURE_UPPERBOUND = 40
 
 val MIN_WATER_LOWERBOUND = 1.0
 val MIN_WATER_UPPERBOUND = 3.5
@@ -30,6 +30,24 @@ val MIN_NUM_OF_ANIMALS = 6
 val MAX_NUM_OF_ANIMALS = 10
 
 val ANIMAL_SPECIES = List("Lion", "Elephant", "Zebra")
+
+val waterColor = color(88, 148, 245)
+val WATER_COLOR = color(88, 148, 245)
+val BLUE_COLOR  = color(0, 0, 255)
+val RED_COLOR   = color(255, 0, 0)
+val GREEN_COLOR = color(0, 255, 0)
+val RED_COLOR_CHANNEL = 175
+val BACKGROUND_COLOR = color(200, 235, 255)
+
+val MIN_NUM_OF_WATER_SOURCES = 3
+val MAX_NUM_OF_WATER_SOURCES = 4
+
+val MAX_WATER_SOURCE_LEVEL = 10
+
+val MAX_LEVEL_LOWERBOUND = 3
+val MAX_LEVEL_UPPERBOUND = 4
+
+val WATER_SOURCES_TYPES = List("Lake", "River")
 
 object LionParams {
   val maxfeltTemperature = 40;
@@ -51,15 +69,15 @@ object ZebraParams {
 
 trait Animal extends Drawable {
 
-    val maxfeltTemperature : Double
-    val minWater : Double
-    val id : Int
-    var daysWithoutSatisfiedNeeds = 0
-    var rival = ""
+    protected val maxfeltTemperature : Double
+    protected val minWater : Double
+    protected val id : Int
+    protected var daysWithoutSatisfiedNeeds = 0
+    protected var rival = ""
     
-    var lifePoints = Seq.fill(DAYS_IN_YEAR)(1.0)
-    var drankWater = Seq.fill(DAYS_IN_YEAR)(0.0)
-    var feltTemperature = Seq.fill(DAYS_IN_YEAR)(0.0)
+    protected var lifePoints = Seq.fill(DAYS_IN_YEAR)(1.0)
+    protected var drankWater = Seq.fill(DAYS_IN_YEAR)(0.0)
+    protected var feltTemperature = Seq.fill(DAYS_IN_YEAR)(0.0)
 
     def isAlive(day : Int) : Boolean = {
         return lifePoints(day) > 0
@@ -147,9 +165,12 @@ trait Animal extends Drawable {
 
     def migrate(ws : WaterSource) {
         println("CurrentPosition: " + this.icon.position)
-        println("TargetPosition: " + ws.position)
+        println("TargetPosition: " + ws.getPosition())
 
-        var absDist = (ws.position._1 - this.icon.position.x, ws.position._2 - this.icon.position.y)
+        var absDist = (
+            ws.getPosition()._1 - this.icon.position.x, 
+            ws.getPosition()._2 - this.icon.position.y
+        )
         println("absDistance: " + absDist)
 
         var step_x = absDist._1 / MIGRATION_NUM_VISUAL_STEPS
@@ -160,7 +181,7 @@ trait Animal extends Drawable {
             icon.translate(step_x,step_y)
             Thread.sleep(DELAY_MS)
             
-            if (icon.collidesWith(ws.icon)) {
+            if (icon.collidesWith(ws.getIcon())) {
                 icon.translate(getRandomShift(), getRandomShift())
             }
             
@@ -173,11 +194,11 @@ trait Animal extends Drawable {
 }
 
 class Lion(
-    val maxfeltTemperature : Double, 
-    val minWater : Double, 
-    val id : Int, 
-    val icon : Picture, 
-    var position: (Int, Int)
+    protected val maxfeltTemperature : Double, 
+    protected val minWater : Double, 
+    protected val id : Int, 
+    protected val icon : Picture, 
+    protected var position: (Int, Int)
 ) extends Animal {
 
     rival = "Zebra"
@@ -188,11 +209,11 @@ class Lion(
 }
 
 class Elephant(
-    val maxfeltTemperature : Double, 
-    val minWater : Double, 
-    val id : Int, 
-    val icon : Picture,
-    var position : (Int, Int)
+    protected val maxfeltTemperature : Double, 
+    protected val minWater : Double, 
+    protected val id : Int, 
+    protected val icon : Picture,
+    protected var position : (Int, Int)
 ) extends Animal {
 
     rival = "Lion"
@@ -203,11 +224,11 @@ class Elephant(
 }
 
 class Zebra(
-    val maxfeltTemperature : Double, 
-    val minWater : Double, 
-    val id : Int, 
-    val icon : Picture,
-    var position : (Int, Int)
+    protected val maxfeltTemperature : Double, 
+    protected val minWater : Double, 
+    protected val id : Int, 
+    protected val icon : Picture,
+    protected var position : (Int, Int)
 ) extends Animal {
 
     rival = "Lion"
@@ -306,31 +327,25 @@ class Fauna(val faunaSize : Int) {
     }
 }
 
-val waterColor = color(88, 148, 245)
-val WATER_COLOR = color(88, 148, 245)
-val BLUE_COLOR  = color(0, 0, 255)
-val RED_COLOR   = color(255, 0, 0)
-val GREEN_COLOR = color(0, 255, 0)
-val RED_COLOR_CHANNEL = 175
-val BACKGROUND_COLOR = color(200, 235, 255)
-
-val MIN_NUM_OF_WATER_SOURCES = 3
-val MAX_NUM_OF_WATER_SOURCES = 4
-
-val MAX_WATER_SOURCE_LEVEL = 10
-
-val MAX_LEVEL_LOWERBOUND = 3
-val MAX_LEVEL_UPPERBOUND = 4
-
-val WATER_SOURCES_TYPES = List("Lake", "River")
-
 def getRandomShift() : Int = {
     return Random.between(25, 50) * (if (Random.between(0, 2) == 1) -1 else 1)
  }
 
 trait Drawable {
-    var position : (Int, Int)
-    val icon : Picture
+    protected var position : (Int, Int)
+    protected val icon : Picture
+
+    def getPosition() : (Int, Int) = {
+        return position
+    }
+
+    def setPosition(position : (Int, Int)) {
+       this.position = position
+    }
+    
+    def getIcon() : Picture = {
+        return icon
+    }
 
     def drawInCanvas(checkCollisionAgainst : List[Picture]) {
         
@@ -676,9 +691,11 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
                         
                     }
                 
-                a.position = (
-                    ws.position._1 + getRandomShift(), 
-                    ws.position._2 + getRandomShift()
+                a.setPosition(
+                    (
+                        ws.getPosition._1 + getRandomShift(), 
+                        ws.getPosition._2 + getRandomShift()
+                    )
                 )
             }
         )
@@ -756,7 +773,7 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
 
         fauna.drawInCanvas(
             waterSources.waterSources_new.map{
-                ws => ws._2.icon
+                ws => ws._2.getIcon()
             }.toList
         )
         
