@@ -17,7 +17,7 @@ val TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR = 1.025
 
 val MAX_daysWithoutSatisfiedNeeds = 2
 
-val DAYS_IN_YEAR = 5
+val DAYS_IN_YEAR = 7
 val DELAY_MS = 1500
 
 val MAX_feltTemperature_LOWERBOUND = 20
@@ -157,13 +157,10 @@ trait Animal extends Drawable {
 
         for (i <- 1 to MIGRATION_NUM_VISUAL_STEPS) {
             
-            println("step: " + i)
             icon.translate(step_x,step_y)
             Thread.sleep(DELAY_MS)
             
             if (icon.collidesWith(ws.icon)) {
-                println("COLLISION DETECTED, APPLYING OFFSET!")
-                
                 icon.translate(getRandomShift(), getRandomShift())
             }
             
@@ -298,12 +295,12 @@ class Fauna(val faunaSize : Int) {
         return fauna(i)
     }
 
-    def drawInCanvas() {
+    def drawInCanvas(checkCollisionAgainst : List[Picture]) {
         //println("drawing animals...")
 
         fauna.foreach(
             a => {
-                a.drawInCanvas()
+                a.drawInCanvas(checkCollisionAgainst)
             }
         )
     }
@@ -335,9 +332,26 @@ trait Drawable {
     var position : (Int, Int)
     val icon : Picture
 
-    def drawInCanvas() {
+    def drawInCanvas(checkCollisionAgainst : List[Picture]) {
+        
         icon.setPosition(position._1, position._2)
+        
         icon.draw()
+
+        if (!checkCollisionAgainst.isEmpty) {
+            
+            checkCollisionAgainst.foreach(
+                
+                cca => {
+                    if (cca.collidesWith(icon)) {
+                        icon.translate(getRandomShift(), getRandomShift())
+                    }
+                }
+                
+            )  
+                     
+        }
+
     }
 }
 
@@ -350,14 +364,14 @@ trait DrawableShape extends Drawable {
     
     var opacity = new ValueInRange(1.0, 1.0, 0.0)
 
-    override def drawInCanvas() {
+    override def drawInCanvas(checkCollisionAgainst : List[Picture]) {
 
         icon.setPenColor(borderColor)
         icon.setFillColor(innerColor)
         icon.setRotation(rotation)
         icon.setPenThickness(thickness)
 
-        super.drawInCanvas()
+        super.drawInCanvas(checkCollisionAgainst)
     }
 }
 
@@ -555,7 +569,7 @@ class WaterSources(val numOfWaterSources : Int) {
        
         waterSources_new.foreach(
             ws => {
-                ws._2.drawInCanvas()
+                ws._2.drawInCanvas(List())
             }
         )
     }
@@ -740,7 +754,11 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
 
         icon.draw()
 
-        fauna.drawInCanvas()
+        fauna.drawInCanvas(
+            waterSources.waterSources_new.map{
+                ws => ws._2.icon
+            }.toList
+        )
         
         waterSources.drawInCanvas()
 
