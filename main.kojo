@@ -73,20 +73,28 @@ trait Animal extends Drawable {
         return id
     }
 
-    def updateLifePoints(day : Int) {
+    def updateLifePoints(day : Int) : Boolean = {
         lifePoints(day) = 50 * drankWater(day) - 1 * feltTemperature(day)
 
         if (lifePoints(day) < 0) {
             die(day)
+
+            return true
         }
+
+        return false
     }
 
-    def updateLifePoints(day : Int, numEncounteredRivals : Int) {
+    def updateLifePoints(day : Int, numEncounteredRivals : Int) : Boolean = {
         lifePoints(day) = 50 * drankWater(day) - 1 * feltTemperature(day) - 10 * numEncounteredRivals
 
         if (lifePoints(day) < 0) {
             die(day)
+
+            return true
         }
+
+        return false
     }
 
     def die(day : Int) {
@@ -216,6 +224,8 @@ class Zebra(
 }
 
 class Fauna(val faunaSize : Int) {
+
+    var faunaCount = faunaSize
     
     var fauna: ListBuffer[Animal] = ListBuffer()
 
@@ -304,7 +314,7 @@ class Fauna(val faunaSize : Int) {
 
 val waterColor = color(88, 148, 245)
 val WATER_COLOR = color(88, 148, 245)
-val DEEP_BLUE_COLOR = color(7, 42, 108)
+val BLUE_COLOR = color(0, 0, 255)
 val RED_COLOR_CHANNEL = 175
 val BACKGROUND_COLOR = color(200, 235, 255)
 
@@ -582,6 +592,8 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
 
     var temperatureText = Picture.text(" ")
 
+    var faunaText = Picture.text(" ")
+
     // LinkedHashMap rather than HashMap so as records can be shuffled
     // Shuffling a HashMap record yould require to convert to list first, since in a Set the order does NOT count, hence shuffling does NOT make any sense 
     // int --> day index
@@ -714,7 +726,7 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
             dayText,
             "Day: " + day, 
             (500, 1400), 
-            DEEP_BLUE_COLOR, 
+            BLUE_COLOR, 
             YEAR_TEXT_SCALE_FACTOR
         )
 
@@ -728,6 +740,19 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
                     255, 
                     RED_COLOR_CHANNEL + 20 * day
                 ), 0, 0
+            ), 
+            YEAR_TEXT_SCALE_FACTOR
+        )
+
+        faunaText = updateHeader(
+            day, 
+            faunaText,
+            "Fauna count: " + fauna.faunaCount, 
+            (350, 1215), 
+            color(
+                0, 
+                Math.min(0 + 20 * fauna.faunaCount, 255), 
+                Math.min(0 + 20 * fauna.faunaCount, 255),
             ), 
             YEAR_TEXT_SCALE_FACTOR
         )
@@ -782,12 +807,16 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
 
                             association._1.feelTemperature(dayZeroBased, temperatures(dayZeroBased))
 
-                            association._1.updateLifePoints(
+                            var hasDied = association._1.updateLifePoints(
                                 dayZeroBased, 
                                 association._1.countEncounteredRivals(
                                     waterSourcesAnimalsMapAcrossYears(day)(association._2)
                                 )
                             )
+
+                            if (hasDied) {
+                                fauna.faunaCount -= 1
+                            }
 
                             //association._2.updateSubsequentWaterLevel(dayZeroBased)
 
