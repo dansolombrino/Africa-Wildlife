@@ -558,6 +558,39 @@ class WaterSources(val numOfWaterSources : Int) {
     }
 }
 
+class headerElement(text : String, value : Double, position : (Int, Int), color : Color, scale : Double) {
+    var element = Picture.text("")
+
+    def update(day : Int, updatedValue : Double) {
+        
+        if (day > -1) {
+            element.erase()
+        }
+
+        element = Picture.text(text + ": " + updatedValue)
+        element.setPosition(position._1, position._2)
+        element.setPenColor(color)
+        element.scale(scale)
+
+        element.draw()
+    }
+}
+
+class header(val elements : List[headerElement]) {
+    
+    def update(day : Int, updatedValues : List[Double]) {
+
+        // TODO throw exception if lenghts of updatedValues and elements do NOT match)
+        
+        for (e <- 0 to updatedValues.length) {
+            
+            elements(e).update(day, updatedValues(e))
+            
+        }
+    }
+    
+}
+
 class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture, var position : (Int, Int)) extends Drawable {
 
     var fauna = new Fauna(faunaSize)
