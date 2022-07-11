@@ -413,14 +413,7 @@ trait WaterSource extends DrawableShape {
 
     }
 
-    def drawInCanvas(day : Int) {
-        
-        super.drawInCanvas()
-
-        icon.setOpacity(10)
-
-        
-    }
+    
 
     def updateSubsequentWaterLevel(day : Int) {
         println("inside")
