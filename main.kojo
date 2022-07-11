@@ -753,12 +753,12 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
     }
 
     def getColorChannelsInFunctionOfValue(
-            startingValue : Int, 
-            multiplier : Int, 
-            value : Double, 
-            r : Boolean, 
-            g : Boolean, 
-            b : Boolean
+        startingValue : Int, 
+        multiplier : Int, 
+        value : Double, 
+        r : Boolean, 
+        g : Boolean, 
+        b : Boolean
     ) : Color = {
         val color = new ValueInRange(0, 255, 0)
 
