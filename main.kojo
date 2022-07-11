@@ -312,6 +312,7 @@ class Fauna(val faunaSize : Int) {
 val waterColor = color(88, 148, 245)
 val WATER_COLOR = color(88, 148, 245)
 val BLUE_COLOR = color(0, 0, 255)
+val RED_COLOR  = color(255, 0, 0)
 val RED_COLOR_CHANNEL = 175
 val BACKGROUND_COLOR = color(200, 235, 255)
 
@@ -558,10 +559,10 @@ class WaterSources(val numOfWaterSources : Int) {
     }
 }
 
-class headerElement(text : String, value : Double, position : (Int, Int), color : Color, scale : Double) {
+class HeaderElement(text : String, value : Double, position : (Int, Int), color : Color, scale : Double) {
     var element = Picture.text("")
 
-    def update(day : Int, updatedValue : Double) {
+    def update(day : Int, updatedValue : Double, updatedColor : Color) {
         
         if (day > -1) {
             element.erase()
@@ -569,22 +570,23 @@ class headerElement(text : String, value : Double, position : (Int, Int), color 
 
         element = Picture.text(text + ": " + updatedValue)
         element.setPosition(position._1, position._2)
-        element.setPenColor(color)
+        element.setPenColor(updatedColor)
         element.scale(scale)
 
         element.draw()
     }
 }
 
-class header(val elements : List[headerElement]) {
+class Header(val elements : List[HeaderElement]) {
     
-    def update(day : Int, updatedValues : List[Double]) {
+    def update(day : Int, updatedValues : List[Double], updatedColors : List[Color]) {
 
         // TODO throw exception if lenghts of updatedValues and elements do NOT match)
         
-        for (e <- 0 to updatedValues.length) {
+        for (e <- 0 to updatedValues.length - 1) {
+            println("e: " + e)
             
-            elements(e).update(day, updatedValues(e))
+            elements(e).update(day, updatedValues(e), updatedColors(e))
             
         }
     }
@@ -599,9 +601,16 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
 
     var temperatures = Seq.fill(DAYS_IN_YEAR)(30.0)
 
-    var dayText = Picture.text(" ")
+    var header = new Header(
+        List(
+            new HeaderElement("Day", 0, (500, 1400), BLUE_COLOR, YEAR_TEXT_SCALE_FACTOR),
+            new HeaderElement("Temperature", 0, (250, 1300), RED_COLOR, YEAR_TEXT_SCALE_FACTOR)
+        )
+    )
 
-    var temperatureText = Picture.text(" ")
+    //var dayText = Picture.text(" ")
+
+    //var temperatureText = Picture.text(" ")
 
     var faunaText = Picture.text(" ")
 
@@ -731,16 +740,8 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
     }
 
     def updateHeaderInCanvas(day : Int, temperature : Double) {
-        
-        dayText = updateHeader(
-            day, 
-            dayText,
-            "Day: " + day, 
-            (500, 1400), 
-            BLUE_COLOR, 
-            YEAR_TEXT_SCALE_FACTOR
-        )
 
+        /*
         temperatureText = updateHeader(
             day, 
             temperatureText,
@@ -754,6 +755,7 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
             ), 
             YEAR_TEXT_SCALE_FACTOR
         )
+        */
 
         faunaText = updateHeader(
             day, 
@@ -792,6 +794,18 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
                 ) * TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR
 
                 updateHeaderInCanvas(day, temperatures(dayZeroBased))
+
+                header.update(
+                    day, 
+                    List(
+                        day, (Math.floor(temperatures(dayZeroBased) * 100) / 100) 
+                    ), 
+                    List(
+                        BLUE_COLOR, 
+                        color(Math.min(255, RED_COLOR_CHANNEL + 20 * day), 0, 0)
+                    )
+                
+                )
 
                 Random.shuffle(animalsWaterSourcesMapAcrossYears(day)).foreach(
                     association => {
