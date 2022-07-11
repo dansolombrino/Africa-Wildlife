@@ -311,8 +311,9 @@ class Fauna(val faunaSize : Int) {
 
 val waterColor = color(88, 148, 245)
 val WATER_COLOR = color(88, 148, 245)
-val BLUE_COLOR = color(0, 0, 255)
-val RED_COLOR  = color(255, 0, 0)
+val BLUE_COLOR  = color(0, 0, 255)
+val RED_COLOR   = color(255, 0, 0)
+val GREEN_COLOR = color(0, 255, 0)
 val RED_COLOR_CHANNEL = 175
 val BACKGROUND_COLOR = color(200, 235, 255)
 
@@ -584,7 +585,6 @@ class Header(val elements : List[HeaderElement]) {
         // TODO throw exception if lenghts of updatedValues and elements do NOT match)
         
         for (e <- 0 to updatedValues.length - 1) {
-            println("e: " + e)
             
             elements(e).update(day, updatedValues(e), updatedColors(e))
             
@@ -604,7 +604,8 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
     var header = new Header(
         List(
             new HeaderElement("Day", 0, (500, 1400), BLUE_COLOR, YEAR_TEXT_SCALE_FACTOR),
-            new HeaderElement("Temperature", 0, (250, 1300), RED_COLOR, YEAR_TEXT_SCALE_FACTOR)
+            new HeaderElement("Temperature", 0, (250, 1300), RED_COLOR, YEAR_TEXT_SCALE_FACTOR),
+            new HeaderElement("Fauna count", 0, (350, 1215), GREEN_COLOR, YEAR_TEXT_SCALE_FACTOR)
         )
     )
 
@@ -612,7 +613,7 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
 
     //var temperatureText = Picture.text(" ")
 
-    var faunaText = Picture.text(" ")
+    //var faunaText = Picture.text(" ")
 
     // LinkedHashMap rather than HashMap so as records can be shuffled
     // Shuffling a HashMap record yould require to convert to list first, since in a Set the order does NOT count, hence shuffling does NOT make any sense 
@@ -715,62 +716,6 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
         } 
     }
 
-    def updateHeader(
-        day : Int, 
-        previousHeader : net.kogics.kojo.picture.TextPic,
-        textContent : String, 
-        position : (Int, Int), 
-        textColor : Color, 
-        textScale : Double
-    ) : net.kogics.kojo.picture.TextPic = {
-        
-        if (day > -1) {
-            previousHeader.erase()
-        }
-
-        val headerPic = Picture.text(textContent)
-        headerPic.setPosition(position._1, position._2)
-        headerPic.setPenColor(textColor)
-        headerPic.scale(textScale)
-
-        headerPic.draw()
-
-        return headerPic
-        
-    }
-
-    def updateHeaderInCanvas(day : Int, temperature : Double) {
-
-        /*
-        temperatureText = updateHeader(
-            day, 
-            temperatureText,
-            "Temperature: " + (Math.floor(temperature * 100) / 100), 
-            (250, 1300), 
-            color(
-                Math.min(
-                    255, 
-                    RED_COLOR_CHANNEL + 20 * day
-                ), 0, 0
-            ), 
-            YEAR_TEXT_SCALE_FACTOR
-        )
-        */
-
-        faunaText = updateHeader(
-            day, 
-            faunaText,
-            "Fauna count: " + fauna.faunaCount, 
-            (350, 1215), 
-            color(
-                0, 
-                Math.min(0 + 20 * fauna.faunaCount, 255), 
-                Math.min(0 + 20 * fauna.faunaCount, 255),
-            ), 
-            YEAR_TEXT_SCALE_FACTOR
-        )
-    }
-
     def simulation() {
         
         clear()
@@ -793,16 +738,17 @@ class Africa(val faunaSize : Int, val waterSourcesSize : Int, val icon : Picture
                     previousDay
                 ) * TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR
 
-                updateHeaderInCanvas(day, temperatures(dayZeroBased))
-
                 header.update(
                     day, 
                     List(
-                        day, (Math.floor(temperatures(dayZeroBased) * 100) / 100) 
+                        day, 
+                        (Math.floor(temperatures(dayZeroBased) * 100) / 100),
+                        fauna.faunaCount
                     ), 
                     List(
                         BLUE_COLOR, 
-                        color(Math.min(255, RED_COLOR_CHANNEL + 20 * day), 0, 0)
+                        color(Math.min(255, RED_COLOR_CHANNEL + 20 * day), 0, 0),
+                        color(0, Math.min(0 + 20 * fauna.faunaCount, 255), Math.min(0 + 20 * fauna.faunaCount, 255))
                     )
                 
                 )
