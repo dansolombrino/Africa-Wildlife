@@ -340,22 +340,13 @@ trait DrawableShape extends Drawable {
     val thickness : Int
 
     override def drawInCanvas() {
-        
-        val tempIcon = trans(
-            position._1, position._2
-        ) * penColor(
-            borderColor
-        ) * fillColor(
-            innerColor
-        ) * rot(
-            rotation
-        ) * penThickness(
-            thickness
-        ) -> icon
-        
-        tempIcon.draw()
 
-        
+        icon.setPenColor(borderColor)
+        icon.setFillColor(innerColor)
+        icon.setRotation(rotation)
+        icon.setPenThickness(thickness)
+
+        super.drawInCanvas()
     }
 }
 
@@ -379,6 +370,17 @@ trait WaterSource extends DrawableShape {
 
             return maxAvailableWater
         }
+
+        //icon.setOpacity(10)
+    }
+
+    def drawInCanvas(day : Int) {
+        
+        super.drawInCanvas()
+
+        icon.setOpacity(10)
+
+        
     }
 
     def canEqual(a: Any) = a.isInstanceOf[WaterSource]
