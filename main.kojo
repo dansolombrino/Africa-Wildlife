@@ -601,8 +601,14 @@ class WaterSources(val numOfWaterSources : Int) {
     }
 }
 
-class HeaderElement(text : String, value : Double, position : (Int, Int), color : Color, scale : Double) {
-    var element = Picture.text("")
+class HeaderElement(
+    protected var text : String, 
+    protected var value : Double, 
+    protected var position : (Int, Int), 
+    protected var color : Color, 
+    protected var scale : Double
+ ) {
+    protected var element = Picture.text("")
 
     def update(day : Int, updatedValue : Double, updatedColor : Color) {
         
@@ -619,7 +625,7 @@ class HeaderElement(text : String, value : Double, position : (Int, Int), color 
     }
 }
 
-class Header(val elements : List[HeaderElement]) {
+class Header(protected val elements : List[HeaderElement]) {
     
     def update(day : Int, updatedValues : List[Double], updatedColors : List[Color]) {
 
