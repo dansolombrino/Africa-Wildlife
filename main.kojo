@@ -10,8 +10,8 @@ val HEADER_TEXT_SCALE_FACTOR = 5
 
 var MIGRATION_NUM_VISUAL_STEPS = 5
 
-var ICON_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/icons/"
-var BACKGROUND_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/background/"
+var ICON_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/assets/icons/"
+var BACKGROUND_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/assets/background/"
 
 val TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR = 1.025
 
