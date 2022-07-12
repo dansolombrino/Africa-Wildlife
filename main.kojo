@@ -20,7 +20,8 @@ val MAX_daysWithoutSatisfiedNeeds = 2
 val DAYS_IN_YEAR = 7
 val STARTING_YEAR = 1950
 
-val DELAY_MS = 1500
+val DELAY_MS = 1000
+val MIGRATION_DELAY_MS = 750
 
 val MAX_FELT_TEMPERATURE_LOWERBOUND = 20
 val MAX_FELT_TEMPERATURE_UPPERBOUND = 40
@@ -52,7 +53,7 @@ val WATER_SOURCES_TYPES = List("Lake", "River")
 val WATER_SOURCES_LIST = ListBuffer("Chad", "Victoria", "Niger")
 
 object LionParams {
-  val maxfeltTemperature = 40;
+  val maxfeltTemperature = 45;
   val minWater = 2
   val iconFilePath = ICON_FOLDER_PATH + "lion_64.png"
 }
@@ -94,7 +95,7 @@ trait Animal extends Drawable {
     }
 
     def updateLifePoints(day : Int) : Boolean = {
-        lifePoints(day) = 50 * drankWater(day) - 3 * (maxfeltTemperature - feltTemperature(day))
+        lifePoints(day) += 50 * drankWater(day) - 6 * scala.math.pow(2, feltTemperature(day) - maxfeltTemperature)
 
         if (lifePoints(day) < 0) {
             die(day)
@@ -106,17 +107,15 @@ trait Animal extends Drawable {
     }
 
     def updateLifePoints(day : Int, numEncounteredRivals : Int) : Boolean = {
-        lifePoints(day) = 50 * drankWater(day) - 6 * scala.math.pow(2, feltTemperature(day) - maxfeltTemperature) - 10 * numEncounteredRivals
-
-
+        lifePoints(day) += -10 * numEncounteredRivals
         
-        if (lifePoints(day) < 0) {
-            die(day)
+        return updateLifePoints(day)
+    }
 
-            return true
-        }
+    def updateLifePoints(day : Int, numEncounteredRivals : Int, migrationDistance : (Double, Double)) : Boolean = {
+        lifePoints(day) += -(migrationDistance._1 + migrationDistance._2) / 25
 
-        return false
+        return updateLifePoints(day, numEncounteredRivals)
     }
 
     def die(day : Int) {
@@ -167,7 +166,7 @@ trait Animal extends Drawable {
         return numEncounteredRivals
     }
 
-    def migrate(ws : WaterSource) {
+    def migrate(ws : WaterSource) : (Double, Double) = {
         println("CurrentPosition: " + this.icon.position)
         println("TargetPosition: " + ws.getPosition())
 
@@ -183,7 +182,7 @@ trait Animal extends Drawable {
         for (i <- 1 to MIGRATION_NUM_VISUAL_STEPS) {
             
             icon.translate(step_x,step_y)
-            Thread.sleep(DELAY_MS)
+            Thread.sleep(MIGRATION_DELAY_MS)
             
             if (icon.collidesWith(ws.getIcon())) {
                 icon.translate(getRandomShift(), getRandomShift())
@@ -192,6 +191,8 @@ trait Animal extends Drawable {
         }
 
         daysWithoutSatisfiedNeeds = 0
+
+        return absDist
         
     }
 
@@ -660,9 +661,10 @@ class Africa(
 
     protected var header = new Header(
         List(
-            new HeaderElement("Year", 0, true, (400, 1400), BLUE_COLOR, HEADER_TEXT_SCALE_FACTOR),
-            new HeaderElement("Temperature", 0, false, (250, 1300), RED_COLOR, HEADER_TEXT_SCALE_FACTOR),
-            new HeaderElement("Fauna count", 0, true, (350, 1215), GREEN_COLOR, HEADER_TEXT_SCALE_FACTOR)
+            new HeaderElement("Year", 0, true, (400, 1515), BLUE_COLOR, HEADER_TEXT_SCALE_FACTOR),
+            new HeaderElement("Temperature", 0, false, (250, 1415), RED_COLOR, HEADER_TEXT_SCALE_FACTOR),
+            new HeaderElement("Fauna current count", 0, true, (200, 1315), GREEN_COLOR, HEADER_TEXT_SCALE_FACTOR),
+            new HeaderElement("Fauna original count", fauna.faunaSize, true, (200, 1215), GREEN_COLOR, HEADER_TEXT_SCALE_FACTOR)
         )
     )
 
@@ -819,7 +821,8 @@ class Africa(
                     List(
                         STARTING_YEAR + day, 
                         (Math.floor(temperatures(dayZeroBased) * 100) / 100),
-                        fauna.faunaCount
+                        fauna.faunaCount,
+                        fauna.faunaSize
                     ), 
                     List(
                         BLUE_COLOR,
@@ -838,6 +841,14 @@ class Africa(
                             false, 
                             true, 
                             true
+                       ),
+                       getColorChannelsInFunctionOfValue(
+                            0, 
+                            20, 
+                            fauna.faunaSize, 
+                            false, 
+                            true, 
+                            true
                        )
                     )
                 )
@@ -853,11 +864,13 @@ class Africa(
                                 dayZeroBased, desired_water, true
                             )
 
+                            var migrationDistance = (0.0, 0.0)
+
                             if ( association._1.evaluateMigration(actual_water, desired_water) ) {
                       
                                 val wsToMigrateTo = waterSources.getRandomWaterSource(association._2)
                                 
-                                association._1.migrate(wsToMigrateTo)
+                                migrationDistance = association._1.migrate(wsToMigrateTo)
 
                                 updateAnimalsWaterSourcesMap(dayZeroBased, association._1, wsToMigrateTo)
 
@@ -871,7 +884,8 @@ class Africa(
                                 dayZeroBased, 
                                 association._1.countEncounteredRivals(
                                     waterSourcesAnimalsMapAcrossYears(day)(association._2)
-                                )
+                                ),
+                                migrationDistance
                             )
 
                             if (hasDied) {
