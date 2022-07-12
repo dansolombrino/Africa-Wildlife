@@ -1,19 +1,25 @@
 {
-  "animal_0": {
+  "Lion": {
     
-    "water_needed_per_day": 2,
-    "max_temperature_can_live": 20,
-    "water_intakes": [1.9, 1.8, 2.1],
-    "lake": "NO_LAKE"
+    "maxfeltTemperature": 40,
+    "minWater": 2,
+    "iconFilePath": "/home/dansolombrino/GitHub/Africa-Wildlife/icons/lion_64.png"
   
   },
 
-  "animal_1": {
+  "Elephant": {
     
-    "water_needed_per_day": 1.5,
-    "max_temperature_can_live": 25,
-    "water_intakes": [1.3, 1.6, 1.5],
-    "lake": "NO_LAKE"
+    "maxfeltTemperature": 45,
+    "minWater": 4,
+    "iconFilePath": "/home/dansolombrino/GitHub/Africa-Wildlife/icons/elephant_64.png"
+  
+  },
+
+  "Zebra": {
+    
+    "maxfeltTemperature": 45,
+    "minWater": 1.5,
+    "iconFilePath": "/home/dansolombrino/GitHub/Africa-Wildlife/icons/zebra_64.png"
   
   }
 }
