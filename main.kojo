@@ -10,8 +10,8 @@ val HEADER_TEXT_SCALE_FACTOR = 5
 
 var MIGRATION_NUM_VISUAL_STEPS = 5
 
-var ICON_FOLDER_PATH = "/Users/danielesolombrino/GitHub/Africa-Wildlife/assets/icons/"
-var BACKGROUND_FOLDER_PATH = "/Users/danielesolombrino/GitHub/Africa-Wildlife/assets/background/"
+var ICON_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/assets/icons/"
+var BACKGROUND_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/assets/background/"
 
 val TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR = 1.025
 
@@ -94,7 +94,7 @@ trait Animal extends Drawable {
     }
 
     def updateLifePoints(day : Int) : Boolean = {
-        lifePoints(day) = 50 * drankWater(day) - 1 * feltTemperature(day)
+        lifePoints(day) = 50 * drankWater(day) - 3 * (maxfeltTemperature - feltTemperature(day))
 
         if (lifePoints(day) < 0) {
             die(day)
@@ -106,8 +106,10 @@ trait Animal extends Drawable {
     }
 
     def updateLifePoints(day : Int, numEncounteredRivals : Int) : Boolean = {
-        lifePoints(day) = 50 * drankWater(day) - 1 * feltTemperature(day) - 10 * numEncounteredRivals
+        lifePoints(day) = 50 * drankWater(day) - 6 * scala.math.pow(2, feltTemperature(day) - maxfeltTemperature) - 10 * numEncounteredRivals
 
+
+        
         if (lifePoints(day) < 0) {
             die(day)
 
@@ -658,7 +660,7 @@ class Africa(
 
     protected var header = new Header(
         List(
-            new HeaderElement("Year", 0, true, (500, 1400), BLUE_COLOR, HEADER_TEXT_SCALE_FACTOR),
+            new HeaderElement("Year", 0, true, (400, 1400), BLUE_COLOR, HEADER_TEXT_SCALE_FACTOR),
             new HeaderElement("Temperature", 0, false, (250, 1300), RED_COLOR, HEADER_TEXT_SCALE_FACTOR),
             new HeaderElement("Fauna count", 0, true, (350, 1215), GREEN_COLOR, HEADER_TEXT_SCALE_FACTOR)
         )
