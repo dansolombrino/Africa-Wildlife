@@ -1,0 +1,23 @@
+{
+
+    "Chad": {
+        "type" : "Lake",
+        "position_x": 580,
+        "position_y": 760,
+        "rotation" : -45
+    },
+    
+    "Victoria": {
+        "type" : "Lake",
+        "position_x": 850,
+        "position_y": 535,
+        "rotation" : 45
+    },
+
+    "Niger": {
+        "type" : "River",
+        "position_x": 365,
+        "position_y": 815,
+        "rotation" : -230
+    }
+}
