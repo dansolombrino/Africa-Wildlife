@@ -604,6 +604,7 @@ class WaterSources(val numOfWaterSources : Int) {
 class HeaderElement(
     protected var text : String, 
     protected var value : Double, 
+    protected var valueIsInt : Boolean,
     protected var position : (Int, Int), 
     protected var color : Color, 
     protected var scale : Double
@@ -616,7 +617,7 @@ class HeaderElement(
             element.erase()
         }
 
-        element = Picture.text(text + ": " + updatedValue)
+        element = Picture.text(text + ": " + (if (valueIsInt) updatedValue.toInt else updatedValue))
         element.setPosition(position._1, position._2)
         element.setPenColor(updatedColor)
         element.scale(scale)
@@ -657,9 +658,9 @@ class Africa(
 
     protected var header = new Header(
         List(
-            new HeaderElement("Year", 0, (500, 1400), BLUE_COLOR, HEADER_TEXT_SCALE_FACTOR),
-            new HeaderElement("Temperature", 0, (250, 1300), RED_COLOR, HEADER_TEXT_SCALE_FACTOR),
-            new HeaderElement("Fauna count", 0, (350, 1215), GREEN_COLOR, HEADER_TEXT_SCALE_FACTOR)
+            new HeaderElement("Year", 0, true, (500, 1400), BLUE_COLOR, HEADER_TEXT_SCALE_FACTOR),
+            new HeaderElement("Temperature", 0, false, (250, 1300), RED_COLOR, HEADER_TEXT_SCALE_FACTOR),
+            new HeaderElement("Fauna count", 0, true, (350, 1215), GREEN_COLOR, HEADER_TEXT_SCALE_FACTOR)
         )
     )
 
