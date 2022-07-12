@@ -10,14 +10,15 @@ val HEADER_TEXT_SCALE_FACTOR = 5
 
 var MIGRATION_NUM_VISUAL_STEPS = 5
 
-var ICON_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/assets/icons/"
-var BACKGROUND_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/assets/background/"
+var ICON_FOLDER_PATH = "/Users/danielesolombrino/GitHub/Africa-Wildlife/assets/icons/"
+var BACKGROUND_FOLDER_PATH = "/Users/danielesolombrino/GitHub/Africa-Wildlife/assets/background/"
 
 val TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR = 1.025
 
 val MAX_daysWithoutSatisfiedNeeds = 2
 
 val DAYS_IN_YEAR = 7
+val STARTING_YEAR = 1950
 
 val DELAY_MS = 1500
 
@@ -656,7 +657,7 @@ class Africa(
 
     protected var header = new Header(
         List(
-            new HeaderElement("Day", 0, (500, 1400), BLUE_COLOR, HEADER_TEXT_SCALE_FACTOR),
+            new HeaderElement("Year", 0, (500, 1400), BLUE_COLOR, HEADER_TEXT_SCALE_FACTOR),
             new HeaderElement("Temperature", 0, (250, 1300), RED_COLOR, HEADER_TEXT_SCALE_FACTOR),
             new HeaderElement("Fauna count", 0, (350, 1215), GREEN_COLOR, HEADER_TEXT_SCALE_FACTOR)
         )
@@ -813,7 +814,7 @@ class Africa(
                 header.update(
                     day, 
                     List(
-                        day, 
+                        STARTING_YEAR + day, 
                         (Math.floor(temperatures(dayZeroBased) * 100) / 100),
                         fauna.faunaCount
                     ), 
