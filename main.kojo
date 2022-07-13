@@ -70,19 +70,57 @@ val BACKGROUND_COLOR = color(200, 235, 255)
 val RED_COLOR_CHANNEL = 175
 
 
-/* *********************************************     */
+/* ************************************************* */
 
+/** Set of variables controlling Animals' characteristics */
 
-val MAX_FELT_TEMPERATURE_LOWERBOUND = 20
-val MAX_FELT_TEMPERATURE_UPPERBOUND = 40
-
-val MIN_WATER_LOWERBOUND = 1.0
-val MIN_WATER_UPPERBOUND = 3.5
-
+// Lower and upper bound for the random number of animals that appear at the 
+// beginning of the simulation.
+// See AfricaParamas doc for more information on how these values are used.
 val MIN_NUM_OF_ANIMALS = 12
 val MAX_NUM_OF_ANIMALS = 15
 
-val ANIMAL_SPECIES = List("Lion", "Elephant", "Zebra")
+// List of supported animal species.
+// See Fauna.populateFauna method for more information about how this list is
+// used
+val ANIMAL_SPECIES_LIST = List("Lion", "Elephant", "Zebra")
+
+// The following objects store some init configuration parameters for the 
+// Animals that will be instanciated at simulation init time.
+
+// This is just one of the possible ways to manage the situation.
+
+// Hardcoding the parameters in class constructors was NOT considered due to the
+// unelegance and unmaintainability of the choice (future extensibility is one
+// of the requirement asked to students, see report for more info about it)
+
+// This solution represents a good tradeoff, because it adds enough dinamicity 
+// for future extensibility.
+// For example, one could load this data from a JSON, use it to populate such 
+// objects and then call the constructors passing data from these objects
+
+object LionParams {
+  val MAX_FELT_TEMPERATURE = 45;
+  val MIN_WATER = 2
+  val ICON_FILE_PATH = ICON_FOLDER_PATH + "lion_64.png"
+}
+
+object ElephantParams {
+  val MAX_FELT_TEMPERATURE = 45;
+  val MIN_WATER = 2
+  val ICON_FILE_PATH = ICON_FOLDER_PATH + "elephant_64.png"
+}
+
+object ZebraParams {
+  val MAX_FELT_TEMPERATURE = 45;
+  val MIN_WATER = 2
+  val ICON_FILE_PATH = ICON_FOLDER_PATH + "zebra_64.png"
+}
+
+
+
+/* ************************************************* */
+
 
 
 
@@ -97,27 +135,15 @@ val MAX_LEVEL_UPPERBOUND = 4
 val WATER_SOURCES_TYPES = List("Lake", "River")
 val WATER_SOURCES_LIST = ListBuffer("Chad", "Victoria", "Niger")
 
-object LionParams {
-  val maxfeltTemperature = 45;
-  val minWater = 2
-  val iconFilePath = ICON_FOLDER_PATH + "lion_64.png"
-}
 
-object ElephantParams {
-  val maxfeltTemperature = 45;
-  val minWater = 2
-  val iconFilePath = ICON_FOLDER_PATH + "elephant_64.png"
-}
 
-object ZebraParams {
-  val maxfeltTemperature = 45;
-  val minWater = 2
-  val iconFilePath = ICON_FOLDER_PATH + "zebra_64.png"
-}
+
+
+
 
 trait Animal extends Drawable {
 
-    protected val maxfeltTemperature : Double
+    protected val maxFeltTemperature : Double
     protected val minWater : Double
     protected val id : Int
     protected var daysWithoutSatisfiedNeeds = 0
@@ -140,7 +166,7 @@ trait Animal extends Drawable {
     }
 
     def updateLifePoints(day : Int) : Boolean = {
-        lifePoints(day) += 50 * drankWater(day) - 6 * scala.math.pow(2, feltTemperature(day) - maxfeltTemperature)
+        lifePoints(day) += 50 * drankWater(day) - 6 * scala.math.pow(2, feltTemperature(day) - maxFeltTemperature)
 
         if (lifePoints(day) < 0) {
             die(day)
@@ -244,7 +270,7 @@ trait Animal extends Drawable {
 }
 
 class Lion(
-    protected val maxfeltTemperature : Double, 
+    protected val maxFeltTemperature : Double, 
     protected val minWater : Double, 
     protected val id : Int, 
     protected val icon : Picture, 
@@ -254,12 +280,12 @@ class Lion(
     rival = "Zebra"
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Lion, maxfeltTemperature: " + maxfeltTemperature + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", feltTemperature: " + feltTemperature + "\n"
+        return "\n\t\tID: " + id + " --> Lion, maxFeltTemperature: " + maxFeltTemperature + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", feltTemperature: " + feltTemperature + "\n"
     }
 }
 
 class Elephant(
-    protected val maxfeltTemperature : Double, 
+    protected val maxFeltTemperature : Double, 
     protected val minWater : Double, 
     protected val id : Int, 
     protected val icon : Picture,
@@ -269,12 +295,12 @@ class Elephant(
     rival = "Lion"
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Elephant, maxfeltTemperature: " + maxfeltTemperature + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", feltTemperature: " + feltTemperature + "\n"
+        return "\n\t\tID: " + id + " --> Elephant, maxFeltTemperature: " + maxFeltTemperature + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", feltTemperature: " + feltTemperature + "\n"
     }
 }
 
 class Zebra(
-    protected val maxfeltTemperature : Double, 
+    protected val maxFeltTemperature : Double, 
     protected val minWater : Double, 
     protected val id : Int, 
     protected val icon : Picture,
@@ -284,7 +310,7 @@ class Zebra(
     rival = "Lion"
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Zebra, maxfeltTemperature: " + maxfeltTemperature + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", feltTemperature: " + feltTemperature + "\n"
+        return "\n\t\tID: " + id + " --> Zebra, maxFeltTemperature: " + maxFeltTemperature + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", feltTemperature: " + feltTemperature + "\n"
     }
 }
 
@@ -298,46 +324,46 @@ class Fauna(val faunaSize : Int) {
         
         for (i <- 1 to faunaSize) {
             
-            val animalSpecie = ANIMAL_SPECIES(Random.between(0, ANIMAL_SPECIES.length))
+            val animalSpecie = ANIMAL_SPECIES_LIST(Random.between(0, ANIMAL_SPECIES_LIST.length))
         
             animalSpecie match {
         
                 case "Lion" => {
                     fauna += new Lion(
-                        LionParams.maxfeltTemperature, 
-                        LionParams.minWater, 
+                        LionParams.MAX_FELT_TEMPERATURE, 
+                        LionParams.MIN_WATER, 
                         i, 
-                        Picture.image(LionParams.iconFilePath), 
+                        Picture.image(LionParams.ICON_FILE_PATH), 
                         (0, 0)
                     )
                 }
         
                 case "Elephant" => {
                     fauna += new Elephant(
-                        ElephantParams.maxfeltTemperature, 
-                        ElephantParams.minWater, 
+                        ElephantParams.MAX_FELT_TEMPERATURE, 
+                        ElephantParams.MIN_WATER, 
                         i, 
-                        Picture.image(ElephantParams.iconFilePath),
+                        Picture.image(ElephantParams.ICON_FILE_PATH),
                         (0, 0)
                     )
                 }
         
                 case "Zebra" => {
                     fauna += new Zebra(
-                        ZebraParams.maxfeltTemperature, 
-                        ZebraParams.minWater, 
+                        ZebraParams.MAX_FELT_TEMPERATURE, 
+                        ZebraParams.MIN_WATER, 
                         i, 
-                        Picture.image(ZebraParams.iconFilePath),
+                        Picture.image(ZebraParams.ICON_FILE_PATH),
                         (0, 0)
                     )
                 }
         
                 case default => {
                     fauna += new Zebra(
-                        ZebraParams.maxfeltTemperature, 
-                        ZebraParams.minWater, 
+                        ZebraParams.MAX_FELT_TEMPERATURE, 
+                        ZebraParams.MIN_WATER, 
                         i, 
-                        Picture.image(ZebraParams.iconFilePath),
+                        Picture.image(ZebraParams.ICON_FILE_PATH),
                         (0, 0)
                     )
                 }
@@ -952,14 +978,14 @@ class Africa(
 object AfricaParams {
   val numOfAnimals = Random.between(MIN_NUM_OF_ANIMALS, MAX_NUM_OF_ANIMALS)
   val numOfWaterSources = 3 // keep it this way, for testing purposes
-  val iconFilePath = BACKGROUND_FOLDER_PATH + "africaClean.png"
+  val ICON_FILE_PATH = BACKGROUND_FOLDER_PATH + "africaClean.png"
   val position = (0, 0)
 }
 
 var africa = new Africa(
     AfricaParams.numOfAnimals, 
     AfricaParams.numOfWaterSources, 
-    Picture.image(AfricaParams.iconFilePath),
+    Picture.image(AfricaParams.ICON_FILE_PATH),
     AfricaParams.position
 )
 
