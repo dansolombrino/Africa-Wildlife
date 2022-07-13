@@ -480,38 +480,56 @@ trait Animal extends Drawable {
         return numEncounteredRivals
     }
 
-    def migrate(ws : WaterSource) : (Double, Double) = {
-        //println("CurrentPosition: " + this.icon.position)
-        //println("TargetPosition: " + ws.getPosition())
-
-        var absDist = (
-            ws.getPosition()._1 - this.icon.position.x, 
-            ws.getPosition()._2 - this.icon.position.y
+    // Migrate towards another Water Source
+    // Returns the absolute distance travelled by the animal, in order to 
+    // migrate
+    def migrate(waterSourceToMigrateTo : WaterSource) : (Double, Double) = {
+        
+        // Get the absolute travelled distance, in order to migrate to the 
+        // given source
+        val absDist = (
+            waterSourceToMigrateTo.getPosition()._1 - this.icon.position.x, 
+            waterSourceToMigrateTo.getPosition()._2 - this.icon.position.y
         )
-        //println("absDistance: " + absDist)
 
-        var step_x = absDist._1 / MIGRATION_NUM_VISUAL_STEPS
-        var step_y = absDist._2 / MIGRATION_NUM_VISUAL_STEPS
+        // Compute the translation that each visual migration step should 
+        // apply, for both axes
+        val xAxisTranslationStep = absDist._1 / MIGRATION_NUM_VISUAL_STEPS
+        val yAxisTranslationStep = absDist._2 / MIGRATION_NUM_VISUAL_STEPS
 
+        // Show migration
         for (i <- 1 to MIGRATION_NUM_VISUAL_STEPS) {
             
-            icon.translate(step_x,step_y)
+            // Apply translation
+            icon.translate(xAxisTranslationStep, yAxisTranslationStep)
+            
+            // Apply a delay, to make transition actually visible
             Thread.sleep(MIGRATION_STEP_DELAY_MS)
             
-            if (icon.collidesWith(ws.getIcon())) {
+            // If during the translation the animal collided with destination
+            // Water Source
+            if (icon.collidesWith(waterSourceToMigrateTo.getIcon())) {
+
+                // then bounce off of the collision, by means of applying a 
+                // random translation
                 icon.translate(getRandomShift(), getRandomShift())
             }
             
         }
 
+        // Reset days of consecutive days without satisfied needs
         daysWithoutSatisfiedNeeds = 0
 
+        // Returns travelled distance
         return absDist
         
     }
 
 }
 
+// Models a Lion.
+// This offers future expandability, in case one would like to make the Lion 
+// more specialized than the general abstract class
 class Lion(
     protected val maxToleratedTemperature : Double, 
     protected val minWater : Double, 
@@ -520,6 +538,7 @@ class Lion(
     protected var position: (Int, Int)
 ) extends Animal {
 
+    // Stores the rival of the Lion
     rival = "Zebra"
 
     override def toString() : String = {
@@ -527,6 +546,9 @@ class Lion(
     }
 }
 
+// Models a Elephant.
+// This offers future expandability, in case one would like to make the Elephant 
+// more specialized than the general abstract class
 class Elephant(
     protected val maxToleratedTemperature : Double, 
     protected val minWater : Double, 
@@ -535,6 +557,7 @@ class Elephant(
     protected var position : (Int, Int)
 ) extends Animal {
 
+    // Stores the rival of the Elephant
     rival = "Lion"
 
     override def toString() : String = {
@@ -542,6 +565,9 @@ class Elephant(
     }
 }
 
+// Models a Zebra.
+// This offers future expandability, in case one would like to make the Zebra 
+// more specialized than the general abstract class
 class Zebra(
     protected val maxToleratedTemperature : Double, 
     protected val minWater : Double, 
@@ -550,6 +576,7 @@ class Zebra(
     protected var position : (Int, Int)
 ) extends Animal {
 
+    // Stores the rival of the Zebra
     rival = "Lion"
 
     override def toString() : String = {
