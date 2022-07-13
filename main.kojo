@@ -542,7 +542,10 @@ class Lion(
     rival = "Zebra"
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Lion, maxToleratedTemperature: " + maxToleratedTemperature + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", feltTemperature: " + feltTemperature + "\n"
+        return "\n\t\tID: " + id + " --> Lion, maxToleratedTemperature: " + 
+            maxToleratedTemperature + ", lifePoints: " + lifePoints + 
+            ", drankWater: " + drankWater + ", feltTemperature: " + 
+            feltTemperature + "\n"
     }
 }
 
@@ -561,7 +564,10 @@ class Elephant(
     rival = "Lion"
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Elephant, maxToleratedTemperature: " + maxToleratedTemperature + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", feltTemperature: " + feltTemperature + "\n"
+        return "\n\t\tID: " + id + " --> Elephant, maxToleratedTemperature: " + 
+            maxToleratedTemperature + ", lifePoints: " + lifePoints + 
+            ", drankWater: " + drankWater + ", feltTemperature: " + 
+            feltTemperature + "\n"
     }
 }
 
@@ -580,22 +586,32 @@ class Zebra(
     rival = "Lion"
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Zebra, maxToleratedTemperature: " + maxToleratedTemperature + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", feltTemperature: " + feltTemperature + "\n"
+        return "\n\t\tID: " + id + " --> Zebra, maxToleratedTemperature: " + 
+            maxToleratedTemperature + ", lifePoints: " + lifePoints + 
+            ", drankWater: " + drankWater + ", feltTemperature: " + 
+            feltTemperature + "\n"
     }
 }
 
+// Models African fauna.
 class Fauna(val faunaSize : Int) {
 
+    // Number of alive animals
     var faunaCount = faunaSize
     
+    // Actual fauna, i.e. a list of Animals
     var fauna: ListBuffer[Animal] = ListBuffer()
 
-    def populateFauna(): ListBuffer[Animal] = {
+    // Populates the fauna
+    def populateFauna() {
         
         for (i <- 1 to faunaSize) {
-            
+
+            // Get a random animal specie    
             val animalSpecie = ANIMAL_SPECIES_LIST(Random.between(0, ANIMAL_SPECIES_LIST.length))
-        
+
+            // Init the specific object, according to randomly extracted animal
+            // specie
             animalSpecie match {
         
                 case "Lion" => {
@@ -639,10 +655,10 @@ class Fauna(val faunaSize : Int) {
                 }
             }
         }
-    
-        return fauna
     }
 
+    // Scala way of calling methods inside a constructure... simply invoke the
+    // method inside the class
     populateFauna()
 
     override def toString() : String = {
@@ -658,13 +674,10 @@ class Fauna(val faunaSize : Int) {
  
     }
 
-    def getAnimal(i: Int) : Animal = {
-        return fauna(i)
-    }
-
+    // Draw populated fauna in the canvas
     def drawInCanvas(checkCollisionAgainst : List[Picture]) {
-        //println("drawing animals...")
 
+        // Basically, invoke the draw method on every animal in the Fauna
         fauna.foreach(
             a => {
                 a.drawInCanvas(checkCollisionAgainst)
@@ -673,6 +686,7 @@ class Fauna(val faunaSize : Int) {
     }
 }
 
+// Models a value that is constraint to be inside a specified range
 class ValueInRange(
     protected var value : Double, 
     protected val max : Double, 
@@ -700,42 +714,60 @@ class ValueInRange(
     }
 }
 
-
+// Models a water source
 trait WaterSource extends DrawableShape {
     protected val maxLevel : Double
     protected var currentLevel = Seq.fill(NUM_YEARS_TO_SIMULATE)(maxLevel)
     protected val id : Int
     protected val name : String
     
-    def removeWater(day: Int, water: Double, handleOpacity : Boolean) : Double = {
+    // Remove water from the water source
+    def removeWater(
+        day: Int, 
+        water: Double, 
+        handleOpacity : Boolean
+    ) : Double = {
 
-        var maxAvailableWater = 0.0
+        // Maximum amount of water that the removal has been able to take from 
+        // the water source
+        var removedWater = 0.0
 
+        // if the current level of the water source is greater the requested one
         if (currentLevel(day) - water >= 0) {
+            
+            // Then remove the requested amount
             currentLevel(day) -= water
+            removedWater = water
 
-
-            maxAvailableWater = water
         } else {
-            maxAvailableWater = currentLevel(day)
             
+            // Otherwise, remove the current level, because it the maximum 
+            // possible
+            removedWater = currentLevel(day)
             currentLevel(day) = 0
-            
         }
 
+        // If desired
         if (handleOpacity) {
+
+            // Update opacity of water source canvas drawing, according to 
+            // current quantity of water in the water source
             opacity.setValue(1.0 - currentLevel(day) / maxLevel)
             icon.setOpacity(opacity.getValue())
         }
 
+        // Remove a tiny portion from next year as well, to simulate water 
+        // scarcity
         if (day + 1 < NUM_YEARS_TO_SIMULATE) {
             removeWater(day + 1, water / 10, false)
         }
 
-        return maxAvailableWater
+        // Returns amount of removed water
+        return removedWater
 
     }
 
+    // Methods needed to compare two WaterSource objects
     def canEqual(a: Any) = a.isInstanceOf[WaterSource]
 
     override def equals(that: Any): Boolean =
@@ -743,6 +775,9 @@ trait WaterSource extends DrawableShape {
         that match {
             
             case that: WaterSource => {
+
+                // Two WaterSources are considered the same if the following
+                // equalities hold true
                 that.canEqual(this) &&
                 this.name == that.name &&
                 this.position == that.position &&
@@ -755,7 +790,8 @@ trait WaterSource extends DrawableShape {
         }
 
     override def hashCode: Int = {
-        name.hashCode + position.hashCode + rotation.hashCode + maxLevel.hashCode
+        name.hashCode + position.hashCode + rotation.hashCode + 
+            maxLevel.hashCode
     }
 
     
