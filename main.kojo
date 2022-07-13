@@ -6,22 +6,72 @@ import scala.language.postfixOps
 import scala.collection.mutable.Map
 import scala.collection.mutable.Seq
 
+/** Set of variables controlling simulation behavior */
+
+// Number of years to run the simulation for 
+var NUM_YEARS_TO_SIMULATE = 12
+
+// Starting year of the simulation
+var STARTING_YEAR = 1950
+
+// Multiplicative factor which will be used in the formula
+// to compute the temperature for any given year.
+// See Animal class for more information regarding how such
+// temperature is actually computed
+var TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR = 1.015
+
+// Number of maximum day without satisfied needs that an animal tolerates,
+// before evaluating whether to migrate or not.
+// See Animal.evaluateMigration method for more info about the usage of this
+// constant
+var MAX_DAYS_WITHOUT_SATISFIED_NEEDS = 2
+
+// Delay in ms between different years, in order to make graphical appearance
+// more usable
+val BETWEEN_YEARS_DELAY_MS = 1000
+
+// Delay in ms between different migration steps, in order to make graphical 
+// appearance of migration more comprehensible and actually visible
+val MIGRATION_STEP_DELAY_MS = 750
+
+
+/* ************************************************  */
+
+
+/** Set of variables controlling simulation graphical appearance */
+
+// Dimension of text printed in canvas
 val HEADER_TEXT_SCALE_FACTOR = 5
 
-var MIGRATION_NUM_VISUAL_STEPS = 5
+// Number of steps to show, when an animal migrates from a water source to 
+// another one
+val MIGRATION_NUM_VISUAL_STEPS = 5
 
-var ICON_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/assets/icons/"
-var BACKGROUND_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/assets/background/"
+// Relative path of folder containing animal icons, which will be shown
+// in the canvas
+val ICON_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/assets/icons/"
 
-val TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR = 1.015
+// Relative path of folder containing background image, which will be shown
+// in the canvas
+val BACKGROUND_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/assets/background/"
 
-val MAX_daysWithoutSatisfiedNeeds = 2
+// Set of colors used througout the project
+val WATER_COLOR = color(88, 148, 245)
+val BLUE_COLOR  = color(0, 0, 255)
+val RED_COLOR   = color(255, 0, 0)
+val GREEN_COLOR = color(0, 255, 0)
+val BACKGROUND_COLOR = color(200, 235, 255)
 
-val DAYS_IN_YEAR = 12
-val STARTING_YEAR = 1950
+// Stores the value for the red channel of an RGB color.
+// Used in the dynamic generation of the red color, when placing the 
+// "temperature" information in the canvas.
+// See Africa.getColorChannelsInFunctionOfValue method for more information 
+// about how this parameter is used 
+val RED_COLOR_CHANNEL = 175
 
-val DELAY_MS = 1000
-val MIGRATION_DELAY_MS = 750
+
+/* *********************************************     */
+
 
 val MAX_FELT_TEMPERATURE_LOWERBOUND = 20
 val MAX_FELT_TEMPERATURE_UPPERBOUND = 40
@@ -34,12 +84,7 @@ val MAX_NUM_OF_ANIMALS = 15
 
 val ANIMAL_SPECIES = List("Lion", "Elephant", "Zebra")
 
-val WATER_COLOR = color(88, 148, 245)
-val BLUE_COLOR  = color(0, 0, 255)
-val RED_COLOR   = color(255, 0, 0)
-val GREEN_COLOR = color(0, 255, 0)
-val RED_COLOR_CHANNEL = 175
-val BACKGROUND_COLOR = color(200, 235, 255)
+
 
 val MIN_NUM_OF_WATER_SOURCES = 3
 val MAX_NUM_OF_WATER_SOURCES = 4
@@ -78,9 +123,9 @@ trait Animal extends Drawable {
     protected var daysWithoutSatisfiedNeeds = 0
     protected var rival = ""
     
-    protected var lifePoints = Seq.fill(DAYS_IN_YEAR)(1.0)
-    protected var drankWater = Seq.fill(DAYS_IN_YEAR)(0.0)
-    protected var feltTemperature = Seq.fill(DAYS_IN_YEAR)(0.0)
+    protected var lifePoints = Seq.fill(NUM_YEARS_TO_SIMULATE)(1.0)
+    protected var drankWater = Seq.fill(NUM_YEARS_TO_SIMULATE)(0.0)
+    protected var feltTemperature = Seq.fill(NUM_YEARS_TO_SIMULATE)(0.0)
 
     def isAlive(day : Int) : Boolean = {
         return lifePoints(day) > 0
@@ -119,7 +164,7 @@ trait Animal extends Drawable {
     }
 
     def die(day : Int) {
-        for (i <- day to DAYS_IN_YEAR - 1) {
+        for (i <- day to NUM_YEARS_TO_SIMULATE - 1) {
             lifePoints(i) = -1
         }
 
@@ -151,7 +196,7 @@ trait Animal extends Drawable {
     def evaluateMigration(actual_water : Double, desired_water : Double) : Boolean = {
         handleNeedsSatisfaction(actual_water, desired_water)
 
-        return daysWithoutSatisfiedNeeds >= MAX_daysWithoutSatisfiedNeeds
+        return daysWithoutSatisfiedNeeds >= MAX_DAYS_WITHOUT_SATISFIED_NEEDS
     }
 
     def countEncounteredRivals(neighbouringAnimals : ListBuffer[Animal]) : Int = {
@@ -182,7 +227,7 @@ trait Animal extends Drawable {
         for (i <- 1 to MIGRATION_NUM_VISUAL_STEPS) {
             
             icon.translate(step_x,step_y)
-            Thread.sleep(MIGRATION_DELAY_MS)
+            Thread.sleep(MIGRATION_STEP_DELAY_MS)
             
             if (icon.collidesWith(ws.getIcon())) {
                 icon.translate(getRandomShift(), getRandomShift())
@@ -425,7 +470,7 @@ class ValueInRange(
 
 trait WaterSource extends DrawableShape {
     protected val maxLevel : Double
-    protected var currentLevel = Seq.fill(DAYS_IN_YEAR)(maxLevel)
+    protected var currentLevel = Seq.fill(NUM_YEARS_TO_SIMULATE)(maxLevel)
     protected val id : Int
     protected val name : String
     
@@ -450,7 +495,7 @@ trait WaterSource extends DrawableShape {
             icon.setOpacity(opacity.getValue())
         }
 
-        if (day + 1 < DAYS_IN_YEAR) {
+        if (day + 1 < NUM_YEARS_TO_SIMULATE) {
             removeWater(day + 1, water / 10, false)
         }
 
@@ -657,7 +702,7 @@ class Africa(
 
     protected var waterSources = new WaterSources(waterSourcesSize)
 
-    protected var temperatures = Seq.fill(DAYS_IN_YEAR)(30.0)
+    protected var temperatures = Seq.fill(NUM_YEARS_TO_SIMULATE)(30.0)
 
     protected var header = new Header(
         List(
@@ -726,7 +771,7 @@ class Africa(
                 )
             }
         )
-        for (i <- 1 to DAYS_IN_YEAR) {
+        for (i <- 1 to NUM_YEARS_TO_SIMULATE) {
 
             animalsWaterSourcesMapAcrossYears(i) = new LinkedHashMap[
                 Animal, WaterSource
@@ -756,7 +801,7 @@ class Africa(
     populateAnimalsWaterSourcesMap()
 
     def updateAnimalsWaterSourcesMap(dayZeroBased : Int, animal : Animal, wsToMigrateTo : WaterSource) {
-        for (i <- dayZeroBased to DAYS_IN_YEAR) {
+        for (i <- dayZeroBased to NUM_YEARS_TO_SIMULATE) {
            //println("\tapplying migration for day: " + i)
            animalsWaterSourcesMapAcrossYears(i)(animal) = wsToMigrateTo
     
@@ -895,7 +940,7 @@ class Africa(
                     }
                 )
                 
-                Thread.sleep(DELAY_MS)
+                Thread.sleep(BETWEEN_YEARS_DELAY_MS)
      
             }
         )
