@@ -315,7 +315,8 @@ trait Animal extends Drawable {
     }
 
     /**
-     * Updates the life points of the animal, in a given day
+     * Updates the life points of the animal, in a given day.
+     * Returns true if the animal died, false otherwise
      *
      * This is basically the core of the simulation, being the function 
      * governing whether animals survive or not.
@@ -343,49 +344,100 @@ trait Animal extends Drawable {
             2, feltTemperature(day) - maxToleratedTemperature
         )
 
+        // if life points reached a negative value
         if (lifePoints(day) < 0) {
+
+            // then die
             die(day)
 
+            // return true because animal died
             return true
         }
 
+        // Animal survived, returning false
         return false
     }
 
+    /**
+     * Updates the life points of the animal, in a given day.
+     * Returns true if the animal died, false otherwise.
+     * Overloads previous method
+     *
+     * This is the ADVANCED version, in which the update is in function of 3 
+     * parameters: drank water, felt temperature and number of encountered 
+     * rivals.
+     *
+     * See basic version for more info about method philosophy.
+     */
     def updateLifePoints(day : Int, numEncounteredRivals : Int) : Boolean = {
+        // Apply penalty in function of number of encountered rivals
         lifePoints(day) += -10 * numEncounteredRivals
         
+        // Then call basic function, to apply penalty in function of the other 
+        // 2 variables, drank water and felt temperature
+
+        // OOP pattern: method specialization
         return updateLifePoints(day)
     }
 
-    def updateLifePoints(day : Int, numEncounteredRivals : Int, migrationDistance : (Double, Double)) : Boolean = {
+    /**
+     * Updates the life points of the animal, in a given day.
+     * Returns true if the animal died, false otherwise.
+     * Overloads previous method
+     *
+     * This is the PROFICIENT version, in which the update is in function of 4 
+     * parameters: drank water, felt temperature, number of encountered 
+     * rivals and migrated distance.
+     *
+     * See advanced version for more info about method philosophy.
+     */
+    def updateLifePoints(
+        day : Int, numEncounteredRivals : Int, 
+        migrationDistance : (Double, Double)
+    ) : Boolean = {
+        // Applying penalty in function of migrated distance
         lifePoints(day) += -(migrationDistance._1 + migrationDistance._2) / 25
 
+        // Then calling advanced version, to apply penalty in function of the 
+        // other 3 parameters: drank water, felt temperature and number of
+        // encountered rivals
+
+        // OOP pattern: method specialization
         return updateLifePoints(day, numEncounteredRivals)
     }
 
+    // Make the animal die
     def die(day : Int) {
+
+        // Set life points to -1 in the years following the given one 
         for (i <- day to NUM_YEARS_TO_SIMULATE - 1) {
             lifePoints(i) = -1
         }
 
+        // Remove animal from canvas
         icon.erase()
     }
 
+    // Randomly decide how much water the animal wants to drink
     def getDesiredWater() : Double = {
         
         return Random.between(minWater * 0.8, minWater)
         
     }
 
+    // Store felt temperature in a given year
     def feelTemperature(day : Int, temperatureValue : Double) {
         
         feltTemperature(day) = temperatureValue
         
     }
 
+    // Increase counter of number of consecutive days without satisfied needs
+    // The method offers future expandability, by means of increasing function 
+    // complexity (instead of a simple if-else statement)
     def handleNeedsSatisfaction(actual_water : Double, desired_water : Double) {
         
+        // The condition governing whether the needs have been satisfied or not
         if (actual_water < desired_water) {
             
             daysWithoutSatisfiedNeeds += 1
@@ -394,18 +446,34 @@ trait Animal extends Drawable {
         
     }
 
-    def evaluateMigration(actual_water : Double, desired_water : Double) : Boolean = {
+    // Decides whether the animal migrates or not.
+    // Returns true if the animal has decided to migrate, false otherwise
+
+    // The method offers future expandability, by means of increasing function 
+    // complexity (instead of a simple if-else statement)
+    def evaluateMigration(
+        actual_water : Double, 
+        desired_water : Double
+    ) : Boolean = {
+
+        // first handle satisfaction
         handleNeedsSatisfaction(actual_water, desired_water)
 
+        // then decide according to handled satisfaction
         return daysWithoutSatisfiedNeeds >= MAX_DAYS_WITHOUT_SATISFIED_NEEDS
     }
 
-    def countEncounteredRivals(neighbouringAnimals : ListBuffer[Animal]) : Int = {
+    // Computes the number of encountered rivals
+    def countEncounteredRivals(
+        neighbouringAnimals : ListBuffer[Animal]
+    ) : Int = {
         var numEncounteredRivals = 0
 
         neighbouringAnimals.foreach(
             a => {
-                numEncounteredRivals += (if (a.getClass.getSimpleName == this.rival) 1 else 0)
+                numEncounteredRivals += (
+                    if (a.getClass.getSimpleName == this.rival) 1 else 0
+                )
             }
         )
 
