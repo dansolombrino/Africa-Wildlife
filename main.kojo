@@ -22,6 +22,7 @@ var TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR = 1.015
 
 // Number of maximum day without satisfied needs that an animal tolerates,
 // before evaluating whether to migrate or not.
+
 // See Animal.evaluateMigration method for more info about the usage of this
 // constant
 var MAX_DAYS_WITHOUT_SATISFIED_NEEDS = 2
@@ -55,6 +56,11 @@ val ICON_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/assets/icons/
 // in the canvas
 val BACKGROUND_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/assets/background/"
 
+// Lower and upper bound for the random shift applied in getRandomShift method.
+// See getRandomShift method for more details about how these values are used.
+val RANDOM_SHIFT_MIN_VALUE = 25
+val RANDOM_SHIFT_MAX_VALUE = 50
+
 // Set of colors used througout the project
 val WATER_COLOR = color(88, 148, 245)
 val BLUE_COLOR  = color(0, 0, 255)
@@ -65,6 +71,7 @@ val BACKGROUND_COLOR = color(200, 235, 255)
 // Stores the value for the red channel of an RGB color.
 // Used in the dynamic generation of the red color, when placing the 
 // "temperature" information in the canvas.
+
 // See Africa.getColorChannelsInFunctionOfValue method for more information 
 // about how this parameter is used 
 val RED_COLOR_CHANNEL = 175
@@ -76,6 +83,7 @@ val RED_COLOR_CHANNEL = 175
 
 // Lower and upper bound for the random number of animals that appear at the 
 // beginning of the simulation.
+
 // See AfricaParamas doc for more information on how these values are used.
 val MIN_NUM_OF_ANIMALS = 12
 val MAX_NUM_OF_ANIMALS = 15
@@ -117,29 +125,118 @@ object ZebraParams {
   val ICON_FILE_PATH = ICON_FOLDER_PATH + "zebra_64.png"
 }
 
-
-
 /* ************************************************* */
 
+/** Set of variables controlling WaterSources' characteristics */
 
+// Lower and upper bound for the maximum random amount of water that any water 
+// source has, at the beginning of the simulation.
 
-
-val MIN_NUM_OF_WATER_SOURCES = 3
-val MAX_NUM_OF_WATER_SOURCES = 4
-
-val MAX_WATER_SOURCE_LEVEL = 10
-
+// See WaterSources doc for more information on how these values are used.
 val MAX_LEVEL_LOWERBOUND = 3
 val MAX_LEVEL_UPPERBOUND = 4
 
-val WATER_SOURCES_TYPES = List("Lake", "River")
+// List of available identifiers for the available Water Sources
+
+// See WaterSources.getRandomWaterSource method for more information about how
+// this list is used.
 val WATER_SOURCES_LIST = ListBuffer("Chad", "Victoria", "Niger")
 
+/* *********************************************************** */
 
+/**
+ * Utility method to get a tuple (x and y coordinates) of random shifts
+ */
+def getRandomShift() : Int = {
 
+    // The part after the * gets a random sign, either + or negative, in order
+    // to make the shift positive or negative
+    return Random.between(
+        RANDOM_SHIFT_MIN_VALUE, RANDOM_SHIFT_MAX_VALUE
+    ) * (if (Random.between(0, 2) == 1) -1 else 1)
+}
 
+/**
+ * Stores properties for a drawable object, i.e. an object that can be placed
+ * in the canvas.
+ */
+trait Drawable {
+    
+    // The position of the object in the canvas
+    protected var position : (Int, Int)
 
+    // The icon of the object that will be shown in the canvas
+    protected val icon : Picture
 
+    // Getter method for the position parameter
+    def getPosition() : (Int, Int) = {
+        return position
+    }
+
+    // Setter method for the position parameter
+    def setPosition(position : (Int, Int)) {
+       this.position = position
+    }
+    
+    // Getter method for the icon parameter
+    def getIcon() : Picture = {
+        return icon
+    }
+
+    /**
+     * Method to draw the object in the canvas.
+     * 
+     * Takes an (optional, if given empty) list of other pictures to check
+     * collistion against.
+     */
+    def drawInCanvas(checkCollisionAgainst : List[Picture]) {
+        
+        // Setting the position of the icon in the canvas, via Kojo SDK function
+        icon.setPosition(position._1, position._2)
+        
+        // Placing the icon in the canvas, via Kojo SDK function
+        icon.draw()
+
+        // If the input list is NOT empty, then checking whether the newly 
+        // placed icon collides with any of the given Picture objects
+        if (!checkCollisionAgainst.isEmpty) {
+            
+            // Iterating over all given pictures to check collision against
+            checkCollisionAgainst.foreach(
+                
+                cca => {
+
+                    // If collision happens
+                    if (cca.collidesWith(icon)) {
+
+                        // Then apply a random shift
+                        icon.translate(getRandomShift(), getRandomShift())
+                    }
+                }
+            )       
+        }
+    }
+}
+
+trait DrawableShape extends Drawable {
+    
+    protected val borderColor : Color
+    protected val innerColor : Color
+    protected val rotation : Int
+    protected val thickness : Int
+    
+    protected var opacity = new ValueInRange(1.0, 1.0, 0.0)
+
+    override def drawInCanvas(checkCollisionAgainst : List[Picture]) {
+
+        icon.setPenColor(borderColor)
+        icon.setFillColor(innerColor)
+        icon.setRotation(rotation)
+        icon.setPenThickness(thickness)
+
+        super.drawInCanvas(checkCollisionAgainst)
+    }
+}
 
 trait Animal extends Drawable {
 
@@ -400,69 +497,6 @@ class Fauna(val faunaSize : Int) {
                 a.drawInCanvas(checkCollisionAgainst)
             }
         )
-    }
-}
-
-def getRandomShift() : Int = {
-    return Random.between(25, 50) * (if (Random.between(0, 2) == 1) -1 else 1)
- }
-
-trait Drawable {
-    protected var position : (Int, Int)
-    protected val icon : Picture
-
-    def getPosition() : (Int, Int) = {
-        return position
-    }
-
-    def setPosition(position : (Int, Int)) {
-       this.position = position
-    }
-    
-    def getIcon() : Picture = {
-        return icon
-    }
-
-    def drawInCanvas(checkCollisionAgainst : List[Picture]) {
-        
-        icon.setPosition(position._1, position._2)
-        
-        icon.draw()
-
-        if (!checkCollisionAgainst.isEmpty) {
-            
-            checkCollisionAgainst.foreach(
-                
-                cca => {
-                    if (cca.collidesWith(icon)) {
-                        icon.translate(getRandomShift(), getRandomShift())
-                    }
-                }
-                
-            )  
-                     
-        }
-
-    }
-}
-
-trait DrawableShape extends Drawable {
-    
-    protected val borderColor : Color
-    protected val innerColor : Color
-    protected val rotation : Int
-    protected val thickness : Int
-    
-    protected var opacity = new ValueInRange(1.0, 1.0, 0.0)
-
-    override def drawInCanvas(checkCollisionAgainst : List[Picture]) {
-
-        icon.setPenColor(borderColor)
-        icon.setFillColor(innerColor)
-        icon.setRotation(rotation)
-        icon.setPenThickness(thickness)
-
-        super.drawInCanvas(checkCollisionAgainst)
     }
 }
 
