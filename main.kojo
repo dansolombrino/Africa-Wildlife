@@ -258,7 +258,7 @@ trait Animal extends Drawable {
     // actually impact life points
 
     // Maximum temperature the animal can sustain, every day
-    protected val maxFeltTemperature : Double
+    protected val maxToleratedTemperature : Double
 
     // Minimum quantity of water the animal needs, every day
     protected val minWater : Double
@@ -269,26 +269,79 @@ trait Animal extends Drawable {
     // Current number of consecutive days in which the animal did not manage to 
     // satisfy its needs
     protected var daysWithoutSatisfiedNeeds = 0
+
+    // Name of the rival animal
     protected var rival = ""
     
+    // Storing animal's vital parameters for every year that is simulated.
+    // See updateLifePoints method(s) for more info about how these params are
+    // actually used
+
+    // Animal life points, they model "how much alive" the animal is.
+    // Basically, the more events affect the animal, the more the life points 
+    // are detracted.
     protected var lifePoints = Seq.fill(NUM_YEARS_TO_SIMULATE)(1.0)
+
+    // Stores animal's drank water, for every year in the simulation
     protected var drankWater = Seq.fill(NUM_YEARS_TO_SIMULATE)(0.0)
+
+    // Stores what temperature the animal felt, in a given year
     protected var feltTemperature = Seq.fill(NUM_YEARS_TO_SIMULATE)(0.0)
 
+    /**
+     * Here is where, potentially, in future the project may be expanded even
+     * more, by adding additional parameters.
+     */
+
+    // Determines whether the animal is alive, in a given day
     def isAlive(day : Int) : Boolean = {
+
+        // Determining animal's aliveness boils down to check whether its life
+        // points are greater than zero or not
         return lifePoints(day) > 0
     }
 
+    // Makes the animal drink
     def drinkWater(day: Int, water: Double) {
+
         drankWater(day) += water
     }
 
+    // Getter method for the ID field
     def getId() : Int = {
+        
         return id
+    
     }
 
+    /**
+     * Updates the life points of the animal, in a given day
+     *
+     * This is basically the core of the simulation, being the function 
+     * governing whether animals survive or not.
+     * 
+     * Every other property stored in the class has either a positive or a 
+     * negative impact on the life points.
+     *
+     * This is the BASIC version, in which the update is in function of 2 
+     * parameters: drank water and felt temperature
+     */
     def updateLifePoints(day : Int) : Boolean = {
-        lifePoints(day) += 50 * drankWater(day) - 6 * scala.math.pow(2, feltTemperature(day) - maxFeltTemperature)
+
+        // updating the life points according to drank water and the felt 
+        // temperature
+
+        // Drank water has a positive impact
+
+        // felt temperature has a negative impact.
+        // The exponential formula ensures:
+        //   -high penalty, the more feltTemperature surpasses 
+        //    maxToleratedTemperature
+        //   -low penalty, the more feltTemperature is distant from 
+        //    maxToleratedTemperature 
+        lifePoints(day) += 50 * drankWater(day) - 6 * scala.math.pow(
+            2, feltTemperature(day) - maxToleratedTemperature
+        )
 
         if (lifePoints(day) < 0) {
             die(day)
@@ -392,7 +445,7 @@ trait Animal extends Drawable {
 }
 
 class Lion(
-    protected val maxFeltTemperature : Double, 
+    protected val maxToleratedTemperature : Double, 
     protected val minWater : Double, 
     protected val id : Int, 
     protected val icon : Picture, 
@@ -402,12 +455,12 @@ class Lion(
     rival = "Zebra"
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Lion, maxFeltTemperature: " + maxFeltTemperature + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", feltTemperature: " + feltTemperature + "\n"
+        return "\n\t\tID: " + id + " --> Lion, maxToleratedTemperature: " + maxToleratedTemperature + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", feltTemperature: " + feltTemperature + "\n"
     }
 }
 
 class Elephant(
-    protected val maxFeltTemperature : Double, 
+    protected val maxToleratedTemperature : Double, 
     protected val minWater : Double, 
     protected val id : Int, 
     protected val icon : Picture,
@@ -417,12 +470,12 @@ class Elephant(
     rival = "Lion"
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Elephant, maxFeltTemperature: " + maxFeltTemperature + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", feltTemperature: " + feltTemperature + "\n"
+        return "\n\t\tID: " + id + " --> Elephant, maxToleratedTemperature: " + maxToleratedTemperature + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", feltTemperature: " + feltTemperature + "\n"
     }
 }
 
 class Zebra(
-    protected val maxFeltTemperature : Double, 
+    protected val maxToleratedTemperature : Double, 
     protected val minWater : Double, 
     protected val id : Int, 
     protected val icon : Picture,
@@ -432,7 +485,7 @@ class Zebra(
     rival = "Lion"
 
     override def toString() : String = {
-        return "\n\t\tID: " + id + " --> Zebra, maxFeltTemperature: " + maxFeltTemperature + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", feltTemperature: " + feltTemperature + "\n"
+        return "\n\t\tID: " + id + " --> Zebra, maxToleratedTemperature: " + maxToleratedTemperature + ", lifePoints: " + lifePoints + ", drankWater: " + drankWater + ", feltTemperature: " + feltTemperature + "\n"
     }
 }
 
