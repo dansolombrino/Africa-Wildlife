@@ -218,31 +218,56 @@ trait Drawable {
     }
 }
 
+/**
+ * Stores properties for a drawable shape, i.e. a shape that can be placed
+ * in the canvas.
+ * 
+ * See Drawable doc for more info about it 
+ */
 trait DrawableShape extends Drawable {
     
+    // Set of properties characterizing the shape to be drawn in the canvas
     protected val borderColor : Color
     protected val innerColor : Color
     protected val rotation : Int
     protected val thickness : Int
-    
     protected var opacity = new ValueInRange(1.0, 1.0, 0.0)
 
+    // Method to draw the object in the canvas.
+    // Overrides method in super class, in order to provide a more specialized
+    // implementation.
     override def drawInCanvas(checkCollisionAgainst : List[Picture]) {
 
+        // First sets the properties of the shape to be drawn
         icon.setPenColor(borderColor)
         icon.setFillColor(innerColor)
         icon.setRotation(rotation)
         icon.setPenThickness(thickness)
 
+        // Then calls the more general method in the super class
+        // Typical OOP pattern used.
         super.drawInCanvas(checkCollisionAgainst)
     }
 }
 
+// Class modeling an Animal
 trait Animal extends Drawable {
 
+    // Set of parametrs used to determine animal life points.
+    // See updateLifePoints method(s) for more info on how these parameters 
+    // actually impact life points
+
+    // Maximum temperature the animal can sustain, every day
     protected val maxFeltTemperature : Double
+
+    // Minimum quantity of water the animal needs, every day
     protected val minWater : Double
+
+    // numeric ID of the animal, used mostly for debugging
     protected val id : Int
+
+    // Current number of consecutive days in which the animal did not manage to 
+    // satisfy its needs
     protected var daysWithoutSatisfiedNeeds = 0
     protected var rival = ""
     
