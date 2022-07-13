@@ -13,11 +13,11 @@ var MIGRATION_NUM_VISUAL_STEPS = 5
 var ICON_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/assets/icons/"
 var BACKGROUND_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/assets/background/"
 
-val TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR = 1.025
+val TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR = 1.015
 
 val MAX_daysWithoutSatisfiedNeeds = 2
 
-val DAYS_IN_YEAR = 7
+val DAYS_IN_YEAR = 12
 val STARTING_YEAR = 1950
 
 val DELAY_MS = 1000
@@ -29,8 +29,8 @@ val MAX_FELT_TEMPERATURE_UPPERBOUND = 40
 val MIN_WATER_LOWERBOUND = 1.0
 val MIN_WATER_UPPERBOUND = 3.5
 
-val MIN_NUM_OF_ANIMALS = 6
-val MAX_NUM_OF_ANIMALS = 10
+val MIN_NUM_OF_ANIMALS = 12
+val MAX_NUM_OF_ANIMALS = 15
 
 val ANIMAL_SPECIES = List("Lion", "Elephant", "Zebra")
 
@@ -167,14 +167,14 @@ trait Animal extends Drawable {
     }
 
     def migrate(ws : WaterSource) : (Double, Double) = {
-        println("CurrentPosition: " + this.icon.position)
-        println("TargetPosition: " + ws.getPosition())
+        //println("CurrentPosition: " + this.icon.position)
+        //println("TargetPosition: " + ws.getPosition())
 
         var absDist = (
             ws.getPosition()._1 - this.icon.position.x, 
             ws.getPosition()._2 - this.icon.position.y
         )
-        println("absDistance: " + absDist)
+        //println("absDistance: " + absDist)
 
         var step_x = absDist._1 / MIGRATION_NUM_VISUAL_STEPS
         var step_y = absDist._2 / MIGRATION_NUM_VISUAL_STEPS
