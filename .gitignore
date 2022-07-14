@@ -7,3 +7,12 @@
 
 /project/*
 /target/*
+
+# Kojo SDK files and folders
+
+/bin/*
+/examples/*
+/icons/*
+/lib/*
+/licenses/*
+Kojo-license.txt
