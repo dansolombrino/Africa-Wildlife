@@ -105,19 +105,19 @@ val ANIMAL_SPECIES_LIST = List("Lion", "Elephant", "Zebra")
 // objects and then call the constructors passing data from these objects
 
 object LionParams {
-  val MAX_FELT_TEMPERATURE = 45;
+  val MAX_FELT_TEMPERATURE = 40;
   val MIN_WATER = 2
   val ICON_FILE_PATH = ICON_FOLDER_PATH + "lion_64.png"
 }
 
 object ElephantParams {
-  val MAX_FELT_TEMPERATURE = 45;
-  val MIN_WATER = 2
+  val MAX_FELT_TEMPERATURE = 37;
+  val MIN_WATER = 3.5
   val ICON_FILE_PATH = ICON_FOLDER_PATH + "elephant_64.png"
 }
 
 object ZebraParams {
-  val MAX_FELT_TEMPERATURE = 45;
+  val MAX_FELT_TEMPERATURE = 36;
   val MIN_WATER = 2
   val ICON_FILE_PATH = ICON_FOLDER_PATH + "zebra_64.png"
 }
@@ -278,10 +278,6 @@ trait Animal extends Drawable {
     // numeric ID of the animal, used mostly for debugging
     protected val id : Int
 
-    // Current number of consecutive days in which the animal did not manage to 
-    // satisfy its needs
-    protected var daysWithoutSatisfiedNeeds = 0
-
     // Name of the rival animal
     protected var rival = ""
     
@@ -415,20 +411,6 @@ trait Animal extends Drawable {
     def feelTemperature(year : Int, temperatureValue : Double) {
         
         feltTemperature(year) = temperatureValue
-        
-    }
-
-    // Increase counter of number of consecutive days without satisfied needs
-    // The method offers future expandability, by means of increasing function 
-    // complexity (instead of a simple if-else statement)
-    def handleNeedsSatisfaction(actualWater : Double, desiredWater : Double) {
-        
-        // The condition governing whether the needs have been satisfied or not
-        if (actualWater < desiredWater) {
-            
-            daysWithoutSatisfiedNeeds += 1
-        
-        }
         
     }
 
@@ -1275,8 +1257,8 @@ class Africa(
                             )
 
                             // update life points
-                            // this is the PROFICIENT version, so the invoked
-                            // function takes 4 parameters.
+                            // this is the ADVANCED version, so the invoked
+                            // function takes 3 parameters.
                             // See Animal.updateLifePoints() method(s) for more 
                             // info about its behaviour
                             val hasDied = association._1.updateLifePoints(
