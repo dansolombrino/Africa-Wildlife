@@ -1,0 +1,133 @@
+@startuml AfricaWildlife
+
+package AfricaWildlife {
+    abstract class Drawable {
+        # icon : Picture
+        # position : [Int, Int]
+
+        + getIcon() : Picture
+        + getPosition() : [Int, Int]
+        
+        + setPosition(position : [Int, Int]) : void
+
+        + drawInCanvas(checkCollisionAgainst : List[Picture]) : void
+
+    }
+
+    abstract class DrawableShape {
+        # borderColor : Color
+        # innerColor : Color
+        # rotation : Int
+        # thickness : Int
+        # opacity : ValueInRange
+
+        + drawInCanvas(checkCollisionAgainst : List[Picture])
+    }
+    DrawableShape <|- Drawable
+    DrawableShape -- ValueInRange
+
+    class ValueInRange {
+        # value : Double
+        # min : Double
+        # max : Double
+
+        + getValue() : Double
+        + setValue(value : Double) : void
+        # trimValueIntoRange() : void
+    }
+
+    class Animal {
+        # maxToleratedTemperature : Double
+        # minWater : Double
+        # id : Int
+        # rival : String
+        # lifePoints : Seq[Double]
+        # drankWater : Seq[Double]
+        # feltTemperature : Seq[Double]
+
+        + isAlive(year : Int) : Boolean
+        + drinkWater(year : Int, water : Double) : void
+        + getId() : Int
+        + updateLifePoints(year : Int) : Boolean
+        + updateLifePoints(year : Int, numEncounteredRivals : Int) : Boolean
+        + updateLifePoints(year : Int, numEncounteredRivals : Int, migrationDistance : [Double, Double]) : Boolean
+        + die(year : Int) : void
+        + getDesiredWater() : Double
+        + feelTemperature(year : Int, temperatureValue : Double) : void
+        + handleNeedsSatisfaction(actualWater : Double, desiredWater : Double)
+        + evaluateMigration(actualWater : Double, desiredWater : Double)
+        + countEncounteredRivals(neighbouringAnimals : ListBuffer[Animal]) : Int
+        + migrate(waterSourceToMigrateTo : WaterSource) : [Double, Double]
+    }
+    Animal <|- Drawable
+
+    class Lion {
+        rival : String
+
+        + toString() : String
+    }
+    Lion <|- Animal
+
+    class Elephant {
+        rival : String
+
+        + toString() : String
+    }
+    Elephant <|- Animal
+
+    class Zebra {
+        rival : String
+
+        + toString() : String
+    }
+    Zebra <|- Animal
+
+    class Fauna {
+        # faunaSize : Int
+        # faunaCount : Int
+        # fauna : List[Animal]
+
+        + getFaunaCount() : Int
+        + getFaunaSize() : Int
+        + getFauna() : List[Animal]
+
+        + setFaunaCount(faunaCount : Int) : void
+
+        + populateFauna() : void
+        + drawInCanvas(checkCollisionAgainst : List[Picture])
+        + toString() : String
+    }
+    Fauna -- Animal
+
+    class WaterSource {
+        # maxLevel : Double
+        # currentLevel : Seq[Int]
+        # id : Int
+        # name : String
+
+        + removeWater(year : Int, water : Double, handleOpacity : Boolean) : Double
+        + canEqual(a: Any)
+        + equals(that: Any): Boolean
+        + hashCode(): Int
+    }
+    WaterSource <|- DrawableShape
+
+    class Lake {
+        + toString() : String
+    }
+    Lake <|- WaterSource
+
+    class River {
+        + toString() : String
+    }
+    River <|- WaterSource
+
+
+
+
+
+    
+
+
+}
+@enduml
