@@ -1,6 +1,10 @@
 @startuml AfricaWildlife
 
 package AfricaWildlife {
+
+    Drawable -down-|> DrawableShape : extends
+    DrawableShape -- ValueInRange
+
     abstract class Drawable {
         # icon : Picture
         # position : [Int, Int]
@@ -23,8 +27,7 @@ package AfricaWildlife {
 
         + drawInCanvas(checkCollisionAgainst : List[Picture])
     }
-    DrawableShape <|- Drawable
-    DrawableShape -- ValueInRange
+    
 
     class ValueInRange {
         # value : Double
