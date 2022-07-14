@@ -435,10 +435,10 @@ trait Animal extends Drawable {
     // Increase counter of number of consecutive days without satisfied needs
     // The method offers future expandability, by means of increasing function 
     // complexity (instead of a simple if-else statement)
-    def handleNeedsSatisfaction(actual_water : Double, desired_water : Double) {
+    def handleNeedsSatisfaction(actualWater : Double, desiredWater : Double) {
         
         // The condition governing whether the needs have been satisfied or not
-        if (actual_water < desired_water) {
+        if (actualWater < desiredWater) {
             
             daysWithoutSatisfiedNeeds += 1
         
@@ -452,12 +452,12 @@ trait Animal extends Drawable {
     // The method offers future expandability, by means of increasing function 
     // complexity (instead of a simple if-else statement)
     def evaluateMigration(
-        actual_water : Double, 
-        desired_water : Double
+        actualWater : Double, 
+        desiredWater : Double
     ) : Boolean = {
 
         // first handle satisfaction
-        handleNeedsSatisfaction(actual_water, desired_water)
+        handleNeedsSatisfaction(actualWater, desiredWater)
 
         // then decide according to handled satisfaction
         return daysWithoutSatisfiedNeeds >= MAX_DAYS_WITHOUT_SATISFIED_NEEDS
@@ -1213,27 +1213,38 @@ class Africa(
     // method inside the class
     populateAnimalsWaterSourcesMap()
 
+    // Updates animals-WaterSources associations, after a migration happened
     def updateAnimalsWaterSourcesMap(
         dayZeroBased : Int, 
         animal : Animal, 
         wsToMigrateTo : WaterSource,
         wsMigratedFrom : WaterSource
     ) {
+
+        // For every year left in the situation
         for (i <- dayZeroBased to NUM_YEARS_TO_SIMULATE) {
 
+            // Replace the old association with the new association, 
+            //resulting from the migration, in the animals-WaterSources map
             animalsWaterSourcesMapAcrossYears(i)(animal) = wsToMigrateTo
 
+            // In order to replace the old association with the new association
+            // in the WaterSources-animals map
+            // first gotta put the new association in, then we have to remove
+            // the old one.
+            // This is because we are dealing with lists now, not simple values
+            // that can be overwritten, as in previous map
             putIfAbsent(
                 waterSourcesAnimalsMapAcrossYears(i),
                 wsToMigrateTo,
                 animal
             )
-
             waterSourcesAnimalsMapAcrossYears(i)(wsMigratedFrom) -= animal
 
         } 
     }
 
+    // Get an RGB Color proportional to a given value
     def getColorChannelsInFunctionOfValue(
         startingValue : Int, 
         multiplier : Int, 
@@ -1242,10 +1253,15 @@ class Africa(
         g : Boolean, 
         b : Boolean
     ) : Color = {
+
+        // Get color channel 
         val color = new ValueInRange(0, 255, 0)
 
+        // Set color channel according to given value
         color.setValue(startingValue + multiplier * value)
 
+        // return then the color, populating the channels according to the 
+        // requested ones
         return Color(
             if (r) color.getValue.toInt else 0,
             if (g) color.getValue.toInt else 0,
@@ -1253,32 +1269,46 @@ class Africa(
         )
     }
 
+    // Governs the entire simulation
     def simulation() {
         
+        // Clears the canvas from the results of previous executions
         clear()
 
+        // Sets the background image
         setBackground(BACKGROUND_COLOR)
 
+        // Places Africa image in the canvas
         icon.draw()
 
+        // Places Fauna animals in the canvas
         fauna.drawInCanvas(
             waterSources.getWaterSourcers().map{
                 ws => ws._2.getIcon()
             }.toList
         )
         
+        // Places WaterSources in canvas
         waterSources.drawInCanvas()
 
+        // For every year that has to be simulated
         animalsWaterSourcesMapAcrossYears.keys.foreach(
             day => {
 
+                // Compute some utility indexes
                 val dayZeroBased = day - 1
-                val previousDay = dayZeroBased - (if ( dayZeroBased == 0 ) 0 else 1 )
+                val previousDay = dayZeroBased - (
+                    if ( dayZeroBased == 0 ) 0 else 1 
+                )
 
+                // Get a temperature for the year
+                // Temperatures are modeled in an exponential way, starting
+                // from the temperature of the very first year.
                 temperatures(dayZeroBased) = temperatures(
                     previousDay
                 ) * TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR
 
+                // Update the header
                 header.update(
                     day, 
                     List(
@@ -1316,53 +1346,103 @@ class Africa(
                     )
                 )
 
+                // For every animal-WaterSource association of the year 
+                // currently under simulation
+
                 Random.shuffle(animalsWaterSourcesMapAcrossYears(day)).foreach(
+
+                    // Get a random animal-WaterSource association, in order to
+                    // ensure non-determinism
                     association => {
+                        
+                        // association._1 --> animal
+                        // association._2 --> water source
 
-                         if ( association._1.isAlive(previousDay) ) {
+                        // If the animal is still alive
+                        if ( association._1.isAlive(previousDay) ) {
+                            
+                            // get the amount of water that the animal wants to
+                            // drink
+                            val desiredWater = association._1.getDesiredWater()
 
-                            val desired_water = association._1.getDesiredWater()
-    
-                            val actual_water = association._2.removeWater(
-                                dayZeroBased, desired_water, true
+                            // Get the quantity of water that the animal 
+                            // actually managed to drink
+                            val actualWater = association._2.removeWater(
+                                dayZeroBased, desiredWater, true
                             )
 
+                            // Stores the distance travelled, in case the animal
+                            // decides to migrate
                             var migrationDistance = (0.0, 0.0)
 
-                            if ( association._1.evaluateMigration(actual_water, desired_water) ) {
-                      
-                                val wsToMigrateTo = waterSources.getRandomWaterSource(association._2)
+                            if ( 
+                                association._1.evaluateMigration(
+                                    actualWater, desiredWater
+                                ) 
+                            ) {
                                 
-                                migrationDistance = association._1.migrate(wsToMigrateTo)
+                                // Get a random water source to migrate to,
+                                // excluding the current one
+                                var wsToMigrateTo = 
+                                    waterSources.getRandomWaterSource(
+                                        association._2
+                                    )
+                                
+                                // Performing the migration
+                                // First show the migration on the map and
+                                // get the travelled distance
+                                migrationDistance = association._1.migrate(
+                                    wsToMigrateTo
+                                )
 
+                                // Then update all the Animal-WaterSources (and
+                                // vice versa) mappings
                                 updateAnimalsWaterSourcesMap(
                                     dayZeroBased, 
                                     association._1, 
                                     wsToMigrateTo,
                                     association._2
                                 )
-
                             }
-    
-                            association._1.drinkWater(dayZeroBased, actual_water)
 
-                            association._1.feelTemperature(dayZeroBased, temperatures(dayZeroBased))
+                            // For the currently under simulation year, 
+                            // record what temperature the animal has felt
+                            association._1.drinkWater(dayZeroBased, actualWater)
 
-                            var hasDied = association._1.updateLifePoints(
+                            // For the currently under simulation year, 
+                            // record how much water the animal has managed to
+                            // drink
+                            association._1.feelTemperature(
+                                dayZeroBased, temperatures(dayZeroBased)
+                            )
+
+                            // update life points
+                            // this is the PROFICIENT version, so the invoked
+                            // function takes 4 parameters.
+                            // See Animal.updateLifePoints() method(s) for more 
+                            // info about its behaviour
+                            val hasDied = association._1.updateLifePoints(
                                 dayZeroBased, 
                                 association._1.countEncounteredRivals(
-                                    waterSourcesAnimalsMapAcrossYears(day)(association._2)
+                                    waterSourcesAnimalsMapAcrossYears(day)(
+                                        association._2
+                                    )
                                 ),
                                 migrationDistance
                             )
-
+                            
+                            // If the animal has died
                             if (hasDied) {
+
+                                // Then decrease the number of currently alive
+                                // animals in the fauna
                                 fauna.faunaCount -= 1
                             }
                         }
                     }
                 )
                 
+                // Add a visual delay to make simulation more enjoyable
                 Thread.sleep(BETWEEN_YEARS_DELAY_MS)
      
             }
