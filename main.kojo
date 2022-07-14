@@ -947,6 +947,9 @@ class WaterSources(val numOfWaterSources : Int) {
     }
 }
 
+// Models a dynamic element to place in the top position in the canvas
+// The element is a text, composed of a textual part and a numeric part.
+// For example: "Year: 1950"
 class HeaderElement(
     protected var text : String, 
     protected var value : Double, 
@@ -963,7 +966,10 @@ class HeaderElement(
             element.erase()
         }
 
-        element = Picture.text(text + ": " + (if (valueIsInt) updatedValue.toInt else updatedValue))
+        element = Picture.text(
+            text + ": " + (if (valueIsInt) updatedValue.toInt else updatedValue)
+        )
+
         element.setPosition(position._1, position._2)
         element.setPenColor(updatedColor)
         element.scale(scale)
@@ -972,12 +978,21 @@ class HeaderElement(
     }
 }
 
+// Models an header, which is a collection of HeaderElement objects
 class Header(protected val elements : List[HeaderElement]) {
     
-    def update(day : Int, updatedValues : List[Double], updatedColors : List[Color]) {
+    def update(
+        day : Int, 
+        updatedValues : List[Double], 
+        updatedColors : List[Color]
+    ) {
 
         if (updatedValues.length != updatedColors.length) {
-            throw new RuntimeException("ERROR updatedValues.length must be equal to updatedColors.length!")
+            
+            throw new RuntimeException(
+                "ERROR updatedValues.length must be equal to updatedColors.length!"
+            )
+
         }
         
         for (e <- 0 to updatedValues.length - 1) {
@@ -986,9 +1001,11 @@ class Header(protected val elements : List[HeaderElement]) {
             
         }
     }
-    
 }
 
+// Main class of the project.
+// Models African environment, taking into consideration fauna, water sources
+// and how these elements interact together
 class Africa(
     protected val faunaSize : Int, 
     protected val waterSourcesSize : Int, 
@@ -996,30 +1013,73 @@ class Africa(
     protected var position : (Int, Int)
  ) extends Drawable {
 
+    // African fauna.
+    // See Fauna class for more information about this class
     protected var fauna = new Fauna(faunaSize)
 
+    // African WaterSources
+    // See WaterSources class for more information about this class
     protected var waterSources = new WaterSources(waterSourcesSize)
 
+    // Stores African temperatures, for every year of the simulation
     protected var temperatures = Seq.fill(NUM_YEARS_TO_SIMULATE)(30.0)
 
+    // Stores the header to be shown in the top position of the canvas
     protected var header = new Header(
         List(
-            new HeaderElement("Year", 0, true, (400, 1515), BLUE_COLOR, HEADER_TEXT_SCALE_FACTOR),
-            new HeaderElement("Temperature", 0, false, (250, 1415), RED_COLOR, HEADER_TEXT_SCALE_FACTOR),
-            new HeaderElement("Fauna current count", 0, true, (200, 1315), GREEN_COLOR, HEADER_TEXT_SCALE_FACTOR),
-            new HeaderElement("Fauna original count", fauna.faunaSize, true, (200, 1215), GREEN_COLOR, HEADER_TEXT_SCALE_FACTOR)
+            new HeaderElement(
+                "Year", 
+                0, 
+                true, 
+                (400, 1515), 
+                BLUE_COLOR, 
+                HEADER_TEXT_SCALE_FACTOR
+            ),
+            new HeaderElement(
+                "Temperature", 
+                0, 
+                false, 
+                (250, 1415), 
+                RED_COLOR, 
+                HEADER_TEXT_SCALE_FACTOR
+            ),
+            new HeaderElement(
+                "Fauna current count", 
+                0, 
+                true, 
+                (200, 1315), 
+                GREEN_COLOR, 
+                HEADER_TEXT_SCALE_FACTOR
+            ),
+            new HeaderElement(
+                "Fauna original count", 
+                fauna.faunaSize, 
+                true, 
+                (200, 1215), 
+                GREEN_COLOR, 
+                HEADER_TEXT_SCALE_FACTOR
+            )
         )
     )
 
-    // LinkedHashMap rather than HashMap so as records can be shuffled
-    // Shuffling a HashMap record yould require to convert to list first, since in a Set the order does NOT count, hence shuffling does NOT make any sense 
-    // int --> day index
-    // inner map --> actual water source <----> animal association, for that given day
+    /**
+     * Stores the mapping between Animals and Water Sources i.e. the water 
+     * source any animal in the fauna drinks from, at any given year.
+     *
+     * LinkedHashMap rather than HashMap so as records can be shuffled.
+     * All the other kind of maps basically extend Sets, in which the order does
+     * NOT count, so shuffling would NOT make sense
+     * 
+     * Shuffling is needed to ensure non-determinism in the simulation, 
+     * similarly to what happens in nature. 
+     *
+     * Int --> year index
+     * LinkedHashMap[Animal, WaterSource] --> Animal-WaterSource association 
+     */
+    
     protected var animalsWaterSourcesMapAcrossYears = new LinkedHashMap[
         Int, 
-        LinkedHashMap[
-            Animal, WaterSource
-        ]
+        LinkedHashMap[Animal, WaterSource]
     ]
     
     protected var waterSourcesAnimalsMapAcrossYears = new LinkedHashMap[
