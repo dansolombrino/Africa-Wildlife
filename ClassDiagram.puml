@@ -3,7 +3,32 @@
 package AfricaWildlife {
 
     Drawable -down-|> DrawableShape : extends
-    DrawableShape -- ValueInRange
+    DrawableShape -down- ValueInRange : uses
+
+    Animal -down-|> Drawable : extends
+    Animal -down-|> Lion : extends
+    Animal -down-|> Zebra : extends
+    Animal -down-|> Elephant : extends
+
+    Fauna -down- Animal : uses
+
+    WaterSource -down-|> DrawableShape : extends
+
+    Lake -down-|> WaterSource : extends
+    River -down-|> WaterSource : extends
+
+    WaterSources -down- WaterSource
+
+    Header -down- HeaderElement
+
+    Africa <|-down- Drawable
+    Africa -down- Fauna
+    Africa -down- WaterSources
+    Africa -down- Header
+
+
+
+
 
     abstract class Drawable {
         # icon : Picture
@@ -27,7 +52,6 @@ package AfricaWildlife {
 
         + drawInCanvas(checkCollisionAgainst : List[Picture])
     }
-    
 
     class ValueInRange {
         # value : Double
@@ -62,28 +86,25 @@ package AfricaWildlife {
         + countEncounteredRivals(neighbouringAnimals : ListBuffer[Animal]) : Int
         + migrate(waterSourceToMigrateTo : WaterSource) : [Double, Double]
     }
-    Animal <|- Drawable
 
     class Lion {
         rival : String
 
         + toString() : String
     }
-    Lion <|- Animal
+    
 
     class Elephant {
         rival : String
 
         + toString() : String
     }
-    Elephant <|- Animal
 
     class Zebra {
         rival : String
 
         + toString() : String
     }
-    Zebra <|- Animal
 
     class Fauna {
         # faunaSize : Int
@@ -100,7 +121,6 @@ package AfricaWildlife {
         + drawInCanvas(checkCollisionAgainst : List[Picture])
         + toString() : String
     }
-    Fauna -- Animal
 
     class WaterSource {
         # maxLevel : Double
@@ -113,17 +133,14 @@ package AfricaWildlife {
         + equals(that: Any): Boolean
         + hashCode(): Int
     }
-    WaterSource <|- DrawableShape
 
     class Lake {
         + toString() : String
     }
-    Lake <|- WaterSource
 
     class River {
         + toString() : String
     }
-    River <|- WaterSource
 
     class WaterSources {
         # numOfWaterSources : Int
@@ -135,7 +152,6 @@ package AfricaWildlife {
         + getRandomWaterSource(exclude : WaterSource) : WaterSource
         + drawInCanvas() : void
     }
-    WaterSources -- WaterSource
 
     class HeaderElement {
         # text : String
@@ -147,7 +163,6 @@ package AfricaWildlife {
         # element : Picture.text
 
         + update(year : Int, updatedValue : Double, updatedColor : Color) : void
-
     }
 
     class Header {
@@ -155,7 +170,6 @@ package AfricaWildlife {
 
         + update(year : Int, updatedValue : Double, updatedColor : Color) : void
     }
-    Header -- HeaderElement
 
     class Africa {
         # faunaSize : Int
@@ -176,10 +190,6 @@ package AfricaWildlife {
         + getColorChannelsInFunctionOfValue(startingValue : Int, multiplier : Int, value : Double, r : Boolean, g : Boolean, b : Boolean)
         + simulation() : void
     }
-    Africa <|- Drawable
-    Africa -- Fauna
-    Africa -- WaterSources
-    Africa -- Header
 
 
 
