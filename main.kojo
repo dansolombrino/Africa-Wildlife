@@ -1218,16 +1218,13 @@ class Africa(
     ) {
         for (i <- dayZeroBased to NUM_YEARS_TO_SIMULATE) {
 
-           animalsWaterSourcesMapAcrossYears(i)(animal) = wsToMigrateTo
-    
-           try {
-               waterSourcesAnimalsMapAcrossYears(i)(wsToMigrateTo) += animal
-            } catch {
-                case e: NoSuchElementException => {
-                    waterSourcesAnimalsMapAcrossYears(i).put(wsToMigrateTo, new ListBuffer[Animal])
-                    waterSourcesAnimalsMapAcrossYears(i)(wsToMigrateTo) += animal
-                }
-            }                                                                 
+            animalsWaterSourcesMapAcrossYears(i)(animal) = wsToMigrateTo
+
+            putIfAbsent(
+                waterSourcesAnimalsMapAcrossYears(i),
+                wsToMigrateTo,
+                animal
+            )                                                            
         } 
     }
 
