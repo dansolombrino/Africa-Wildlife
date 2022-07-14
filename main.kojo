@@ -6,6 +6,19 @@ import scala.language.postfixOps
 import scala.collection.mutable.Map
 import scala.collection.mutable.Seq
 
+/**
+ * PLEASE NOTE!
+ * In order to use relative paths for assets and data, place this file and the 
+ * "assets" folder in the same folder of the Kojo SDK.
+ * Otherwise, replace relative paths with full paths.
+ *
+ * This is due to internal Kojo dynamics, out of my control.
+ * 
+ * Thank you, Daniele.
+ */
+
+// ---------------- BEGIN PARAMETERS CONFIGURATION ---------------------------//
+
 /** Set of variables controlling simulation behavior */
 
 // Number of years to run the simulation for 
@@ -143,6 +156,21 @@ val MAX_LEVEL_UPPERBOUND = 4
 val WATER_SOURCES_LIST = ListBuffer("Chad", "Victoria", "Niger")
 
 /* *********************************************************** */
+
+/** Set of variables controlling Africa characteristics */
+
+object AfricaParams {
+  val numOfAnimals = Random.between(MIN_NUM_OF_ANIMALS, MAX_NUM_OF_ANIMALS)
+  val numOfWaterSources = 3 // keep it this way, for testing purposes
+  val ICON_FILE_PATH = BACKGROUND_FOLDER_PATH + "africaClean.png"
+  val position = (0, 0)
+}
+
+/** *************************************************** */
+
+
+// ---------------- END PARAMETERS CONFIGURATION -----------------------------//
+
 
 /**
  * Utility method to get a tuple (x and y coordinates) of random shifts
@@ -1447,18 +1475,11 @@ class Africa(
      
             }
         )
-
     }
 
 }
 
-object AfricaParams {
-  val numOfAnimals = Random.between(MIN_NUM_OF_ANIMALS, MAX_NUM_OF_ANIMALS)
-  val numOfWaterSources = 3 // keep it this way, for testing purposes
-  val ICON_FILE_PATH = BACKGROUND_FOLDER_PATH + "africaClean.png"
-  val position = (0, 0)
-}
-
+// Init main class of the simulation
 var africa = new Africa(
     AfricaParams.numOfAnimals, 
     AfricaParams.numOfWaterSources, 
@@ -1466,6 +1487,10 @@ var africa = new Africa(
     AfricaParams.position
 )
 
+// Starting simulation
 africa.simulation()
 
-println("DONE")
+// Simulation done
+println("Simulation done!")
+println("Thanks for supporting Africa.")
+println("Totsiens! * Goodbye! - до побачення! * Adiós!")
