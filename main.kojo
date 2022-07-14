@@ -9,7 +9,7 @@ import scala.collection.mutable.Seq
 /**
  * PLEASE NOTE!
  * In order to use relative paths for assets and data, place this file and the 
- * "assets" folder in the same folder of the Kojo SDK.
+ * "assets" folder in the same folder where Kojo SDK is installed.
  * Otherwise, replace relative paths with full paths.
  *
  * This is due to internal Kojo dynamics, out of my control.
@@ -63,11 +63,11 @@ val MIGRATION_NUM_VISUAL_STEPS = 5
 
 // Relative path of folder containing animal icons, which will be shown
 // in the canvas
-val ICON_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/assets/icons/"
+val ICON_FOLDER_PATH = "./assets/icons/"
 
 // Relative path of folder containing background image, which will be shown
 // in the canvas
-val BACKGROUND_FOLDER_PATH = "/home/dansolombrino/GitHub/Africa-Wildlife/assets/background/"
+val BACKGROUND_FOLDER_PATH = "./assets/background/"
 
 // Lower and upper bound for the random shift applied in getRandomShift method.
 // See getRandomShift method for more details about how these values are used.
