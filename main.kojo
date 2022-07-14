@@ -1214,7 +1214,10 @@ class Africa(
     populateAnimalsWaterSourcesMap()
 
     def updateAnimalsWaterSourcesMap(
-        dayZeroBased : Int, animal : Animal, wsToMigrateTo : WaterSource
+        dayZeroBased : Int, 
+        animal : Animal, 
+        wsToMigrateTo : WaterSource,
+        wsMigratedFrom : WaterSource
     ) {
         for (i <- dayZeroBased to NUM_YEARS_TO_SIMULATE) {
 
@@ -1224,7 +1227,10 @@ class Africa(
                 waterSourcesAnimalsMapAcrossYears(i),
                 wsToMigrateTo,
                 animal
-            )                                                            
+            )
+
+            waterSourcesAnimalsMapAcrossYears(i)(wsMigratedFrom) -= animal
+
         } 
     }
 
@@ -1329,7 +1335,12 @@ class Africa(
                                 
                                 migrationDistance = association._1.migrate(wsToMigrateTo)
 
-                                updateAnimalsWaterSourcesMap(dayZeroBased, association._1, wsToMigrateTo)
+                                updateAnimalsWaterSourcesMap(
+                                    dayZeroBased, 
+                                    association._1, 
+                                    wsToMigrateTo,
+                                    association._2
+                                )
 
                             }
     
