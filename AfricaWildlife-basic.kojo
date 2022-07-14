@@ -42,9 +42,6 @@ val BETWEEN_YEARS_DELAY_MS = 1000
 
 /** Set of variables controlling simulation graphical appearance */
 
-// Dimension of text printed in canvas
-val HEADER_TEXT_SCALE_FACTOR = 5
-
 // Relative path of folder containing animal icons, which will be shown
 // in the canvas
 val ICON_FOLDER_PATH = "./assets/icons/"
@@ -801,62 +798,6 @@ class WaterSources(val numOfWaterSources : Int) {
     }
 }
 
-// Models a dynamic element to place in the top position in the canvas
-// The element is a text, composed of a textual part and a numeric part.
-// For example: "Year: 1950"
-class HeaderElement(
-    protected var text : String, 
-    protected var value : Double, 
-    protected var valueIsInt : Boolean,
-    protected var position : (Int, Int), 
-    protected var color : Color, 
-    protected var scale : Double
- ) {
-    protected var element = Picture.text("")
-
-    def update(year : Int, updatedValue : Double, updatedColor : Color) {
-        
-        if (year > -1) {
-            element.erase()
-        }
-
-        element = Picture.text(
-            text + ": " + (if (valueIsInt) updatedValue.toInt else updatedValue)
-        )
-
-        element.setPosition(position._1, position._2)
-        element.setPenColor(updatedColor)
-        element.scale(scale)
-
-        element.draw()
-    }
-}
-
-// Models an header, which is a collection of HeaderElement objects
-class Header(protected val elements : List[HeaderElement]) {
-    
-    def update(
-        year : Int, 
-        updatedValues : List[Double], 
-        updatedColors : List[Color]
-    ) {
-
-        if (updatedValues.length != updatedColors.length) {
-            
-            throw new RuntimeException(
-                "ERROR updatedValues.length must be equal to updatedColors.length!"
-            )
-
-        }
-        
-        for (e <- 0 to updatedValues.length - 1) {
-            
-            elements(e).update(year, updatedValues(e), updatedColors(e))
-            
-        }
-    }
-}
-
 // Main class of the project.
 // Models African environment, taking into consideration fauna, water sources
 // and how these elements interact together
@@ -877,44 +818,6 @@ class Africa(
 
     // Stores African temperatures, for every year of the simulation
     protected var temperatures = Seq.fill(NUM_YEARS_TO_SIMULATE)(30.0)
-
-    // Stores the header to be shown in the top position of the canvas
-    protected var header = new Header(
-        List(
-            new HeaderElement(
-                "Year", 
-                0, 
-                true, 
-                (400, 1515), 
-                BLUE_COLOR, 
-                HEADER_TEXT_SCALE_FACTOR
-            ),
-            new HeaderElement(
-                "Temperature", 
-                0, 
-                false, 
-                (250, 1415), 
-                RED_COLOR, 
-                HEADER_TEXT_SCALE_FACTOR
-            ),
-            new HeaderElement(
-                "Fauna current count", 
-                0, 
-                true, 
-                (200, 1315), 
-                GREEN_COLOR, 
-                HEADER_TEXT_SCALE_FACTOR
-            ),
-            new HeaderElement(
-                "Fauna original count", 
-                fauna.faunaSize, 
-                true, 
-                (200, 1215), 
-                GREEN_COLOR, 
-                HEADER_TEXT_SCALE_FACTOR
-            )
-        )
-    )
 
     /**
      * Stores the mapping between Animals and Water Sources i.e. the water 
@@ -1118,6 +1021,8 @@ class Africa(
         animalsWaterSourcesMapAcrossYears.keys.foreach(
             year => {
 
+                println("Simulating year: " + year)
+
                 // Compute some utility indexes
                 val yearZeroBased = year - 1
                 val previousYear = yearZeroBased - (
@@ -1130,44 +1035,6 @@ class Africa(
                 temperatures(yearZeroBased) = temperatures(
                     previousYear
                 ) * TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR
-
-                // Update the header
-                header.update(
-                    year, 
-                    List(
-                        STARTING_YEAR + year, 
-                        (Math.floor(temperatures(yearZeroBased) * 100) / 100),
-                        fauna.faunaCount,
-                        fauna.faunaSize
-                    ), 
-                    List(
-                        BLUE_COLOR,
-                        getColorChannelsInFunctionOfValue(
-                            RED_COLOR_CHANNEL, 
-                            20,
-                            temperatures(yearZeroBased), 
-                            true, 
-                            false, 
-                            false
-                        ),
-                        getColorChannelsInFunctionOfValue(
-                            0, 
-                            20, 
-                            fauna.faunaCount, 
-                            false, 
-                            true, 
-                            true
-                       ),
-                       getColorChannelsInFunctionOfValue(
-                            0, 
-                            20, 
-                            fauna.faunaSize, 
-                            false, 
-                            true, 
-                            true
-                       )
-                    )
-                )
 
                 // For every animal-WaterSource association of the year 
                 // currently under simulation
