@@ -608,7 +608,9 @@ class Fauna(val faunaSize : Int) {
         for (i <- 1 to faunaSize) {
 
             // Get a random animal specie    
-            val animalSpecie = ANIMAL_SPECIES_LIST(Random.between(0, ANIMAL_SPECIES_LIST.length))
+            val animalSpecie = ANIMAL_SPECIES_LIST(
+                Random.between(0, ANIMAL_SPECIES_LIST.length)
+            )
 
             // Init the specific object, according to randomly extracted animal
             // specie
@@ -793,10 +795,11 @@ trait WaterSource extends DrawableShape {
         name.hashCode + position.hashCode + rotation.hashCode + 
             maxLevel.hashCode
     }
-
-    
 }
 
+// Models a Lake.
+// This offers future expandability, in case one would like to make the Lake 
+// more specialized than the general abstract class
 class Lake(
     protected val maxLevel : Double, 
     protected val id : Int, 
@@ -810,10 +813,14 @@ class Lake(
 ) extends WaterSource {
 
     override def toString() : String = {
-        return "\n\t\tName: " + name + " --> Lake, currentLevel: " + currentLevel + ", maxLevel: " + maxLevel + "\n"
+        return "\n\t\tName: " + name + " --> Lake, currentLevel: " + 
+            currentLevel + ", maxLevel: " + maxLevel + "\n"
     }
 }
 
+// Models a Lake.
+// This offers future expandability, in case one would like to make the Lake 
+// more specialized than the general abstract class
 class River(
     protected val maxLevel : Double, 
     protected val id : Int, 
@@ -827,18 +834,28 @@ class River(
 ) extends WaterSource {
 
     override def toString() : String = {
-        return "\n\t\tName: " + name + " --> River, currentLevel: " + currentLevel + ", maxLevel: " + maxLevel + "\n"
+        return "\n\t\tName: " + name + " --> River, currentLevel: " + 
+            currentLevel + ", maxLevel: " + maxLevel + "\n"
     }
 }
 
+// Models a collection of Water Sources
 class WaterSources(val numOfWaterSources : Int) {
     
+    // List of Water Sources stored as hashmap, in order to be able to easily
+    // access a water source, according to its string name (which can be seen
+    // as an ID, in a way)
     protected var waterSources = new HashMap[String, WaterSource]
 
+    // Getter method for waterSources
     def getWaterSourcers() : HashMap[String, WaterSource] = {
         return waterSources
     }
 
+    // Scala way of calling methods inside a constructure... simply invoke the
+    // method inside the class
+
+    // Adding the Chad lake in the water sources collection
     waterSources("Chad") = new Lake(
         Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 
         1, 
@@ -851,6 +868,7 @@ class WaterSources(val numOfWaterSources : Int) {
         10
     )
     
+    // Adding the Victoria lake in the water sources collection
     waterSources("Victoria") = new Lake(
         Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 
         2, 
@@ -863,6 +881,7 @@ class WaterSources(val numOfWaterSources : Int) {
         10
     )
     
+    // Adding the Niger lake in the water sources collection
     waterSources("Niger") = new River(
         Random.between(MAX_LEVEL_LOWERBOUND, MAX_LEVEL_UPPERBOUND), 
         3, 
@@ -888,15 +907,24 @@ class WaterSources(val numOfWaterSources : Int) {
 
     }
 
+    // Returns a random water source from waterSources
     def getRandomWaterSource() : WaterSource = {
-        return waterSources(WATER_SOURCES_LIST(Random.between(0, numOfWaterSources)))
+        return waterSources(
+            WATER_SOURCES_LIST(Random.between(0, numOfWaterSources))
+        )
     }
 
+    // Returns a random water source from waterSources, excluding the given one
     def getRandomWaterSource(exclude : WaterSource) : WaterSource = {
         
+        // Get a random water source
         var randomWaterSource = getRandomWaterSource()
         
+        // Continue getting random water sources
         do {
+
+            // Until randomly extracted water source is different from the one
+            // that must be excluded from the selection process
             if (randomWaterSource.equals(exclude) == false) {
                 return randomWaterSource
             }
@@ -908,8 +936,9 @@ class WaterSources(val numOfWaterSources : Int) {
         return randomWaterSource
     }
 
+    // Draws water sources in the canvas
     def drawInCanvas() {
-       
+        
         waterSources.foreach(
             ws => {
                 ws._2.drawInCanvas(List())
@@ -1235,18 +1264,3 @@ var africa = new Africa(
 africa.simulation()
 
 println("DONE")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
