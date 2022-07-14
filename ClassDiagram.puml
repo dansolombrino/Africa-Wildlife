@@ -122,6 +122,62 @@ package AfricaWildlife {
     }
     River <|- WaterSource
 
+    class WaterSources {
+        # numOfWaterSources : Int
+        # waterSources : HashMap[String, WaterSource]
+
+        + getWaterSourcers() : HashMap[String, WaterSource]
+        + toString() : String
+        + getRandomWaterSource() : WaterSource
+        + getRandomWaterSource(exclude : WaterSource) : WaterSource
+        + drawInCanvas() : void
+    }
+    WaterSources -- WaterSource
+
+    class HeaderElement {
+        # text : String
+        # value : Double
+        # valueIsInt : Boolean
+        # position : [Int, Int]
+        # color : Color
+        # scale : Double
+        # element : Picture.text
+
+        + update(year : Int, updatedValue : Double, updatedColor : Color) : void
+
+    }
+
+    class Header {
+        # elements : List[HeaderElements]
+
+        + update(year : Int, updatedValue : Double, updatedColor : Color) : void
+    }
+    Header -- HeaderElement
+
+    class Africa {
+        # faunaSize : Int
+        # waterSourcesSize : Int 
+        # icon : Picture
+        # position : [Int, Int]
+        # fauna : Fauna
+        # waterSources : WaterSources
+        # temperatures : Seq[Double]
+        # header : Header
+        # animalsWaterSourcesMapAcrossYears : LinkedHashMap[Int, LinkedHashMap[Animal, WaterSource]]
+        # waterSourcesAnimalsMapAcrossYears : LinkedHashMap[Int, LinkedHashMap[WaterSource, ListBuffer[Animal]]]
+
+        + toString() : String
+        + putIfAbsent(map : LinkedHashMap[WaterSource, ListBuffer[Animal]], key : WaterSource, value : Animal) : Boolean
+        + populateAnimalsWaterSourcesMap() : void
+        + updateAnimalsWaterSourcesMap(yearZeroBased : Int, animal : Animal, wsToMigrateTo : WaterSource, wsMigratedFrom : WaterSource)
+        + getColorChannelsInFunctionOfValue(startingValue : Int, multiplier : Int, value : Double, r : Boolean, g : Boolean, b : Boolean)
+        + simulation() : void
+    }
+    Africa <|- Drawable
+    Africa -- Fauna
+    Africa -- WaterSources
+    Africa -- Header
+
 
 
 
