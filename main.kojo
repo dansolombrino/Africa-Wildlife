@@ -1075,6 +1075,8 @@ class Africa(
      *
      * Int --> year index
      * LinkedHashMap[Animal, WaterSource] --> Animal-WaterSource association 
+     *
+     * See simulation() method for more details on how this map is used
      */
     
     protected var animalsWaterSourcesMapAcrossYears = new LinkedHashMap[
@@ -1082,45 +1084,90 @@ class Africa(
         LinkedHashMap[Animal, WaterSource]
     ]
     
+    /**
+     * Stores the mapping between WaterSources and Animals i.e. the water 
+     * source any animal in the fauna drinks from, at any given year.
+     * 
+     * This may be redundant, but it is actually useful in the simulation
+     * See simulation() method for more details on how this map is used
+     *
+     * Int --> year index
+     * LinkedHashMap[WaterSource, ListBuffer[Animal]] --> 
+     *      WaterSource-List of animals drinking from that water source 
+     *      association 
+     */
     protected var waterSourcesAnimalsMapAcrossYears = new LinkedHashMap[
         Int, 
-        LinkedHashMap[
-            WaterSource, 
-            ListBuffer[Animal]
-        ]
+        LinkedHashMap[WaterSource, ListBuffer[Animal]]
     ]
     
     override def toString() : String = {
-        return "*** Africa ***\n\n" + "\t number of animals: " + faunaSize + "\n\t animals: " + fauna.toString() + "\t number of water sources: " + waterSourcesSize + "\n\t water sources: " + waterSources.toString() + "\n\n**************"
+        return "*** Africa ***\n\n" + "\t number of animals: " + faunaSize + 
+            "\n\t animals: " + fauna.toString() + 
+            "\t number of water sources: " + waterSourcesSize + 
+            "\n\t water sources: " + waterSources.toString() + 
+            "\n\n**************"
     }
 
+    def putIfAbsent(
+        map : LinkedHashMap[WaterSource, ListBuffer[Animal]],
+        key : WaterSource,
+        value : Animal
+    ) : Boolean = {
+        
+        // Try to store the value at the given key
+        try {
+            
+            map(key) += value
+
+            return true
+        
+        } catch {
+
+            // If key needs to be added
+            case e: NoSuchElementException => {
+                
+                // Add the key
+                map.put(
+                    key, new ListBuffer[Animal]
+                )
+                
+                //Then actually store the waterSource-Animal mapping
+                map(key) += value
+            
+            }
+        }
+
+        return false
+    }
+
+    // Randomly associates animals in Fauna to available water sources
     def populateAnimalsWaterSourcesMap() {
 
+        // Init Animals-WaterSources mapping at the start of the simulation
         var animalsWaterSourcesMap = new LinkedHashMap[Animal, WaterSource]
-        var waterSourcesAnimalsMap = new LinkedHashMap[WaterSource, ListBuffer[Animal]]
+        var waterSourcesAnimalsMap = new LinkedHashMap[
+            WaterSource, ListBuffer[Animal]
+        ]
 
+        // Populate mappings for the year zero.
+        // For every animal in the fauna
         fauna.fauna.foreach(
             a => {
 
+                // Get a random water source
                 val ws = waterSources.getRandomWaterSource()
                 
+                // Store the mapping between the animal and the water source
                 animalsWaterSourcesMap(a) = ws
 
-                    try {
-                       
-                       waterSourcesAnimalsMap(ws) += a
-                    
-                    } catch {
-                        
-                        case e: NoSuchElementException => {
-                            
-                            waterSourcesAnimalsMap.put(ws, new ListBuffer[Animal])
-                            waterSourcesAnimalsMap(ws) += a
-                       
-                        }
-                        
-                    }
+                // To store the inverse mapping, between the water source and 
+                // the animal
+                putIfAbsent(waterSourcesAnimalsMap, ws, a)
                 
+                // After having assigned a water source to the Animal
+                // Set its canvas position to be close-by the position of the 
+                // Water Source
                 a.setPosition(
                     (
                         ws.getPosition._1 + getRandomShift(), 
@@ -1129,6 +1176,10 @@ class Africa(
                 )
             }
         )
+
+        // After having init'd the year zero, basically replicate the 
+        // just populated associations for all the years to simulate.
+        // For every year
         for (i <- 1 to NUM_YEARS_TO_SIMULATE) {
 
             animalsWaterSourcesMapAcrossYears(i) = new LinkedHashMap[
@@ -1138,29 +1189,35 @@ class Africa(
                 WaterSource, ListBuffer[Animal]
             ]
             
+            // For every animal in the fauna
             fauna.fauna.foreach(
                 a => {
 
-                    animalsWaterSourcesMapAcrossYears(i) += ((a, animalsWaterSourcesMap(a)))
+                    // Populate the animals-WaterSources map
+                    animalsWaterSourcesMapAcrossYears(i) += (
+                        (a, animalsWaterSourcesMap(a))
+                    )
 
-                    try {
-                       waterSourcesAnimalsMapAcrossYears(i)(animalsWaterSourcesMap(a)) += a
-                    } catch {
-                        case e: NoSuchElementException => {
-                            waterSourcesAnimalsMapAcrossYears(i).put(animalsWaterSourcesMap(a), new ListBuffer[Animal])
-                            waterSourcesAnimalsMapAcrossYears(i)(animalsWaterSourcesMap(a)) += a
-                        }   
-                    }   
+                    // Populate the WaterSources-Animals map
+                    putIfAbsent(
+                        waterSourcesAnimalsMapAcrossYears(i), 
+                        animalsWaterSourcesMap(a), 
+                        a
+                    )
                 }
             )
         }
     }
 
+    // Scala way of calling methods inside a constructure... simply invoke the
+    // method inside the class
     populateAnimalsWaterSourcesMap()
 
-    def updateAnimalsWaterSourcesMap(dayZeroBased : Int, animal : Animal, wsToMigrateTo : WaterSource) {
+    def updateAnimalsWaterSourcesMap(
+        dayZeroBased : Int, animal : Animal, wsToMigrateTo : WaterSource
+    ) {
         for (i <- dayZeroBased to NUM_YEARS_TO_SIMULATE) {
-           //println("\tapplying migration for day: " + i)
+
            animalsWaterSourcesMapAcrossYears(i)(animal) = wsToMigrateTo
     
            try {
