@@ -16,3 +16,5 @@
 /lib/*
 /licenses/*
 Kojo-license.txt
+
+/out/*
