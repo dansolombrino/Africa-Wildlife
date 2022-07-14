@@ -33,7 +33,7 @@ var STARTING_YEAR = 1950
 // temperature is actually computed
 var TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR = 1.015
 
-// Number of maximum day without satisfied needs that an animal tolerates,
+// Number of maximum year without satisfied needs that an animal tolerates,
 // before evaluating whether to migrate or not.
 
 // See Animal.evaluateMigration method for more info about the usage of this
@@ -285,10 +285,10 @@ trait Animal extends Drawable {
     // See updateLifePoints method(s) for more info on how these parameters 
     // actually impact life points
 
-    // Maximum temperature the animal can sustain, every day
+    // Maximum temperature the animal can sustain, every year
     protected val maxToleratedTemperature : Double
 
-    // Minimum quantity of water the animal needs, every day
+    // Minimum quantity of water the animal needs, every year
     protected val minWater : Double
 
     // numeric ID of the animal, used mostly for debugging
@@ -321,18 +321,18 @@ trait Animal extends Drawable {
      * more, by adding additional parameters.
      */
 
-    // Determines whether the animal is alive, in a given day
-    def isAlive(day : Int) : Boolean = {
+    // Determines whether the animal is alive, in a given year
+    def isAlive(year : Int) : Boolean = {
 
         // Determining animal's aliveness boils down to check whether its life
         // points are greater than zero or not
-        return lifePoints(day) > 0
+        return lifePoints(year) > 0
     }
 
     // Makes the animal drink
-    def drinkWater(day: Int, water: Double) {
+    def drinkWater(year: Int, water: Double) {
 
-        drankWater(day) += water
+        drankWater(year) += water
     }
 
     // Getter method for the ID field
@@ -343,7 +343,7 @@ trait Animal extends Drawable {
     }
 
     /**
-     * Updates the life points of the animal, in a given day.
+     * Updates the life points of the animal, in a given year.
      * Returns true if the animal died, false otherwise
      *
      * This is basically the core of the simulation, being the function 
@@ -355,7 +355,7 @@ trait Animal extends Drawable {
      * This is the BASIC version, in which the update is in function of 2 
      * parameters: drank water and felt temperature
      */
-    def updateLifePoints(day : Int) : Boolean = {
+    def updateLifePoints(year : Int) : Boolean = {
 
         // updating the life points according to drank water and the felt 
         // temperature
@@ -368,15 +368,15 @@ trait Animal extends Drawable {
         //    maxToleratedTemperature
         //   -low penalty, the more feltTemperature is distant from 
         //    maxToleratedTemperature 
-        lifePoints(day) += 50 * drankWater(day) - 6 * scala.math.pow(
-            2, feltTemperature(day) - maxToleratedTemperature
+        lifePoints(year) += 50 * drankWater(year) - 6 * scala.math.pow(
+            2, feltTemperature(year) - maxToleratedTemperature
         )
 
         // if life points reached a negative value
-        if (lifePoints(day) < 0) {
+        if (lifePoints(year) < 0) {
 
             // then die
-            die(day)
+            die(year)
 
             // return true because animal died
             return true
@@ -387,7 +387,7 @@ trait Animal extends Drawable {
     }
 
     /**
-     * Updates the life points of the animal, in a given day.
+     * Updates the life points of the animal, in a given year.
      * Returns true if the animal died, false otherwise.
      * Overloads previous method
      *
@@ -397,19 +397,19 @@ trait Animal extends Drawable {
      *
      * See basic version for more info about method philosophy.
      */
-    def updateLifePoints(day : Int, numEncounteredRivals : Int) : Boolean = {
+    def updateLifePoints(year : Int, numEncounteredRivals : Int) : Boolean = {
         // Apply penalty in function of number of encountered rivals
-        lifePoints(day) += -10 * numEncounteredRivals
+        lifePoints(year) += -10 * numEncounteredRivals
         
         // Then call basic function, to apply penalty in function of the other 
         // 2 variables, drank water and felt temperature
 
         // OOP pattern: method specialization
-        return updateLifePoints(day)
+        return updateLifePoints(year)
     }
 
     /**
-     * Updates the life points of the animal, in a given day.
+     * Updates the life points of the animal, in a given year.
      * Returns true if the animal died, false otherwise.
      * Overloads previous method
      *
@@ -420,25 +420,25 @@ trait Animal extends Drawable {
      * See advanced version for more info about method philosophy.
      */
     def updateLifePoints(
-        day : Int, numEncounteredRivals : Int, 
+        year : Int, numEncounteredRivals : Int, 
         migrationDistance : (Double, Double)
     ) : Boolean = {
         // Applying penalty in function of migrated distance
-        lifePoints(day) += -(migrationDistance._1 + migrationDistance._2) / 25
+        lifePoints(year) += -(migrationDistance._1 + migrationDistance._2) / 25
 
         // Then calling advanced version, to apply penalty in function of the 
         // other 3 parameters: drank water, felt temperature and number of
         // encountered rivals
 
         // OOP pattern: method specialization
-        return updateLifePoints(day, numEncounteredRivals)
+        return updateLifePoints(year, numEncounteredRivals)
     }
 
     // Make the animal die
-    def die(day : Int) {
+    def die(year : Int) {
 
         // Set life points to -1 in the years following the given one 
-        for (i <- day to NUM_YEARS_TO_SIMULATE - 1) {
+        for (i <- year to NUM_YEARS_TO_SIMULATE - 1) {
             lifePoints(i) = -1
         }
 
@@ -454,9 +454,9 @@ trait Animal extends Drawable {
     }
 
     // Store felt temperature in a given year
-    def feelTemperature(day : Int, temperatureValue : Double) {
+    def feelTemperature(year : Int, temperatureValue : Double) {
         
-        feltTemperature(day) = temperatureValue
+        feltTemperature(year) = temperatureValue
         
     }
 
@@ -622,13 +622,29 @@ class Zebra(
 }
 
 // Models African fauna.
-class Fauna(val faunaSize : Int) {
+class Fauna(protected val faunaSize : Int) {
 
     // Number of alive animals
-    var faunaCount = faunaSize
+    protected var faunaCount = faunaSize
     
     // Actual fauna, i.e. a list of Animals
-    var fauna: ListBuffer[Animal] = ListBuffer()
+    protected var fauna: ListBuffer[Animal] = ListBuffer()
+
+    def getFauna() : ListBuffer[Animal] = {
+        return fauna
+    }
+
+    def getFaunaSize() : Int = {
+        return faunaSize
+    }
+
+    def getFaunaCount() : Int = {
+        return faunaCount
+    }
+
+    def setFaunaCount(faunaCount : Int) = {
+        this.faunaCount = faunaCount
+    }
 
     // Populates the fauna
     def populateFauna() {
@@ -723,7 +739,7 @@ class ValueInRange(
     protected val min : Double
 ) {
     
-    def trimValueIntoRange() {
+    protected def trimValueIntoRange() {
         if (value > max) {
             value = max
         }
@@ -753,7 +769,7 @@ trait WaterSource extends DrawableShape {
     
     // Remove water from the water source
     def removeWater(
-        day: Int, 
+        year: Int, 
         water: Double, 
         handleOpacity : Boolean
     ) : Double = {
@@ -763,18 +779,18 @@ trait WaterSource extends DrawableShape {
         var removedWater = 0.0
 
         // if the current level of the water source is greater the requested one
-        if (currentLevel(day) - water >= 0) {
+        if (currentLevel(year) - water >= 0) {
             
             // Then remove the requested amount
-            currentLevel(day) -= water
+            currentLevel(year) -= water
             removedWater = water
 
         } else {
             
             // Otherwise, remove the current level, because it the maximum 
             // possible
-            removedWater = currentLevel(day)
-            currentLevel(day) = 0
+            removedWater = currentLevel(year)
+            currentLevel(year) = 0
         }
 
         // If desired
@@ -782,14 +798,14 @@ trait WaterSource extends DrawableShape {
 
             // Update opacity of water source canvas drawing, according to 
             // current quantity of water in the water source
-            opacity.setValue(1.0 - currentLevel(day) / maxLevel)
+            opacity.setValue(1.0 - currentLevel(year) / maxLevel)
             icon.setOpacity(opacity.getValue())
         }
 
         // Remove a tiny portion from next year as well, to simulate water 
         // scarcity
-        if (day + 1 < NUM_YEARS_TO_SIMULATE) {
-            removeWater(day + 1, water / 10, false)
+        if (year + 1 < NUM_YEARS_TO_SIMULATE) {
+            removeWater(year + 1, water / 10, false)
         }
 
         // Returns amount of removed water
@@ -819,6 +835,7 @@ trait WaterSource extends DrawableShape {
             case _ => false
         }
 
+    
     override def hashCode: Int = {
         name.hashCode + position.hashCode + rotation.hashCode + 
             maxLevel.hashCode
@@ -868,7 +885,7 @@ class River(
 }
 
 // Models a collection of Water Sources
-class WaterSources(val numOfWaterSources : Int) {
+class WaterSources(protected val numOfWaterSources : Int) {
     
     // List of Water Sources stored as hashmap, in order to be able to easily
     // access a water source, according to its string name (which can be seen
@@ -988,9 +1005,9 @@ class HeaderElement(
  ) {
     protected var element = Picture.text("")
 
-    def update(day : Int, updatedValue : Double, updatedColor : Color) {
+    def update(year : Int, updatedValue : Double, updatedColor : Color) {
         
-        if (day > -1) {
+        if (year > -1) {
             element.erase()
         }
 
@@ -1010,7 +1027,7 @@ class HeaderElement(
 class Header(protected val elements : List[HeaderElement]) {
     
     def update(
-        day : Int, 
+        year : Int, 
         updatedValues : List[Double], 
         updatedColors : List[Color]
     ) {
@@ -1025,7 +1042,7 @@ class Header(protected val elements : List[HeaderElement]) {
         
         for (e <- 0 to updatedValues.length - 1) {
             
-            elements(e).update(day, updatedValues(e), updatedColors(e))
+            elements(e).update(year, updatedValues(e), updatedColors(e))
             
         }
     }
@@ -1081,7 +1098,7 @@ class Africa(
             ),
             new HeaderElement(
                 "Fauna original count", 
-                fauna.faunaSize, 
+                fauna.getFaunaSize, 
                 true, 
                 (200, 1215), 
                 GREEN_COLOR, 
@@ -1180,7 +1197,7 @@ class Africa(
 
         // Populate mappings for the year zero.
         // For every animal in the fauna
-        fauna.fauna.foreach(
+        fauna.getFauna.foreach(
             a => {
 
                 // Get a random water source
@@ -1218,7 +1235,7 @@ class Africa(
             ]
             
             // For every animal in the fauna
-            fauna.fauna.foreach(
+            fauna.getFauna.foreach(
                 a => {
 
                     // Populate the animals-WaterSources map
@@ -1243,14 +1260,14 @@ class Africa(
 
     // Updates animals-WaterSources associations, after a migration happened
     def updateAnimalsWaterSourcesMap(
-        dayZeroBased : Int, 
+        yearZeroBased : Int, 
         animal : Animal, 
         wsToMigrateTo : WaterSource,
         wsMigratedFrom : WaterSource
     ) {
 
         // For every year left in the situation
-        for (i <- dayZeroBased to NUM_YEARS_TO_SIMULATE) {
+        for (i <- yearZeroBased to NUM_YEARS_TO_SIMULATE) {
 
             // Replace the old association with the new association, 
             //resulting from the migration, in the animals-WaterSources map
@@ -1321,36 +1338,36 @@ class Africa(
 
         // For every year that has to be simulated
         animalsWaterSourcesMapAcrossYears.keys.foreach(
-            day => {
+            year => {
 
                 // Compute some utility indexes
-                val dayZeroBased = day - 1
-                val previousDay = dayZeroBased - (
-                    if ( dayZeroBased == 0 ) 0 else 1 
+                val yearZeroBased = year - 1
+                val previousYear = yearZeroBased - (
+                    if ( yearZeroBased == 0 ) 0 else 1 
                 )
 
                 // Get a temperature for the year
                 // Temperatures are modeled in an exponential way, starting
                 // from the temperature of the very first year.
-                temperatures(dayZeroBased) = temperatures(
-                    previousDay
+                temperatures(yearZeroBased) = temperatures(
+                    previousYear
                 ) * TEMPERATURE_YEARLY_MULTIPLICATIVE_FACTOR
 
                 // Update the header
                 header.update(
-                    day, 
+                    year, 
                     List(
-                        STARTING_YEAR + day, 
-                        (Math.floor(temperatures(dayZeroBased) * 100) / 100),
-                        fauna.faunaCount,
-                        fauna.faunaSize
+                        STARTING_YEAR + year, 
+                        (Math.floor(temperatures(yearZeroBased) * 100) / 100),
+                        fauna.getFaunaCount,
+                        fauna.getFaunaSize
                     ), 
                     List(
                         BLUE_COLOR,
                         getColorChannelsInFunctionOfValue(
                             RED_COLOR_CHANNEL, 
                             20,
-                            temperatures(dayZeroBased), 
+                            temperatures(yearZeroBased), 
                             true, 
                             false, 
                             false
@@ -1358,7 +1375,7 @@ class Africa(
                         getColorChannelsInFunctionOfValue(
                             0, 
                             20, 
-                            fauna.faunaCount, 
+                            fauna.getFaunaCount, 
                             false, 
                             true, 
                             true
@@ -1366,7 +1383,7 @@ class Africa(
                        getColorChannelsInFunctionOfValue(
                             0, 
                             20, 
-                            fauna.faunaSize, 
+                            fauna.getFaunaSize, 
                             false, 
                             true, 
                             true
@@ -1377,7 +1394,7 @@ class Africa(
                 // For every animal-WaterSource association of the year 
                 // currently under simulation
 
-                Random.shuffle(animalsWaterSourcesMapAcrossYears(day)).foreach(
+                Random.shuffle(animalsWaterSourcesMapAcrossYears(year)).foreach(
 
                     // Get a random animal-WaterSource association, in order to
                     // ensure non-determinism
@@ -1387,7 +1404,7 @@ class Africa(
                         // association._2 --> water source
 
                         // If the animal is still alive
-                        if ( association._1.isAlive(previousDay) ) {
+                        if ( association._1.isAlive(previousYear) ) {
                             
                             // get the amount of water that the animal wants to
                             // drink
@@ -1396,7 +1413,7 @@ class Africa(
                             // Get the quantity of water that the animal 
                             // actually managed to drink
                             val actualWater = association._2.removeWater(
-                                dayZeroBased, desiredWater, true
+                                yearZeroBased, desiredWater, true
                             )
 
                             // Stores the distance travelled, in case the animal
@@ -1426,7 +1443,7 @@ class Africa(
                                 // Then update all the Animal-WaterSources (and
                                 // vice versa) mappings
                                 updateAnimalsWaterSourcesMap(
-                                    dayZeroBased, 
+                                    yearZeroBased, 
                                     association._1, 
                                     wsToMigrateTo,
                                     association._2
@@ -1435,13 +1452,13 @@ class Africa(
 
                             // For the currently under simulation year, 
                             // record what temperature the animal has felt
-                            association._1.drinkWater(dayZeroBased, actualWater)
+                            association._1.drinkWater(yearZeroBased, actualWater)
 
                             // For the currently under simulation year, 
                             // record how much water the animal has managed to
                             // drink
                             association._1.feelTemperature(
-                                dayZeroBased, temperatures(dayZeroBased)
+                                yearZeroBased, temperatures(yearZeroBased)
                             )
 
                             // update life points
@@ -1450,9 +1467,9 @@ class Africa(
                             // See Animal.updateLifePoints() method(s) for more 
                             // info about its behaviour
                             val hasDied = association._1.updateLifePoints(
-                                dayZeroBased, 
+                                yearZeroBased, 
                                 association._1.countEncounteredRivals(
-                                    waterSourcesAnimalsMapAcrossYears(day)(
+                                    waterSourcesAnimalsMapAcrossYears(year)(
                                         association._2
                                     )
                                 ),
@@ -1464,7 +1481,7 @@ class Africa(
 
                                 // Then decrease the number of currently alive
                                 // animals in the fauna
-                                fauna.faunaCount -= 1
+                                fauna.setFaunaCount(fauna.getFaunaCount - 1)
                             }
                         }
                     }
